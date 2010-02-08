@@ -1,0 +1,47 @@
+{% load candidature_extra %}
+
+<table id="expert_list" width="100%">
+  <tr>	
+    <th>id</th>
+    <th>nom</th>
+    <th>prénom</th>
+    <th>discipline</th>
+    <th>note</th>
+    <th style="width: 60px;"></th>
+  </tr>
+  {% for can_expert in expert_list.iterator %}
+  <tr id="expert_{{ can_expert.id }}" valign="top">
+    <td>{{ can_expert.expert.id }}</td>
+    <td>{{ can_expert.expert.nom }}</td>
+    <td>{{ can_expert.expert.prenom }}</td>
+    <td>
+      <ul>
+	{% for discpline in can_expert.expert.discipline.iterator %}
+	<li>{{ discpline }}</li>
+	{% endfor %}
+      </ul>
+    </td>
+    <td>
+      {% if can_expert.is_note %}
+         {{ can_expert.note }}
+      {% else %}
+         --
+      {% endif %}
+    </td>
+    <td>
+      {% if user|can_edit_candidature:candidature %}
+      <a href="javascript:candidature_delete_expert({{ candidature.id }}, {{ can_expert.id }});" 
+	 title="Supprimer l'expert">
+	<img  alt="Supprimer l'expert" src="/media/images/icon_pict_suppr.gif" />
+      </a>
+      {% endif %}
+      {% if user|can_note_candidature:candidature %}
+      <a href="javascript:noterCandidature({{ candidature.id }}, {{ can_expert.id }});" 
+	 title="Noter la candidature">
+	<img alt="Noter la candidature" src="/media/images/icon_menu_eval.gif" />
+      </a>
+      {% endif %}      
+    </td>
+  </tr>
+  {% endfor %}
+</table>

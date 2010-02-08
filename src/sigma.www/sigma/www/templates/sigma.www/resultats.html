@@ -1,0 +1,212 @@
+{% extends "sigma.www/general.html" %}
+
+{% load i18n %}
+
+{% if value %}
+  {% block window_title %}{{ length }} {% blocktrans %}Resultats pour {% endblocktrans %}"{{ value }}"{% endblock %}
+  {% block page_title %} {{ length }} {% blocktrans %}RESULTATS pour {% endblocktrans %}"{{ value }}"{% endblock %}
+{% endif %}
+
+{% block content %}
+<script type="text/javascript">
+  $(window).bind('load', function(event) {
+    $(".appel_table").tablesorter({widgets:['zebra'], sortList: [[0,0]], headers: {5 : {sorter: false}}});
+    $(".candidature_table").tablesorter({widgets:['zebra'], sortList: [[0,0]], headers: {8 : {sorter: false}}});
+    $("#tabs").tabs();
+  });
+</script>
+<div id="tabs">
+  <ul>
+    <li>
+      {% if appel_list %}
+      <a href="#tabs-appels">{{ appel_list|length }} {% trans "Appel(s) d'offre(s)" %}</a>
+      {% else %}
+      <a href="#tabs-appels">{% trans "0  Appel d'offre" %}</a>
+      {% endif %}
+    </li>
+    
+    <li>
+      {% if candidature_list %}
+      <a href="#tabs-candidatures">{{ candidature_list|length }} {% trans "Candidature(s) " %}</a>
+      {% else %}
+      <a href="#tabs-candidatures">{% trans "0  Candidature " %}</a>
+      {% endif %}
+    </li>
+
+    <li>
+      {% if categorie_list %}
+      <a href="#tabs-categories">{{categorie_list|length}} {% trans "Categories" %}</a> 
+      {% else %}
+      <a href="#tabs-categories">{% trans "0  Categorie" %}</a>
+      {% endif %}
+    </li>
+
+    <li>
+      {% if expert_list %}
+      <a href="#tabs-experts">{{expert_list|length}} {% trans "Expert(s)" %}</a>
+      {% else %}
+      <a href="#tabs-experts">{% trans "0  Expert" %}</a>
+      {% endif %}
+    </li>
+
+    <li>
+      {% if projet_list %}
+      <a href="#tabs-projets">{{projet_list|length}} {% trans "Projet(s)" %}</a>
+      {% else %}
+      <a href="#tabs-projets">{% trans "0 Projet" %}</a>
+      {% endif %}
+    </li>
+
+  </ul>
+
+  {% block appels %}
+  <div class="tab search_result" id="tabs-appels">
+    {% if appel_list %}
+       <h2>{{ appel_list|length }} {% trans "Appel(s) d'offre(s) sur " %}{{ appel_total_len }}</h2>
+       <a class="download" 
+	  href="/appels/export/" 
+	  title="T&eacute;l&eacute;charger les appels d'offres">
+	 Télécharger les résultats
+       </a>
+       {% include "sigma.www/appel_table.html" %}
+    {% else %}
+       <h2>{% trans "0  Appel d'offre sur " %}{{ appel_total_len }}</h2>
+    {% endif %}
+  </div>
+  {% endblock %}
+
+
+  {% block candidature_list %}
+  <div class="tab search_result" id="tabs-candidatures">
+    {% if candidature_list %}
+       <h2>{{ candidature_list|length }} {% trans "Candidature(s) sur " %}{{ candidature_total_len }}</h2>
+       <a class="download" 
+	  {% if value %}
+	  href="/candidatures/export_search/{{ value }}/" 
+	  {% else %}
+	  href="/candidatures/export/" 
+	  {% endif %}
+	  title="T&eacute;l&eacute;charger les candidatures">
+	 Télécharger les résultats
+       </a>
+       {% include "sigma.www/candidature_table.html" %}
+    {% else %}
+       <h2>{% trans "0  Candidature sur " %}{{ candidature_total_len }}</h2>
+    {% endif %}
+  </div>
+  {% endblock %}
+
+
+  {% block categorie_list %}
+  <div class="tab search_result" id="tabs-categories">
+    {% if categorie_list %}
+    <h2>{{categorie_list|length}} {% trans "Categories sur " %}{{ categorie_total_len }}</h2>
+    <a class="download" 
+       href="/projets/export/" 
+       title="T&eacute;l&eacute;charger les cat&eacute;gories">
+      Télécharger les résultats
+    </a>
+    <table>
+      {% for categorie in categorie_list %}
+      <tr>
+	<td>
+	  <a class="download" 
+	     href="/categories/export/{{ categorie.id }}/" 
+	     title="T&eacute;l&eacute;charger la cat&eacute;gorie {{ categorie }}">
+	    <img width="20px" height="20px" 
+	       class="export_icone" 
+	       alt="T&eacute;l&eacute;charger la cat&eacute;gorie {{ categorie }}" 
+	       src="/media/images/pict_histo.gif" />
+	</td>
+	<td>
+	  <a href="{{categorie.get_absolute_url}}">{{ categorie }}</a>
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <h2>{% trans "0  Categorie " %}{{ categorie_total_len }}</h2>
+    {% endif %}
+  </div>
+  {% endblock %}
+
+
+  {% block expert_list %}
+  <div class="tab search_result" id="tabs-experts">
+    {% if expert_list %}
+    <h2>{{expert_list|length}} {% trans "Expert(s) sur " %}{{ expert_total_len }}</h2>
+    <a class="download" 
+       href="/experts/export/" 
+       title="T&eacute;l&eacute;charger les experts">
+      Télécharger les résultats
+    </a>
+    <table>
+	{% for expert in expert_list %}
+	<tr>
+	  <td>
+	    <a class="download" 
+	       href="/experts/export/{{ expert.id }}/" 
+	       title="T&eacute;l&eacute;charger l'expert {{ expert }}">
+	      <img width="20px" height="20px" 
+		   class="export_icone" 
+		   alt="T&eacute;l&eacute;charger l'expert {{ expert }}" 
+		   src="/media/images/pict_histo.gif" />
+	  </td>
+	  <td>
+	    <a href="{{expert.get_absolute_url}}">{{ expert }}</a>
+	  </td>
+	</tr>
+	{% endfor %}
+    </table>
+    {% else %}
+    <h2>{% trans "0  Expert sur " %}{{ expert_total_len }}</h2>
+    {% endif %}
+  </div>
+  {% endblock %}
+
+  {% block projet_list %}
+  <div class="tab search_result" id="tabs-projets">
+    {% if projet_list %}
+
+    <h2>{{projet_list|length}} {% trans "Projet(s) sur " %}{{ projet_total_len }}</h2>
+    <a class="download" 
+       {% if value %}
+       href="/projets/export_search/{{ value }}/"
+       {% else %}
+       href="/projets/export/" 
+       {% endif %}
+       title="T&eacute;l&eacute;charger les projets">
+      Télécharger les résultats
+    </a>
+    <table>
+      {% for projet in projet_list %}
+      <tr>
+	<td>
+	  <a class="download" 
+	     href="/projets/export/{{ projet.id }}/" 
+	     title="T&eacute;l&eacute;charger le projet {{ projet }}">
+	    <img width="20px" height="20px" 
+	       class="export_icone" 
+	       alt="T&eacute;l&eacute;charger le projet {{ projet }}" 
+	       src="/media/images/pict_histo.gif" />
+	</td>
+	<td>
+	  <a href="{{projet.get_absolute_url}}">{{ projet }}</a>
+	</td>
+	</tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <h2>{% trans "0 Projet sur " %}{{ projet_total_len }}</h2>
+    {% endif %}
+  </div>
+  {% endblock %}
+
+</div>
+{% endblock %}
+
+{% block navigation %}
+<a class="button" href="/">
+  <span>{% trans "Retour" %}</span>
+</a>
+{% endblock %}

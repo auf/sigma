@@ -1,0 +1,21 @@
+{% extends "sigma.www/general.html" %}
+{% load i18n %}
+
+{% block window_title %}{% trans "Noter la candidature" %}{% endblock %}
+{% block page_title %}{% trans "NOTER LA CANDIDATURE" %}{% endblock %}
+
+{% block content %}
+<form name="note_add" action="{{ form.get_action_url }}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature" value="{{ candidature_id }}" />
+</form>
+{% endblock %}
+
+{% block navigation %}
+<a class="button" href="/candidatures/detail/{{ candidature_id }}">
+    <span>{% trans "Retour" %}</span>
+</a>
+<a class="button" href="javascript:document.forms.note_add.submit();">
+  <span>{% trans "Sauvegarder" %}</span>
+</a>
+{% endblock %}

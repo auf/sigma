@@ -1,0 +1,53 @@
+Description
+===========
+
+Les candidatures représentent la réponse d'un candidat à un appel d'offre qui a été ouvert
+par l'AUF. Notons qu'une candidature candidature ne peut être ajoutée à un appel d'offre 
+que si ce dernier est dans l'état diffusé.
+
+Tout comme les appels d'offres, la candidature est un WorkflowObject afin de nous permettre
+de suivre son évolution et de logger chaque événements qui surviendra.
+
+
+Structure
+=========
+Les candidatures sont donc conçuent afin de répondre aux crières d'un appel d'offre
+auquelles elles sont associées. Il y a donc une certaine réflexion entre la candidature
+et l'appel d'offre au niveau du modèles, mais toujours de façon précise pour cette dernière.
+
+De plus, certains paramètres sont ajoutés dans les objets d'association des candidatures
+afin de qualifier la qualité du lien entre par exemple un expert et une candidature on 
+retrouve une note. Cette information est utilisé lors d'analyse et de l'évaluation afin
+de faire une sélection.
+
+                            ----------------- n    n ---------------
+                            | WorflowObject |<------>| WorkflowLog | 
+                            -----------------        ---------------
+                                    ^ 1              | level       |
+                                    |                | from_state  |
+                                    |                | to_state    |
+                                    |                | description |
+                                    |                | user        |
+                                    |                | timestamp   |
+                                    |                | commentaires|
+                                    |                ---------------
+                                    v 1 
+             1          1   --------------- 1
+             -------------->| Candidature |-----------
+             |          |   ---------------          |
+             |          |                            |
+             |n         |n                           | n
+             v          v                            v 
+ --------------------  -----------------------    ---------------------
+ | PieceCandidature |  | CriteresCandidature |    | ExpertCandidature |
+ |------------------|  |---------------------|    |-------------------|
+ | presente         |  | valide              |    | note              |
+ | conforme         |  -----------------------    ---------------------
+ --------------------           |                   |
+             | n                | n                 | n
+             |                  |                   |
+             |                  |                   |
+             v 1                v 1                 v 1
+    -------------------    ----------------       ----------
+    | PieceJointeType |    | CritereSupp. |       | Expert |
+    -------------------    ----------------       ----------

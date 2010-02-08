@@ -1,0 +1,175 @@
+/* *****************************************************************************
+AUF - Charte graphique des applications web internes
+création	2005-04-12 - PlumE
+refonte 	2005-07-11 - Service de la communication AUF
+
+version 2006-10-19
+***************************************************************************** */
+
+/* ------------------------------- COULEURS --------------------------------- */
+
+/* VARIABLES, % = opacité de couleur principale sur fond blanc ou noir */
+
+.pair, .even                     /* 15% blanc */   { background-color: #F0E8E8 }
+#ariane, 
+.bouton, .boutonpetit, .DMAJ     /* 25% blanc */   { background-color: #E5D9D9 }
+#outils a:hover, #menu a:hover   /* 50% blanc */   { color: #CCB2B2 }
+h3                               /* 85% blanc */   { color: #A87D7D }
+#menu, #outils, #footer          /* 100% */        { background-color: #996666 }
+h2, a:hover, a.menu:hover                          { color: #996666 }
+input, .input, .inputpetit, .select, 
+.selectpetit, .selectLargeur, 
+.textarea, .bouton, .boutonpetit, 
+.btgris, .DMAJ, .scrollbar table                   { border-color: #996666 }
+h1                               /* 80% noir */    { color: #7A5252 }
+#ariane, #date, 
+a, a.menu                        /* 75% noir */    { color: #734D4D }
+input, .input, .inputpetit
+.bouton, .boutonpetit, .btgris,
+.select, .selectpetit, .selectLargeur, 
+textarea, .textarea, a:visited   /* 50% noir */    { color: #4D3333 }
+
+/* INVARIABLES */
+
+#header, #outils a, 
+#menu, #menu a                   /* blanc */       { color: #FFFFFF }
+#main, body.popup, .contenu, 
+.inputpetit, .textarea, 
+.selectpetit, .selectLargeur                       { background-color: #FFFFFF }
+#copyright                       /* gris */        { color: #C5C5C5 }
+.barre_pale                                        { background-color: #F2F2F2 }
+th, .btgris, .barre_medium                         { background-color: #CCCCCC }
+body                                               { background-color: #999999 }
+.Lib                                               { color: #666666 }
+a.fermer, a.retour, a.create     /* orange */      { color: #D87427 }
+a.fermer:hover, a.retour:hover, 
+a.create:hover                   /* orange 75% */  { color: #E2975D }
+.selected                        /* jaune pale */  { background-color: #FFFF99 }
+.msg_usager                      /* rouge */       { color:#9A0A0A }
+
+
+
+/* --------------------------------- DIVS ----------------------------------- */
+@media screen {
+   #header        {  height: 90px; font-size: 9px; letter-spacing: 0.03em; 
+                     background-image: url("../images/fond_header.gif"); background-repeat: no-repeat }
+   #logo_auf      {  position: absolute; top: 0px; left: 0px; margin: 10px; width: 97px; height: 70px }
+   #titre         {  position: absolute; top: 35px; left: 150px; width: 250px; height: 30px; font-size: 14px; font-weight: bold }
+   #sous_titre    {  position: absolute; top: 55px; left: 150px; width: 250px; height: 30px }
+   #outils        {  position: absolute; top: 68px; left: 367px; width: 376px; height: 22px; 
+                     background-image: url("../images/fond_outils.gif"); background-repeat: no-repeat; background-position: right }
+   
+   #menu          {  width: 165px; min-height: 203px; padding: 10px; padding-right: 569px; 
+                     background-image: url("../images/fond_menu.gif"); background-repeat: no-repeat }
+   
+   #footer        {  clear: both; width: 744px; height: 167px; }
+   #footer_left   {  float: left; margin: 0px; padding: 0px; width: 185px; height: 167px; 
+                     background-image: url("../images/fond_footer_left.gif"); background-repeat: no-repeat; background-position: top left }
+   #footer_right  {  float: left; margin: 0px; padding: 0px; width: 559px; height: 167px; 
+                     background-image: url("../images/fond_footer_right.gif"); background-repeat: no-repeat; background-position: bottom right }
+   
+   #copyright     {  margin-top: 75px; padding: 10px; font-size: 9pt }
+   
+   #main          {  position: absolute; top: 90px; left: 185px; width: 81% }
+   #ariane        {  float: left; width: 507px; padding: 4px; padding-right: 44px; padding-left: 8px; font-size: 9px; 
+                     background-image: url("../images/fond_ariane.gif"); background-repeat: no-repeat; background-position: bottom right }
+   #date          {  float: right; padding: 4px; padding-right: 8px; font-size: 10px }
+   #contenu       {  clear: both; width: auto; height: auto; padding: 8px; text-align: justify }
+}
+@media print {
+   #header        {  height: 90px; font-size: 9px; letter-spacing: 0.03em; }
+   #logo_auf      {  position: absolute; top: 0px; left: 0px; width: 70px; height: 70px }
+   #titre         {  position: absolute; top: 35px; left: 140px; width: 250px; height: 30px; font-size: 14px; font-weight: bold }
+   #sous_titre    {  position: absolute; top: 55px; left: 140px; width: 250px; height: 30px }
+   #outils        {  display: none }
+   
+   #menu          {  display: none }
+   
+   #footer        {  display: none }
+   #footer_left   {  display: none }
+   #footer_right  {  display: none }
+   
+   #copyright     {  display: none }
+   
+   #main          {  top: 90px }
+   
+   #ariane        {  display: none }
+   #date          {  display: none }
+   #contenu       {  text-align: justify }
+}
+
+/* ------------------------------- ELEMENTS --------------------------------- */
+
+#outils a   { text-decoration: none; vertical-align: super }
+/*
+#menu ul    { margin: 0px; padding: 0px; padding-left: 30px; text-indent: -30px }
+#menu li    { list-style: none; padding-top: 12px }
+#menu a     { padding-left: 12px; font-size: 11px; text-decoration: none; vertical-align: middle }
+#menu img   { vertical-align: middle }
+*/
+
+body        { margin: 0px; font-size: 12px; font-family: Arial, Helvetica, sans-serif }
+
+a.fermer    { font-weight: bold; text-decoration: none }
+a.retour    { font-weight: bold; text-decoration: none }
+a.create    { font-weight: bold; text-decoration: none }
+
+p, li, td   { font-size: 12px; }
+th          { font-size: 12px ; vertical-align: bottom }
+
+input, select  { font-size: 11px; font-family: Arial; padding: 1px; padding-bottom: 2px }
+textarea       { font-size: 11px; font-family: Arial; padding: 1px; padding-bottom: 2px }
+
+/*
+h1 {  margin: 0px; padding: 0px; padding-bottom: 15px; padding-left: 35px; line-height: 35px;
+      font-size: 16px; font-family: Verdana, Arial, Helvetica, sans-serif; letter-spacing: 0.2em;
+      background-image: url("../images/puce_titre1.gif"); background-repeat: no-repeat }
+
+h2 {  padding-top: 20px; padding-bottom: 0px; line-height: 5px; 
+      font-size: 14px; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: bold }
+
+h3 {  margin-left: 10px; padding-top: 10px; padding-bottom: 5px; padding-left: 10px; line-height: 10px;
+      font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: bold;
+      background-image: url("../images/puce_titre3.gif"); background-repeat: no-repeat }
+*/
+
+/* ------------------------------- CLASSES ---------------------------------- */
+
+.ariane_actif  { font-size: 10px; font-weight: bold }
+.Nav           { padding: 5px; text-align: center }
+.Nav table     { padding: 2px }
+.retour        { text-align: center }
+
+/* Formulaires */
+/* .input         { font-size: 11px; font-family: Arial; border: solid 1px; padding: 4px; padding-top: 1px} */
+.select        { font-size: 11px; font-family: Arial; border: solid 1px }
+.bouton        { font-size: 11px; font-family: Arial; border: solid 1px; font-weight: bold }
+
+/* Tables */
+.Rech td       { padding: 5px }
+.Enr table     { padding: 5px; border: 1px solid #CCCCCC }
+.Enr td        { padding: 3px }
+.LC table      { width: 98% }
+
+/* Classes du popup */
+.DMAJ          { width: 100%; border-bottom: 1px solid }
+.EnrMAJ table  { margin-left: 10px; padding: 10px }
+.EnrMAJ .Lib   { text-align: left }
+
+/* Pour les messages aux usagers */
+.msg_usager       { font-weight: bold; text-align: center }
+
+/* Pour les scrollbars des tableaux de bord et autres tableaux de listes risquant d'�tre trop larges en 800*600  */
+.scrollbar        { overflow: auto; width: 800px }
+.scrollbar th     { font-size: 9px }
+.scrollbar td     { font-size: 9px }
+.scrollbar table  { border: solid 1px }
+
+/* A utiliser au besoin */
+.contenu       { width: 100%; }
+.textarea      { font-size: 11px; font-family: Arial; border: solid 1px }
+.inputpetit    { font-size: 11px; font-size: 80%; font-family: Arial; border: solid 1px }
+.selectpetit   { font-size: 11px; font-size: 80%; font-family: Arial; border: solid 1px }
+.selectLargeur { font-size: 11px; font-size: 80%; font-family: Arial; border: solid 1px }
+.btgris        { font-size: 11px; font-weight: bold; font-family: Arial; border: solid 1px }
+.boutonpetit   { font-size: 11px; font-size: 80%; font-weight : bold; font-family: Arial; border: solid 1px }

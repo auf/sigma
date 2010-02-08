@@ -1,0 +1,151 @@
+{% load i18n %}
+{% load candidature_extra %}
+
+{% if statut %}
+<h3 class="list_title {{ statut }}">
+  <a class="label" href="#"><b>{{ candidature_list|length }}</b> Candidature(s) {% trans statut %}</a>
+  {% if appel %}
+  <a class="download" 
+     href="/appels/export_lettres/{{ appel.id }}/{{ statut }}/" 
+     title="T&eacute;l&eacute;charger les lettres ltypes des candidats {% trans statut %}">
+    <img class="export_cans" 
+	 alt="T&eacute;l&eacute;charger les lettres types des candidats {% trans statut %}" 
+	 src="/media/images/pict_ajout_dossier.gif" />
+  </a>
+  <a class="download" 
+     href="/appels/export_can/{{ appel.id }}/{{ statut }}/" 
+     title="T&eacute;l&eacute;charger les candidatures {% trans statut %}">
+    <img class="export_cans" 
+	 alt="T&eacute;l&eacute;charger les candidatures {% trans statut %}" 
+	 src="/media/images/pict_form.gif" />
+  </a>
+  {% endif %}
+</h3>
+{% else %}
+<h3 class="list_title">
+  <a class="label" href="#"><b>{{ candidature_list|length }}</b> Candidature(s)</a>
+</h3>
+{% endif %}
+<div style="clear: both;" >
+  <table class="candidature_table" width="100%">
+    <thead>
+      <tr>
+	<th>
+	  <span>id</span>
+	  <span class="icone">&nbsp;</span>
+	</th>
+	<th>
+	  <span>Civilit&eacute;</span>
+	  <span class="icone">&nbsp;</span>
+	</th>
+	<th>
+	  <span>Nom</span>
+	  <span class="icone">&nbsp;</span>
+	</th>
+	<th>
+	  <span>Pr&eacute;nom</span>
+	  <span class="icone">&nbsp;</span>
+	</th>
+	<th>
+	  <span>Genre</span>
+	  <span class="icone">&nbsp;</span>
+	</th>
+	<th>
+	  <span>Type</span>
+	  <span class="icone">&nbsp;</span>
+	</th>
+	<th>
+	  <span>Discipline</span>
+	  <span class="icone">&nbsp;</span>
+	</th>
+	<th>
+	  <span>Moyenne</span>
+	  <span class="icone">&nbsp;</span>
+	</th>
+	<th class="candidature_action">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for candidature in candidature_list %}
+      <tr class="candidature_instance" 
+	  title="{{ candidature.civilite }} {{ candidature.nom }}, {{ candidature.prenom }}">
+	<td>{{ candidature.id }}</td>
+	<td>{{ candidature.civilite }}</td>
+	<td>{{ candidature.nom }}</td>
+	<td>{{ candidature.prenom }}</td>
+	<td>{{ candidature.genre }}</td>
+	<td>
+	  {% if candidature.type %}
+	     {{ candidature.type }}
+	  {% else %}
+	     --
+	  {% endif %}
+	</td>
+	<td>
+	  {% if candidature.discipline %}
+	     {{ candidature.discipline.nom_court }}
+	  {% else %}
+	     --
+	  {% endif %}
+	</td>
+	<td>
+	  {% ifnotequal candidature.get_moyenne '--' %}
+	  {{ candidature.get_moyenne }} %
+	  {% else %}
+	  {{ candidature.get_moyenne }}
+	  {% endifnotequal %}
+	</td>
+	<td class="candidature_action"> 
+	  <a href="/candidatures/detail/{{ candidature.id }}/" 
+	     title="Consulter la candidature">
+	    <img alt="Consulter la candidature"
+		 src="/media/images/pict_info.gif" />
+	  </a>	  
+	  {% if user|can_edit_candidature:candidature %}
+	  <a href="/candidatures/edit/{{ candidature.id }}/" 
+	     title="&Eacute;diter la candidature">
+	    <img alt="&Eacute;diter la candidature"
+		 src="/media/images/pict_modif2.gif" />
+	  </a>
+	  {% else %}
+	  <div style="background: url(/media/images/pict_modif2.gif) no-repeat;">
+	    <p title="&Eacute;diter la candidature"/>
+	  </div>
+	  {% endif %}
+	  {% if user|can_delete_candidature:candidature %}
+	  <a href="/candidatures/delete/{{ candidature.id }}/" 
+	     title="Supprimer la candidature">
+	    <img alt="T&eacute;l&eacute;charger la lettre type"
+		 src="/media/images/pict_suppr.gif" />
+	  </a>
+	  {% else %}
+	  <div style="background: url(/media/images/pict_suppr.gif) no-repeat;">
+	    <p title="Supprimer la candidature"/>
+	  </div>
+	  {% endif %}
+	  {% if user|can_revert:candidature %}
+	  <a href="/candidatures/undo/{{ candidature.id }}/" 
+	     title="Revenir au statut pr&eacute;c&eacute;dent">
+	    <img alt="Revenir au statut pr&eacute;c&eacute;dent"
+		 src="/media/images/pict_annuler.gif" />
+	  </a>
+	  {% else %}
+	  <div style="background: url(/media/images/pict_annuler.gif) no-repeat;">
+	    <p title="Revenir au statut pr&eacute;c&eacute;dent"/>
+	  </div>
+	  {% endif %}
+	  <a href="/candidatures/lettretype/{{ candidature.id }}" 
+	     title="T&eacute;l&eacute;charger la lettre type">
+	    <img alt="T&eacute;l&eacute;charger la lettre type"
+		 src="/media/images/pict_form.gif" />
+	  </a>
+	  <a href="/candidatures/export/{{ candidature.id }}" title="T&eacute;l&eacute;charger cette candidature">
+	    <img alt="T&eacute;l&eacute;charger cette candidature"
+		 src="/media/images/pict_ajout_dossier.gif" />
+	  </a>
+	</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

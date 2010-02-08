@@ -1,0 +1,409 @@
+{% extends "sigma.www/general.html" %}
+
+{% load i18n %}
+
+{% block window_title %}{% trans "Candidature - " %}{{ candidature }}{% endblock %}
+{% block page_title %}{% trans "CANDIDATURE - " %}{{ candidature }}{% endblock %}
+
+{% load candidature_extra %}
+{% load general_extra %}
+
+{% block include_media %}
+<script type="text/javascript" src="/media/js/candidature_detail.js"></script>
+{% endblock %}
+
+{% block header %}
+<table class="ariane">
+  <tbody>
+    <tr>
+    {% for choice, choicelabel in ariannes %}
+        {% ifequal choice candidature.statut %}
+            <td class="current_statut" >{{ choicelabel }}</td>
+        {% else %}
+            <td class="statut" >{{ choicelabel }}</td>
+        {% endifequal %}
+        {% if not forloop.last %}
+            <td><img class="next_ariane" src="/media/images/icones/next_ariane.png" /></td>
+        {% endif %}
+    {% endfor %}
+    </tr>
+  </tbody>
+</table>
+{% endblock %}
+
+{% block content %}
+<script type="text/javascript">
+  $(window).bind('load', function(event) {
+    $("#tabs").tabs();
+  });
+</script>
+
+{% if candidature.appel|status_is:'Diffuse' %}
+{% if error_list %}
+<div id="errors">
+  <ul>
+    {% for error in error_list %}
+       <li>
+	 <h2>{{ error }}</h2>
+       </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endif %}
+
+<div id="tabs">
+  <ul>
+    <li>
+      <a href="#tabs-Informations_generales">{% trans "Informations generales"%}</a>
+    </li>
+
+    {% for subject_id, subject_label, field_list, is_data in subject_list.values %}
+       {% ifnotequal subject_id "Informations_generales" %}
+          <li>
+	    <a href="#tabs-{{ subject_id }}">{{ subject_label }}</a>
+          </li>
+       {% endifnotequal %}
+    {% endfor %}
+
+    <li>
+      <a href="#tabs-pieces">{% trans "Pi&egrave;ces" %}</a>
+    </li>
+
+    <li>
+      <a href="#tabs-criteres">{% trans "Critères supp." %}</a>
+    </li>
+
+    {% if bloc_list %}
+       <li>
+	 <a href="#tabs-6">{% trans "Informations supp." %}</a>
+       </li>
+    {% endif %}
+
+    <li>
+      <a href="#tabs-experts">Experts</a>
+    </li>
+
+    <li>
+      <a href="#tabs-8">{% trans "Journal" %}</a>
+    </li>
+  </ul>
+
+  {% for subject_id, subject_label, field_list, is_data in subject_list.values %}
+  <div class="tab" id="tabs-{{ subject_id }}">
+    <h2>{{ subject_label }}</h2>
+    <table class="details">
+      {% for field in field_list %}
+      <tr>
+	<td>
+	  {% if field|is_mandatory %}
+             <label class="mandatory">* {% trans field.verbose_name %} :</label>
+	  {% else %}
+  	     <label>{% trans field.verbose_name %} :</label>
+	  {% endif %}
+	</td>
+	<td>
+	  {% if candidature|getattr:field %}
+    	     {% ifequal candidature|getattr:field 'True' %}
+	        <input type="checkbox" checked=checked disabled>
+	     {% else %}
+   	        {% ifequal candidature|getattr:field 'False' %}
+	           <input type="checkbox" disabled>
+                {% else %}
+ 	           {{ candidature|getattr:field }}
+                {% endifequal %}
+	     {% endifequal %}
+	  {% else %}
+	     {% if field|is_mandatory %}
+             <span style="color: red;">x</span>
+	     {% else %}
+	     <span>--</span>
+	     {% endif %}
+	  {% endif %}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endfor %}
+
+  <div class="tab" id="tabs-pieces">
+    <h2>{% trans "Pi&egrave;ces" %}</h2>
+    {% if piece_list %}
+    <table class="pieces detail">
+      <tr>
+	<th>Nom</th>
+	<th>Description</th>
+	<th>Fichier</th>
+	<th>Pr&eacute;sent</th>
+	<th>Conforme</th>
+      </tr>
+      {% for piece in piece_list %}
+      <tr>
+	<td>{{ piece.piecejointe.nom }}</td>
+	<td>{{ piece.piecejointe.description }}</td>
+	<td>
+	  {% if piece.fichier %}
+	  [<a href="/candidatures/pieces/{{ piece.id }}/">consulter</a>]
+	  {% else %}
+	  x
+	  {% endif %}
+	</td>
+	<td>
+	  <input type="checkbox" name="piece_presente" disabled="disabled" {% if piece.presente %} checked="checked" {% endif %} />
+	</td>
+	<td>
+	  <input type="checkbox" name="piece_conforme" disabled="disabled" {% if piece.conforme %} checked="checked" {% endif %} />
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    {% trans "Aucune données" %}
+    {% endif %}
+  </div>
+
+  <div class="tab" id="tabs-criteres">
+    <h2>{% trans "Critères supp." %}</h2>
+    {% if critere_list %}
+    <table class="criteres detail">
+      <tr>
+	<th>Nom</th>
+	<th>Description</th>
+	<th>Respecté</th>
+      </tr>
+      {% for critere in critere_list %}
+      <tr>
+	<td>{{ critere.critere.nom }}</td>
+	<td>{{ critere.critere.description }}</td>
+	<td>
+	  <input type="checkbox" name="piece_presente" disabled="disabled" {% if critere.valide %} checked="checked" {% endif %} />
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    {% trans "Aucune données" %}
+    {% endif %}
+  </div>
+
+  {% if bloc_list %}
+  <div class="tab" id="tabs-6">
+    <h2>{% trans "Champs suppl&eacute;mentaires" %}</h2>
+    <div class="compl detail">
+      {% for bloc, champs_list in bloc_list.items %}
+      <h2>{{ bloc.libelle }}</h2>
+      {% for champs, value in champs_list %}
+      <ul>
+        {% ifequal champs.type "Booleen" %}
+          {% ifequal value.value "0" %}
+            <li>{{ champs.libelle }} : {% trans "Non" %}</li>
+          {% else %}
+            <li>{{ champs.libelle }} : {% trans "Oui" %}</li>
+          {% endifequal %}
+      {% else %}
+        <li>{{ champs.libelle }} : {{ value.value }}</li>
+      {% endifequal %}
+      </ul>
+      {% endfor %}
+    {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+<div class="tab" id="tabs-experts">
+  <h2>{% trans "Experts" %}</h2>
+  {% include "sigma.www/candidature_expert_frame.html" %}
+</div>
+
+<div class="tab" id="tabs-8">
+  <h2>{% trans "Journal" %}</h2>
+  
+  <div class="logs">
+    <h3>Informations</h3>
+    {% if infos %}
+    <ul class="general events">
+      {% for event in infos %}
+      <li>
+	  <h4>{{ event.timestamp }}</h4>
+	  <p>
+	    {{ event.description }} ({{ event.from_state }} -> {{ event.to_state }})
+	  </p>
+	  {% if event.commentaires %}
+	  <p>{{ event.commentaires }}</p>
+	  {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    {% trans "Aucune données" %}
+    {% endif %}
+  </div>
+
+  <div class="logs">
+    <h3>Erreurs</h3>
+    {% if erreurs %}
+    <ul class="general events">
+      {% for event in erreurs %}
+      <li>
+	<h4>{{event.timestamp}}</h4>
+	<p>
+	  {{ event.description }} ({{ event.from_state }} -> {{ event.to_state }})
+	</p>
+	{% if event.commentaires %}
+	  <p>{{ event.commentaires }}</p>
+	  {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    {% trans "Aucune données" %}
+    {% endif %}
+  </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block navigation %}
+
+<a class="button" href="{% url sigma.www.views.appel.detail object_id=candidature.appel.id %}">
+    <span>{% trans "Retour" %}</span>
+</a>
+
+{% if user|can_delete_candidature:candidature %}
+<a class="button" href="{% url sigma.www.views.candidature.delete object_id=candidature.id %}">
+    <span>{% trans "Supprimer" %}</span>
+</a>
+{% endif %}
+
+{% if user|can_edit_candidature:candidature and user|is_invalid:candidature %}
+<a class="button" href="{% url sigma.www.views.candidature.add appel_id=candidature.appel.id, object_id=candidature.id %}">
+    <span>{% trans "Modifier" %}</span>
+</a>
+{% endif %}
+{% if user|can_edit_candidature:candidature and not user|is_invalid:candidature %}
+<a class="button" href="{% url sigma.www.views.candidature.edit object_id=candidature.id %}">
+    <span>{% trans "Modifier" %}</span>
+</a>
+{% endif %}
+{% if user|can_rejete:candidature %}
+<form name="rejeter" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Rejeter" />
+    <a class="button" href="javascript:rejeter_candidature();">
+      <span>{% trans "Rejeter" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_accepte:candidature %}
+<form name="accepter" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Accepter" />
+    <a class="button" href="javascript:accepter_candidature({{ candidature.id }});">
+      <span>{% trans "Accepter" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_classe:candidature %}
+<form name="classer" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Classer" />
+    <a class="button" href="javascript:classer_candidature();">
+      <span>{% trans "Classer" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_declasse:candidature %}
+<form name="declasser" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Declasser" />
+    <a class="button" href="javascript:declasser_candidature();">
+      <span>{% trans "Declasser" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_select:candidature %}
+<form name="selectionner" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Selectionner" />
+    <a class="button" href="javascript:selectionner_candidature();">
+      <span>{% trans "Selectionner" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_attend:candidature %}
+<form name="attendre" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Attendre" />
+    <a class="button" href="javascript:attendre_candidature();">
+      <span>{% trans "Attend" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_reveille:candidature %}
+<form name="reveiller" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Reveiller" />
+    <a class="button" href="javascript:reveiller_candidature();">
+      <span>{% trans "Reveiller" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_desiste:candidature %}
+<form name="desister" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Desister" />
+    <a class="button" href="javascript:desister_candidature();">
+      <span>{% trans "Desister" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_bourse:candidature %}
+<form name="boursier" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Boursier" />
+    <a class="button" href="javascript:boursier_candidature();">
+      <span>{% trans "Boursier" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_complete:candidature %}
+<form name="completer" action="{% url sigma.www.views.candidature.edit_statut object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <input type="hidden" name="commentaires" value="" />
+    <input type="hidden" name="action" value="Completer" />
+    <a class="button" href="javascript:completer_candidature()">
+      <span>{% trans "Completer" %}</span>
+    </a>
+</form>
+{% endif %}
+{% if user|can_revert:candidature %}
+<form name="revert" action="{% url sigma.www.views.candidature.undo object_id=candidature.id %}" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="candidature_id" value="{{ candidature.id }}" />
+    <a class="button" href="javascript:document.forms.revert.submit();">
+      <span>{% trans "Annuler" %}</span>
+    </a>
+</form>
+{% endif %}
+{% endblock %}

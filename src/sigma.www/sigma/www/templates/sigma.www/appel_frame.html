@@ -1,0 +1,28 @@
+{% load i18n %}
+
+{% block appel_list %}
+
+<script type="text/javascript">
+  $(function() {
+     $(".appel_table").tablesorter({widgets:['zebra'], sortList: [[0,0]], headers: {5 : {sorter: false}}});
+     $(".appel_list").accordion({autoHeight: false, collapsible: true, active : false });
+     $("img.export_appels").click(download_all_cans);
+  });
+
+  /**
+   * Download the exportation of the candidatures
+   */
+  function download_all_cans(event) {
+    event.stopPropagation();
+  }
+</script>
+
+{% if statut_list_app.items %}
+<div class="appel_list">
+{% for statut, appel_list in statut_list_app.items %}
+   {% include "sigma.www/appel_table.html" %}
+{% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

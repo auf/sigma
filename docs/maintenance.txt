@@ -1,0 +1,148 @@
+# -=- encoding: utf-8 -=-
+
+Description
+===========
+
+Sigma utilise un système de livraison basé sur zc.Buildout. Ce système nous 
+permet d'automatiser la gestion des dépendances ainsi que la mise à jour
+dans un environnement fermé.
+
+
+Conseils généraux
+=================
+- Afin de vraiment avoir un environement indépendant du système, il peut être
+  utile de se créer un virtuelenv avec l'option --no-site-packages afin de 
+  s'isoler complètement des versions des paquets python du système
+
+- Lorsqu'on veut mettre à jour une installation, il peut être utile de supprimer
+  les fichiers et les dossiers suivant:
+    * $(sigma-dir)/eggs/
+    * $(sigma-dir)/.installed.cfg
+
+  Cela nous assure d'avoir réellement une installation fraiche qui vérifiera si
+  de nouvelles versions des dépendances sont disponibles.
+
+
+Pré-requis du projet
+====================
+Les modules suivants doivent absolument être installés sur le système
+avant de faire la mise en place du projet. Vous pourrez les installer
+par le système de votre choix (i.e. apt-get, rpm, ...) mais devront
+être accessible:
+
+- python-setuptools
+- subversion
+- python-dev
+- python >= 2.5
+- mysql-client (et serveur si c'est sur la même machine)
+- python-mysql
+
+
+Configuration de la base de données
+===================================
+Nous utilisant actuellement MySQL comme serveur de base de données. 
+La configuration des paramêtres du serveur se trouve dans le fichier
+settings.py dans le projet:
+
+~/build/Sigma/project/setttings.py
+
+Il sufit de modifier les paramètre suivant afin de
+changer les configurations du système:
+
+  DATABASE_ENGINE = 'mysql'
+  DATABASE_NAME = 'sigma'
+  DATABASE_USER = 'sigma'
+  DATABASE_PASSWORD = 'sigma'
+  DATABASE_HOST = ''
+  DATABASE_PORT = ''
+
+Notons qu'une fois la configuration, il faut créer la base de données
+et l'utilisateur en question dans MySQL et que l'utilisateur ait
+accès pour tous les droits à cette base de données.
+
+
+Pour démarrer le projet
+=======================
+# Aller dans le répertoire où se trouve votre checkout de Sigma 
+  (on assume ici qu'il est dans  ~/build/Sigma)::
+
+  $ cd ~/build/Sigma
+
+# Lancement de la procédure de bootstrap::
+
+  $ python bootstrap.py
+
+# Lancement de la procédure d'installation de l'environnement::
+
+  $ bin/buildout -vvv
+
+# Création de la base de données
+Il n'est pas nécessaire et même non souhaitable de créer un utilisateur 
+administrateur lorsqu'on crée la base de données puisque cet utilisateur est 
+créée automatiquement avec les paramètres  ADMIN_LOGIN et ADMIN_PASSWORD que
+l'on retrouve dans le fichier: Sigma/projects/settings.py::
+
+  $ bin/django syncdb
+
+# Compilation des traductions::
+
+  $ cd src/sigma.www/sigma/www
+  $ ../../../../django compilemessages
+   
+# Lancement du serveur ::
+
+  $ cd ~/build/Sigma
+  $ bin/django runserver
+
+# Avec un navigateur web, aller sur :
+
+  http://127.0.0.1:8000
+
+
+Pour mettre à jour les traductions du projet
+============================================
+
+Parfois, on peut vouloir changer les textes des traductions du projet. Pour ce
+faire, il s'agit de demander à django de ré-extraire toutes les chaînes 
+traduisibles de l'application sigmawww et ainsi de corriger les traductions 
+voulues. Ensuite de compiler les traductions modifiées, soit:
+
+# Extraction des messages à traduire ::
+
+  $ cd src/sigma.www/sigma/www
+  $ ../../../../bin/django makemessages -l fr
+
+# Édition des traductions ::
+
+Il s'agit tout simple d'éditer la traduction de la langue voulue telle que::
+
+  $ emacs src/sigma.www/sigma/www/locale/fr/LC_MESSAGES/django.po
+
+
+# Compilation des traduction ::
+
+  $ cd src/sigma.www/sigma/www
+  $ ../../../../django compilemessages
+
+
+Pour mettre a jour son instance de projet
+=========================================
+# Arrêter le serveur
+Soit en faisant ctrl-c, soit en tuant le processus, etc.
+  
+# Aller dans le repertoire ou se trouve votre checkout de Sigma. Assurez vous 
+que le serveur ne roule pas pendant la procedure::
+
+  $ cd ~/build/Sigma  
+
+# Mettre a jour le code::
+
+  $ git pull origin master
+
+# Relancer le serveur de la facon voulue::
+
+  $ bin/django runserver
+
+
+
+

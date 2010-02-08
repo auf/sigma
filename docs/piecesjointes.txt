@@ -1,0 +1,25 @@
+Description
+===========
+
+Les pièces jointes sont des fichiers qui sont associés à chaque candidature. 
+Pour chaque pièces qui est marquée nécessaire pour un appel d'offre, on a une 
+entrée dans une candidature.
+
+Lorsqu'on modifie une pièce jointe d'une candidature, on peut lui associer un 
+fichier qui sera téléverser vers le répertoire de pièces jointes des candidatures, 
+telles que:
+
+sigma.www/
+	sigma/
+	     www/
+	        files/
+		     candidatures/
+				 2/   <--- id de la candidature
+				  pj_45_cv_mathieu.pdf
+                                     ^
+                                     |
+                                     |
+                                     |
+                    pj_(id_PieceCandidature)_(nom original avec des _).(extension)
+				    
+				 

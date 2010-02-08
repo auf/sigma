@@ -1,0 +1,47 @@
+# All compiled binaries..
+*.pyc
+*.pyo
+
+# nohup log file...
+nohup.out
+
+# The SQL databases
+project.db
+workflow.db
+test_workflow.db
+workflow.db-journal
+
+project/production.py
+
+# egg-info dirs
+*.egg-info
+
+# Temp lib/, build and dist subdirs.
+build/*
+dist/*
+bin/*
+downloads/*
+eggs/*
+parts/*
+develop-eggs/*
+src/sigma.www/sigma/www/media/candidatures/*
+.installed.cfg
+
+# Fichier temporaires:
+*~
+\#*#
+
+# Ignore compiled .mo files
+*.mo
+
+# Runtime env
+env
+django-admin.py
+
+# Vim swap files
+*.swp
+*.swo
+
+# Ignore merged stuff
+*.orig
+*.rej

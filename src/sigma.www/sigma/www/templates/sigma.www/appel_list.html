@@ -1,0 +1,31 @@
+{% extends "sigma.www/general.html" %}
+{% load i18n %}
+
+{% block window_title %}{% trans "Appels d'offre" %}{% endblock %}
+{% block page_title %}{% trans "APPELS D'OFFRE" %}{% endblock %}
+
+{% load appel_extra %}
+
+{% block content %}
+<p>
+  <h2>Liste des appels d'offre du syst&egrave;me</h2>
+</p>
+{% if statut_list_app.items %}
+   {% include 'sigma.www/appel_frame.html' %}
+{% else %}
+<p>
+  <h4>Aucun appel d'offre</h4>
+</p>
+{% endif %}
+{% endblock %}
+
+{% block navigation %}
+<a class="button" href="{% url sigma.www.views.general.index %}">
+    <span>{% trans "Retour" %}</span>
+</a>
+{% if user and user|can_add_appel %}
+<a class="button" href="{% url sigma.www.views.appel.add %}">
+    <span>{% trans "Nouvel appel d'offre" %}</span>
+</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "sigma.www/general.html" %}
+{% load i18n %}
+
+{% block window_title %}{% trans "Note / Édition " %}{% endblock %}
+{% block page_title %}{% trans "NOTE - ÉDITION " %}{% endblock %}
+
+{% block content %}
+<form name="note_mod" action="/notes/edit/{{form.instance.id}}/" method="POST">
+    {{ form.as_p }}
+    <input type="hidden" name="note_id" value="{{ form.instance.id }}" />
+    <input type="hidden" name="candidature" value="{{ form.instance.candidature.id }}" />
+</form>
+{% endblock %}
+
+{% block navigation %}
+<a class="button" href="/candidatures/detail/{{ form.instance.candidature.id }}/">
+    <span>{% trans "Retour" %}</span>
+</a>
+<a class="button" href="javascript:document.forms.note_mod.submit();">
+  <span>{% trans "Sauvegarder" %}</span>
+</a>
+{% endblock %}

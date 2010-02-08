@@ -1,0 +1,22 @@
+{% extends "sigma.www/general.html" %}
+{% load i18n %}
+
+{% block window_title %}{% trans "Experts" %}{% endblock %}
+{% block page_title %}{% trans "EXPERTS" %}{% endblock %}
+
+{% block content %}
+<p>
+  <h2>Liste des experts du syst&egrave;me</h2>
+  {% include 'sigma.www/expert_frame.html' %}
+</p>
+{% endblock %}
+
+{% block navigation %}
+<a class="button" href="{% url sigma.www.views.general.index %}">
+    <span>{% trans "Retour" %}</span>
+</a>
+<a class="button" href="{% url sigma.www.views.expert.add %}">
+  <span>{% trans "Nouvel expert" %}</span>
+</a>
+{% endblock %}
+

@@ -1,0 +1,68 @@
+{% load i18n %}
+
+{% if user.is_authenticated %}
+<h3>
+  {% if user.first_name and user.last_name %}
+     {{ user.first_name }} {{ user.last_name }}
+  {% else %}
+     {{ user }}
+  {% endif %}
+  (<a href="{% url sigma.www.views.accounts.deconnexion %}">{% trans "déconnexion" %}</a>)
+</h3>
+{% else %}
+<script type="text/javascript">
+  $(document).ready(function (e) {
+
+    $('input#username').val("Nom d'utilisateur");
+    $('input#password').val("Mot de passe");
+
+    $('input#username, input#password').focus(function (e) {
+       $(this).val("");
+    });
+
+    $('input#username').blur(function (e) {
+       if($(this).val() == "") {
+          $('input#username').val("Nom d'utilisateur");
+       }
+    });
+
+    $('input#password').blur(function (e) {
+       if($(this).val() == "") {
+          $('input#password').val("Mot de passe");
+       }
+    });
+
+    $('#password').keypress(function (e) {
+       if(e.which == 13) {
+          document.forms.login_form.submit();
+          return false;
+       }
+       else {
+          return true;
+       }
+    });
+  });
+</script>
+<form action="/accounts/login/" id="small_login" name="login_form" method='post'>
+  <input type="hidden" name="next" value="{{ request.path }}" />
+  <table>	 
+    <tr>
+      <td>
+	<input type="text" name="username" value="Nom d'utilisateur" id="username" />
+      </td>
+      <td>
+	<input type="password" name="password" value="Mot de passe" id="password" />
+      </td>
+      <td align="right">
+	<a style="float:right;" class="button" href="javascript:document.forms.login_form.submit();">
+	  <span>{% trans "Connecter" %}</span>
+	</a>
+      </td>
+    </tr>
+  </table>
+  <input type="hidden" name="next" value="{{ next|escape }}" />
+</form>
+{% if form.errors %}
+<p class="error">{% trans "Desole, le nom d'usager ou le mot de passe est incorrect" %}</p> 
+{% endif %}
+{% endif %}

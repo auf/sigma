@@ -1,0 +1,10 @@
+{% extends "sigma.www/base.html" %}
+
+{% block js_main %}
+parent.after_add_criteria_update({{ form.instance.id }}, '{{ form.instance.description }}' );
+{% endblock %}
+
+{% block body %}
+<input type="hidden" id="critieria_id" value="{{ form.instance.id }}" />
+<input type="hidden" id="criteria_description" value="{{ form.instance.description }}" />
+{% endblock %}

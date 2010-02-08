@@ -1,0 +1,34 @@
+{% load candidature_extra %}
+
+{% load i18n %}
+
+{% block candidature_list %}
+
+
+<script type="text/javascript">
+  $(document).ready(function() {
+     $(".candidature_table").tablesorter({widgets:['zebra'], sortList: [[0,0]], headers: {8 : {sorter: false}}});
+     $(".candidature_list").accordion({autoHeight: false, collapsible: true , active : false});
+     $("img.export_cans").click(download_all_cans);
+  });
+
+  /**
+   * Download the exportation of the candidatures
+   */
+  function download_all_cans(event) {
+    event.stopPropagation();
+  }
+</script>
+
+{% if statut_list_can.items %}
+<div class="candidature_list">
+{% for statut, candidature_list in statut_list_can.items %}
+   {% include "sigma.www/candidature_table.html" %}
+
+
+{% endfor %}
+</div>
+{% endif %}
+
+
+{% endblock %}

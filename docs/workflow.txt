@@ -1,0 +1,167 @@
+Description
+===========
+
+Les workflows sont à la base du fonctionnement du projet Sigma. 
+On utilise une machine état afin de modéliser l'évolution du statut de 
+différents objets. Pour ce faire, nous avons opté pour repoze.workflow.
+
+Le système qui a été développé par l'équipe de repoze est extrêmement simple
+mais très puissant en même temps. Nous n'avons qu'à modéliser les transitions
+et les conditions de passage d'un état à un autre et la gestion de la 
+persistance se fait par notre modèle de données.
+
+
+Structure
+=========
+
+Dans le projet sigma, nous utilisons un gestionnaire de workflow qui abstrait 
+la gestion des handler et des données du modèle. 
+
+La structure est la suivante:: 
+
+	                execute
+                        is_completed
+                        is_readeable
+                        is_reacheable
+                        can_add
+                         ...
+	            --------------------
+              ----->| workflow.Manager |<----
+              |     --------------------    |
+              |                             |
+           register                      register
+              |                             |
+              |                             |
+        ----------------         ----------------------         
+        | AppelHandler |         | CandidatureHandler |
+        ----------------         ----------------------
+              |                             |
+              |                             |
+              |                             |
+              V                             V
+        ----------------          ----------------------
+        | models.Appel |          | models.Candidature | 
+        ----------------          ----------------------
+
+Ainsi, chaque handler s'enregistre lui-même auprès du gestionnaire de workflow 
+en définissant quelle classe il gère. Cela permet de faire une abstraction des 
+handlers et permettre ainsi de détourner les contrainte de dépendances 
+circulaire interdites en python.
+
+
+Fonctionnement du manager
+=========================
+
+Le manager implémente un patron de conception Singleton. C'est ce qui nous 
+permet de nous assure que pour une connexion par un utilisateur, il n'y aura 
+qu'un seul gestionnaire de workflow et ainsi on évite les incohérences.
+
+Pour ce faire, on utilise un astuce qui nous permet de l'implanter en python.
+
+À chaque instanciation de la classe workflow.Manager, on vérifie si la variable
+de classe _manager est assignée, si ce n'est pas le cas, on instancit une 
+instance de classe interne __impl. 
+
+Lorsqu'on appel une méthode on qu'on demande la valeur d'une variable à 
+l'instance de la classe externe Manager, cet appel est rediriger vers 
+l'instance de classe interne __impl qui est contenue dedans de façon statique.
+
+
+Gestion des handlers
+====================
+Vue que chaque handler s'enregistre automatiquement auprès du gestionnaire, le 
+mécanisme d'appel est un peu complexe.
+
+À chaque appel d'une méthode qui a besoins d'un handler, on doit obtenir le bon.
+Pour ce faire, on se garde un dictionnaire des instances de handler pour un 
+utilisateur et un objet. Cela nous assure qu'on aura toujours une instance et 
+sinon on la crée et on la stock.
+
+Chaque méthode appel donc tout d'abord la méthode::
+       
+       self.get_handler(ob, user)
+
+De là on peut ensuite appeler une méthode des handlers ou bien obtenir le 
+workflow.
+
+
+Gestion des transactions
+========================
+Au travers du workflow on utilise à certains endroits des transactions. 
+Par exemple, dans le handler de workflow (sigmawww.workflow.handler) on utilise 
+les transactions tel que::
+
+    @transaction.commit_manually
+    def is_reacheable(self, ob, action):
+...
+    transaction.commit()
+...
+
+Et à la fin de la méthode::
+
+   transaction.rollback()
+
+   return reacheable
+
+Cette utilisation des transactions est un peu détournée mais s'explique de part 
+l'architecture général de notre module de workflow.
+
+En effet, le workflow est utilisé en deux modes::
+
+   * Le mode execution::
+     Il s'agit du mode du workflow qui est déclenché par la tentative 
+     d'exécution du passage à un statut. Les erreurs et les informations sur ce
+     passage sont stockées dans la base de données et le statut de l'objet 
+     change. 
+
+     Les méthodes utilisées sont::
+     	 
+	 * execute
+	 * undo
+
+   * Le mode consultation::
+     Il s'agit du mode du workflow qui est déclenché par la consultation de la 
+     possibilité ou non à un statut. Les erreurs sont loggées temporairement 
+     dans la base mais sont supprimées une fois la vérifications executées
+     par un rollback.
+
+     Les méthodes utilisées sont::
+     
+	* is_completed
+	* is_executable
+	* is_reacheable
+	* is_readable
+	* is_undoable
+
+	* can_add
+	* can_edit
+
+
+Gestions des logs
+=================
+
+Tout les objets qui sont suivies par le workflow (les appels d'offres et les 
+candidatures) ont une série de logs. Ces logs générés lorsqu'on essait de faire
+passer un objet vers l'étape suivante du workflow ou tout simplement vers un
+autre statut que son statut actuel. 
+
+Il existe donc plusieurs niveau de logs, soit:
+
+   # ERROR
+     Ce sont des erreurs bloquantes causées par une contradiction des rêgles 
+     du métier.
+
+   # WARNING
+     Une erreur non bloquante nécessairement mais pouvant causé problème, comme
+     par exemple une candidature incomplète.     
+
+   # INFO	
+     Passage d'un statut à un autre, ce n'est pas une erreur mais vraiment une
+     information sur une action réussie.
+
+   # SYS
+     Ce sont des erreurs bloquantes qui ne devraient pas se produire puisqu'
+     elles contreviennent aux rêgles de bon fonctionnement du système.
+
+
+

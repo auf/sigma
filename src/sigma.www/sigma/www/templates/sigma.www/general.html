@@ -1,0 +1,76 @@
+{% extends "sigma.www/base.html" %}
+
+{% load i18n %}
+
+{% block body %}
+<div id="header">
+    <div id="logo_auf"><img src="/media/images/logo_auf.gif" alt="Logo AUF" title="Logo AUF" /></div>
+    <div id="titre">
+      <a href="/">{% trans "SIGMA" %}</a>
+    </div>
+    <div id="sous_titre">{% trans "Gestion des mobilités" %}</div>
+    <div id="outils">
+      {% if user.is_authenticated %}
+      <a href="{% url sigma.www.views.general.profile %}">
+	<h3>{% trans "Mon Sigma" %}</h3>
+      </a>
+      {% if user.is_staff %}
+      <a href="/admin">
+	<h3>{% trans "Administration" %}</h3>
+      </a>
+      {% endif %}
+      <a href="{% url sigma.www.views.accounts.pass_change %}">
+	<h3>{% trans "Mot de passe" %}</h3>
+      </a>
+      {% endif %}
+    </div>
+    <div id="research">
+      {% include "sigma.www/search.html" %}
+   </div>
+</div>
+<div id="menu">
+<ul>
+    <li><a href="{% url sigma.www.views.categorie.liste %}">{% trans "Catégories de mobilité" %}</a></li>
+    <li><a href="{% url sigma.www.views.appel.liste %}">{% trans "Appels d'offre" %}</a></li>
+    <li><a href="{% url sigma.www.views.candidature.liste %}">{% trans "Candidatures" %}</a></li>
+    <li><a href="{% url sigma.www.views.expert.liste %}">{% trans "Experts" %}</a></li>
+</ul>
+</div>
+<div id="main">
+    <div id="ariane">
+      <h1>{% block page_title %}{% endblock %}</h1>
+    </div>
+    <div id="date">
+      {% include "sigma.www/login_small.html" %}
+    </div>
+    <div id="contenu">
+	{% block header %}
+        {% endblock %} 
+	{% block dialog %}
+	<div id="dialog" title="Basic dialog" style="display: none;">
+	  <p class="message">message</p>
+	  <p class="comments_fields" style="display: none">
+	    <label for="commentaire">Commentaire(s):</label>
+	    <textarea id="form_comment" name="commentaire" class="commentaire"></textarea>
+	  </p>
+	</div>
+	{% endblock %}
+        {% block content %}
+        {% endblock %}
+    </div>
+    <div>
+      <hr/>
+    </div>
+    <div id="navigation">
+      {% block navigation %}
+      <!-- Si une navigation existe c'est ici qu'elle apparaitra -->
+      {% endblock %}
+    </div>
+</div>
+<div id="footer">
+    <div id="footer_left">
+        <div id="copyright">{% trans "version 1.0.1" %}</div>
+    </div>
+    <div id="footer_right"></div>
+</div>
+{% endblock %}

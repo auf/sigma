@@ -1,0 +1,69 @@
+Description
+===========
+
+Dans sigma nous utilisons le système de traduction standard de Django afin 
+d'afficher le texte pour l'utilisateur. Ainsi, même si notre système n'est que
+conçu en français, cela nous permet de différencier les chaînes dans le système
+des chaînes affichées. 
+
+Nous procédons de la sorte car même aujourd'hui certains module et certaines
+techniqualités nous empêchent parfois d'utilisons des caractères autres que 
+ASCII standard. En effet, python 3 rêglera peut être cela dans le futur mais
+ce n'est pas encore le cas.
+
+
+Méchanique de génération des traductions
+========================================
+
+Afin de pouvoir utiliser les chaînes traduites dans le système, nous devons 
+générer un fichier de type .mo. Ce fichier contient l'ensemble des chaînes 
+traduites, compilées pour augmenter l'efficacité d'utilisation. 
+
+Ainsi pour "compiler" les traduction vous devez::
+
+      $ cd Sigma/src/sigmawww/sigmawww
+      $ ../../../bin/django compilemessages
+
+
+Comment créer de nouvelles traductions
+======================================
+
+Lorsqu'on utilise de nouvelles chaînes dans le code, il faut les traduires par
+la suite, pour ce faire, il faut mettre à jour le fichier .po de notre langue. 
+Une fois que ce fichier est mis à jour, il faut utiliser un éditeur afin de 
+créer les traductions voulues. 
+
+Soit par exemple en utilisant emacs::
+
+      $ cd Sigma/src/sigmawww/sigmawww
+      $ ../../../bin/django makemessages -l fr
+      processing language fr
+      $ emacs locale/fr/LC_MESSAGES/django.po
+
+Une fois les différentes chaînes traduites, il s'agit de compiler les 
+traductions tel qu'expliqué plus haut, redémarrer le serveur et les traductions
+seront utilisées.
+
+
+Qu'est-ce que les "fuzzy translations"
+======================================
+
+Parfois, lorsqu'on extrait les nouvelles traductions du code, on peut avoir 
+certaines traductions marquées comme étant "fuzzy". 
+
+Ces chaînes sont marquées comme étant possiblement incorrectes puisqu'elles ont
+été déplacées, hors de leur contexte original, il est possible que la 
+traduction prenne un autre sens.
+
+Il faut donc reviser chacune des chaînes qui sont marquées comme "fuzzy" afin
+de s'assurer de préserver le sens correct.
+
+Pour ce faire::
+
+     $ cd Sigma/src/sigmawww/sigmawww
+     $ emacs locale/fr/LC_MESSAGES/django.po
+
+Ensuite, il s'agit de supprimer chaque marque "fuzzy" et de vérifier les 
+traductions. Une fois que cela est fait, on recompile les truductions.
+     	 
+

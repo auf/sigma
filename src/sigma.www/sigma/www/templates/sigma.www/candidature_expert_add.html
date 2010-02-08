@@ -1,0 +1,46 @@
+{% extends "sigma.www/general.html" %}
+
+{% block include_media %}
+<script type="text/javascript" src="/media/js/candidature_expert.js"></script>
+<style type="text/css">
+  body {
+  background-color: #ffffff;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript">
+  $(function() {
+    $(window).bind('load', candidature_expert_init);
+  });
+</script>
+<div id="contenu" class="expert">
+  <form id="candidature_expert" name="expert_mod" action="{{ form.get_action_url }}" method="POST">
+    <div id="tabs">
+      <ul>
+	<li>
+	  <a href="#tabs-expert">Expert</a>
+	</li>
+      </ul>
+      <div class="tab" id="tabs-expert">
+	<p>
+	  <label for="id_region">Region:</label>	    
+	  {{ form.region }}
+	</p>
+	<p>
+	  <label for="id_discipline">Discipline:</label>
+	  {{ form.discipline }}
+	</p>
+	<hr/>
+	<h2>Veuillez sélectionner un expert</h2>
+	{{ form.expert.errors }}
+	<p class="expert_field">
+	  <label for="id_expert">* Expert:</label>
+	  {{ form.expert }}
+	</p>
+	<input type="hidden" id="candidature_id" name="candidature_id" value="{{ candidature.id }}" />
+    </div>
+  </form>
+</div>
+{% endblock %}

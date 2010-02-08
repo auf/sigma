@@ -1,0 +1,30 @@
+{% load i18n %}
+
+{% block expert_list %}
+
+<script type="text/javascript">
+  $(function() {
+     $(".appel_list").accordion({autoHeight: false, collapsible: true, active : false });
+  });
+</script>
+
+{% if region_list_exp.items %}
+<div class="appel_list">
+{% for region, expert_list in region_list_exp.items %}
+<h3 class="list_title">
+  <a class="label" href="#"><b>{{ expert_list|length }}</b> Expert(s) {{ region }}</a>
+</h3>
+<div style="clear: both;">
+  {% for expert in expert_list %}
+  <div class="expert_instance">
+    <div class="expert_description">
+      <a href="{% url sigma.www.views.expert.detail object_id=expert.id %}">{{ expert }}</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
