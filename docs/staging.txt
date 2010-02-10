@@ -13,7 +13,7 @@ cette documentation
 Étapes de déploiement
 =====================
 
-    # git clone gitosis@git.auf:auf_sigma.git Sigma
+	# git clone gitosis@git.auf:auf_sigma.git Sigma
 
 	  Votre clef ssh publique doit être enregistrée dans le dépot du projet	
 
@@ -21,7 +21,7 @@ cette documentation
 
 	# python bootstrap.py
 
-	# bin/buildout -c production.cfg
+	# bin/buildout -c staging.cfg
 
 	  Si l'une des étapes échoues parce qu'un paquet est manquant, il 
 	  s'agit de trouver le egg correspondant sur le net, le mieux alors 
