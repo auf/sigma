@@ -53,6 +53,8 @@ INSTALLED_APPS = ('django.contrib.auth',
     'django.contrib.admin',
     'django_tables',     
     'pagination',                  
+    'django_roa'
+    'auf_roa_authentification.lib',
     'sigma.references',
     'sigma.www',)
 
@@ -80,11 +82,6 @@ ADMIN_LOGIN = "admin"
 # C'est le mot de passe de l'administrateur, il est ici encrypté en format sha1
 ADMIN_PASSWORD = 'sha1$7dc98$a58a4588b734faa0198f5ba8aae80c5030de5dc6'
 
-
-AUTHENTICATION_BACKENDS = (
-    ('sigma.www.authentification.SettingsBackend',)
-)
-
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.auth',
     'django.core.context_processors.debug',
@@ -105,5 +102,25 @@ LANGUAGES = (
 )
  
 # Utilise afin de bypasser l'authentification par mot de passe
+AUTHENTICATION_BACKENDS = (
+    'auf_roa_authentification.lib.backends.CascadeBackend',
+    'sigma.www.authentification.SettingsBackend',
+)
 AUTH_PASSWORD_REQUIRED = True
 AUTOMATIC_ADMIN_CREATE = True
+
+# Pour ROA
+ROA_MODELS = True   # set to False if you'd like to develop/test locally
+ROA_FORMAT = 'django'
+ROA_HEADERS = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+}
+ROA_DJANGO_ERRORS = True # useful to ease debugging if you use test server
+
+ROA_MODEL_NAME_MAPPING = (
+    ('remoteauth.', 'auth.'),
+)
+ROA_BASE_URL = 'https://authentification.auf.org/auth/'
+SERIALIZATION_MODULES = {
+    'django' : 'auf_roa_authentification.lib.serializers',
+}

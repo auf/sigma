@@ -40,35 +40,17 @@ class SettingsBackend(ModelBackend):
     ADMIN_PASSWORD = 'sha1$4e987$afbcf42e21bd417fb71db8c66b321e9fc33051de'
     """
     def authenticate(self, username=None, password=None):
+        #import pdb; pdb.set_trace()
         """Authentification de l'utilisateur
 
         @param username
         @param password
         """
         user = None
-        if self.is_admin(username, password):
-            user = self.as_admin(username, password)
-        else:
-            # identifiant est soit le courriel, soit prenom.nom
-            suffixe = '@auf.org'
-            # identifiant courriel
-            if username.endswith(suffixe):
-                courriel = username
-                username = username.replace(suffixe, '')
-            # identifiant prenom.nom
-            else:
-                username = username
-                courriel = username + suffixe
-            try:
-                user = self.as_employe(username, courriel, password)
-            except Authentification.DoesNotExist:
-                try:
-                    user = self.as_expert(username, password)
-                except Expert.DoesNotExist:
-                    try:
-                        user = self.as_user(username, password)
-                    except User.DoesNotExist:
-                        user = None
+        try:
+            user = self.as_expert(username, password)
+        except Expert.DoesNotExist:
+            user = None
         return user
 
 
