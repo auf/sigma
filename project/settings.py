@@ -11,10 +11,10 @@ MANAGERS = ADMINS
 
 SITE_ID = 42
 
-DATABASE_ENGINE = 'mysql'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'sigma'
-DATABASE_USER = 'root'             # Not used with sqlite3.
-DATABASE_PASSWORD = 'patati42'         # Not used with sqlite3.
+DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'sigma.db'
+DATABASE_USER = ''             # Not used with sqlite3.
+DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
@@ -47,14 +47,15 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'project.urls'
 
 
-INSTALLED_APPS = ('django.contrib.auth',
+INSTALLED_APPS = (
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.admin',
     'django_tables',     
     'pagination',                  
-    'django_roa'
-    'auf_roa_authentification.lib',
+    'django_roa',
+    'auf_roa_authentification_backend',
     'sigma.references',
     'sigma.www',)
 
@@ -103,7 +104,7 @@ LANGUAGES = (
  
 # Utilise afin de bypasser l'authentification par mot de passe
 AUTHENTICATION_BACKENDS = (
-    'auf_roa_authentification.lib.backends.CascadeBackend',
+    'auf_roa_authentification_backend.backends.CascadeBackend',
     'sigma.www.authentification.SettingsBackend',
 )
 AUTH_PASSWORD_REQUIRED = True
@@ -122,5 +123,5 @@ ROA_MODEL_NAME_MAPPING = (
 )
 ROA_BASE_URL = 'https://authentification.auf.org/auth/'
 SERIALIZATION_MODULES = {
-    'django' : 'auf_roa_authentification.lib.serializers',
+    'django' : 'auf_roa_authentification_backend.serializers',
 }

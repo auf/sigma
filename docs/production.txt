@@ -35,6 +35,8 @@ cette documentation
 
 	# bin/django syncdb
 
+      Ne pas créer de compte admin!
+
 	  Les configurations de la base de données en productions se trouvent
 	  dans le fichier:
 	       
