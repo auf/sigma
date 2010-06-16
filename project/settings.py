@@ -55,7 +55,6 @@ INSTALLED_APPS = (
     'django_tables',     
     'pagination',                  
     'django_roa',
-    'auf_roa_authentification_backend',
     'sigma.references',
     'sigma.www',)
 
@@ -104,24 +103,11 @@ LANGUAGES = (
  
 # Utilise afin de bypasser l'authentification par mot de passe
 AUTHENTICATION_BACKENDS = (
-    'auf_roa_authentification_backend.backends.CascadeBackend',
+    'auf_references_client.backends.CascadeBackend',
     'sigma.www.authentification.SettingsBackend',
 )
 AUTH_PASSWORD_REQUIRED = True
 AUTOMATIC_ADMIN_CREATE = True
 
 # Pour ROA
-ROA_MODELS = True   # set to False if you'd like to develop/test locally
-ROA_FORMAT = 'django'
-ROA_HEADERS = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-}
-ROA_DJANGO_ERRORS = True # useful to ease debugging if you use test server
-
-ROA_MODEL_NAME_MAPPING = (
-    ('remoteauth.', 'auth.'),
-)
-ROA_BASE_URL = 'https://authentification.auf.org/auth/'
-SERIALIZATION_MODULES = {
-    'django' : 'auf_roa_authentification_backend.serializers',
-}
+from auf_references_client.settings import *
