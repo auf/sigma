@@ -1,0 +1,7 @@
+#header #branding h1 {
+    background: None !important;
+    line-height: 30px;
+    text-indent: 0 !important;
+    width: auto !important;
+    float: left;
+}
