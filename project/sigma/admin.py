@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from auf.django.workflow.admin import WorkflowAdmin
-from models import Appel
+from models import Appel, Candidat
 
 class AppelAdmin(WorkflowAdmin):
     fields = ('nom',
@@ -12,6 +12,11 @@ class AppelAdmin(WorkflowAdmin):
         'date_fin',
         'date_activation',
         'date_desactivation',
-        'etat', )
+        'etat',
+        )
+
+class CandidatAdmin(admin.ModelAdmin):
+    pass
 
 admin.site.register(Appel, AppelAdmin)
+admin.site.register(Candidat, CandidatAdmin)
