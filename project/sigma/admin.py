@@ -5,6 +5,13 @@ from auf.django.workflow.admin import WorkflowAdmin
 from models import Appel
 
 class AppelAdmin(WorkflowAdmin):
-    fields = ('nom', 'etat', )
+    fields = ('nom',
+        'code_budgetaire',
+        #'formulaire_wcs',
+        'date_debut',
+        'date_fin',
+        'date_activation',
+        'date_desactivation',
+        'etat', )
 
 admin.site.register(Appel, AppelAdmin)
