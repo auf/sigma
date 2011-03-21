@@ -67,15 +67,22 @@ class DiplomeInline(admin.StackedInline):
     verbose_name = verbose_name_plural = "Diplômes"
 
 class DossierAdmin(WorkflowAdmin):
-    exclude = ('candidat', 'appel', )
     inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
     fieldsets = (
+        (None, {
+            'fields': ('candidat', 'appel', ),
+        }),
         ('Situation universitaire', {
+            'classes': ('collapse',),
             'fields': ('candidat_statut', 'candidat_fonction', ),
         }),
         ('État du dossier', {
             'classes': ('collapse',),
             'fields': ('etat', ),
+        }),
+        ('Lien avec l\'AUF', {
+            'classes': ('collapse',),
+            'fields': ('dernier_projet_description', 'dernier_projet_annee', 'derniere_bourse_categorie', 'derniere_bourse_annee',),
         }),
     )
 

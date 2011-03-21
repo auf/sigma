@@ -115,8 +115,6 @@ class Dossier(DossierWorkflow, models.Model):
     # Maintenant, on spécifie la valeur avec la région où est fait l'appel
     bureau_rattachement = models.ForeignKey(Bureau, verbose_name="Bureau de rattachement", blank=True, null=True)
 
-    # Dernier diplôme obtenu
-
     # Tentative pour récupérer de l'information passée
     dernier_projet_description = models.TextField(verbose_name="Description du dernier projet ou programme", blank=True, null=True)
     dernier_projet_annee = models.CharField(max_length=4, verbose_name="Année du dernier projet ou programme", blank=True, null=True)
