@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'south',
+    'sigma',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
