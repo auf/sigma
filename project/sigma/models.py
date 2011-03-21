@@ -121,7 +121,7 @@ class Dossier(models.Model):
     bureau_rattachement = models.ForeignKey(Bureau, blank=True, null=True)
 
     # Dernier diplôme obtenu
-    diplomes = models.ManyToManyField(Diplome, blank=True, null=True)
+    dernier_diplome = models.ForeignKey(Diplome, blank=True, null=True)
 
     # Tentative pour récupérer de l'information passée
     dernier_projet_description = models.TextField(verbose_name="Description du dernier projet ou programme", blank=True, null=True)
@@ -130,9 +130,10 @@ class Dossier(models.Model):
     derniere_bourse_annee = models.CharField(max_length=4, verbose_name="Année de la dernière bourse", blank=True, null=True)
 
     ## ???? probablement le chose irrecevable, rapproché, recevable (devrait etre géré par WF état auf.django.workflow)
+    ## traitement, il y a un code de traitement avec des droits
     #statut = models.IntegerField(db_column='F_STATUT', default=1)   # foreign
 
-    ## ????
+    ## ???? toutes les valeurs sont à 0 dans sigmaWCS
     # etat = models.BooleanField(db_column='I_ETAT', default=False)
 
     
@@ -220,6 +221,16 @@ class DossierAccueil(DossierFaculte):
     pass
 
 
+class Public(models.Model):
+    """
+    """
+    nom = models.CharField(max_length=255, verbose_name="Nom")
+
+class Intervention(models.Model):
+    """
+    """
+    nom = models.CharField(max_length=255, verbose_name="Nom")
+
 class DossierMobilite(models.Model):
     """Informations sur la mobilité demandée par le candidat.
     """
@@ -238,12 +249,10 @@ class DossierMobilite(models.Model):
     formation_en_cours_diplome = models.CharField(max_length=255, verbose_name="Intitulé du diplôme", blank=True, null=True)
     formation_en_cours_niveau = models.ForeignKey(NiveauEtude, related_name="formation_en_cours_niveau", verbose_name="Niveau d'étude", blank=True, null=True)
 
-    ## pas trouvé dans le UI...
-    ############################################################################################################
-    type_intervention = models.IntegerField(db_column='F_TYPE_INTERVENTION', default=0)  # foreign
-    public_vise = models.IntegerField(db_column='F_PUBLIC_VISE', default=0)  # foreign
+    # Programme de mission
+    type_intervention = models.ForeignKey(Intervention, verbose_name="Type d'intervention", blank=True, null=True)
+    public_vise = models.ForeignKey(Public, verbose_name="Public visé", blank=True, null=True)
     autres_publics = models.CharField(max_length=255, verbose_name="Autres publics", blank=True, null=True)
-    ############################################################################################################
 
     # Disciplines
     discipline = models.ForeignKey(Discipline, verbose_name="Discipline", blank=True, null=True)
