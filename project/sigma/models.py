@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django.db import models
-from workflow import AppelWorkflow
+from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline
 
 CIVILITE = (
@@ -45,7 +45,7 @@ class Appel(AppelWorkflow, models.Model):
     date_desactivation = models.DateField(verbose_name="Date de désactivation", blank=True, null=True)
 
     def __unicode__(self):
-        return self.nom
+        return "#%s : %s" %(self.id, self.nom)
 
 class Candidat(models.Model):
     """
@@ -83,6 +83,8 @@ class Candidat(models.Model):
     sexe = models.CharField(max_length=1, verbose_name="Sexe", blank=True, null=True)
     civilite = models.CharField(max_length=2, verbose_name="Civilité", choices=CIVILITE, blank=True, null=True)
 
+    def __unicode_(self):
+        return "%s %s" % (self.prenom, self.nom)
 
 class CategorieBourse(models.Model):
     """
@@ -98,16 +100,7 @@ class NiveauEtude(models.Model):
     annees = models.CharField(max_length=2, verbose_name="Nombre d'années universitaires", )
     nom = models.CharField(max_length=255, verbose_name="nom",)
 
-class Diplome(models.Model):
-    """
-    """
-    nom = models.CharField(max_length=255, verbose_name="Nom", blank=True, null=True)
-    date = models.DateField(max_length=255, verbose_name="Date", blank=True, null=True)
-    niveau = models.ForeignKey(NiveauEtude, related_name="niveau", verbose_name="Niveau d'étude", blank=True, null=True)
-    etablissement_nom = models.CharField(max_length=255, verbose_name="Nom de l'établissement", blank=True, null=True)
-    etablissement_pays = models.ForeignKey(Pays, related_name="etablissement_pays", verbose_name="Pays de l'établissement", blank=True, null=True)
-    
-class Dossier(models.Model):
+class Dossier(DossierWorkflow, models.Model):
     """
     Informations générales du dossier de candidature.
     """
@@ -123,7 +116,6 @@ class Dossier(models.Model):
     bureau_rattachement = models.ForeignKey(Bureau, verbose_name="Bureau de rattachement", blank=True, null=True)
 
     # Dernier diplôme obtenu
-    dernier_diplome = models.ForeignKey(Diplome, blank=True, null=True)
 
     # Tentative pour récupérer de l'information passée
     dernier_projet_description = models.TextField(verbose_name="Description du dernier projet ou programme", blank=True, null=True)
@@ -149,6 +141,8 @@ class Dossier(models.Model):
     #reponse_notification = models.CharField(max_length=6, db_column='Y_REPONSE_NOTIFICATION', choices=REPONSE, default='sr')
     #commentaire_notification = models.CharField(max_length=255, db_column='L_COMMENTAIRE_NOTIFICATION')
     
+    def __unicode__(self, ):
+        return "dossier #%s (%s pour l'appel %s)" % (self.id, self.candidat, self.appel)
 
 class DossierFaculte(models.Model):
     dossier = models.ForeignKey(Dossier, verbose_name="Dossier",)
@@ -273,3 +267,14 @@ class DossierMobilite(models.Model):
     dir_ori_civilite = models.CharField(max_length=2, verbose_name="Civilité", choices=CIVILITE, blank=True, null=True)
     dir_ori_nom = models.CharField(max_length=255, verbose_name="Nom", blank=True, null=True)
     dir_ori_prenom = models.CharField(max_length=255, verbose_name="Prénom", blank=True, null=True)
+
+class Diplome(models.Model):
+    """
+    """
+    dossier = models.ForeignKey(Dossier)
+    nom = models.CharField(max_length=255, verbose_name="Nom", blank=True, null=True)
+    date = models.DateField(max_length=255, verbose_name="Date", blank=True, null=True)
+    niveau = models.ForeignKey(NiveauEtude, related_name="niveau", verbose_name="Niveau d'étude", blank=True, null=True)
+    etablissement_nom = models.CharField(max_length=255, verbose_name="Nom de l'établissement", blank=True, null=True)
+    etablissement_pays = models.ForeignKey(Pays, related_name="etablissement_pays", verbose_name="Pays de l'établissement", blank=True, null=True)
+    
