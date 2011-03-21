@@ -117,8 +117,10 @@ class Dossier(models.Model):
     candidat_statut = models.CharField(max_length=255, verbose_name="Statut du candidat", choices=CANDIDAT_STATUT, blank=True, null=True)
     candidat_fonction = models.CharField(max_length=255, verbose_name="Statut du candidat", blank=True, null=True)
 
-    # ?? je ne trouve pas dans le UI... mais il y a des data??
-    bureau_rattachement = models.ForeignKey(Bureau, blank=True, null=True)
+    # Utilisé lors des appels internationaux pour définir le bureau (région) de traitement
+    # Cette valeur était dérivée de dossier.etablissement (normalement équivalent de dossier.origine.etablissement)
+    # Maintenant, on spécifie la valeur avec la région où est fait l'appel
+    bureau_rattachement = models.ForeignKey(Bureau, verbose_name="Bureau de rattachement", blank=True, null=True)
 
     # Dernier diplôme obtenu
     dernier_diplome = models.ForeignKey(Diplome, blank=True, null=True)
@@ -129,49 +131,34 @@ class Dossier(models.Model):
     derniere_bourse_categorie = models.ForeignKey(CategorieBourse, related_name="bourse_categorie", verbose_name="Catégorie de la dernière bourse", blank=True, null=True)
     derniere_bourse_annee = models.CharField(max_length=4, verbose_name="Année de la dernière bourse", blank=True, null=True)
 
-    ## ???? probablement le chose irrecevable, rapproché, recevable (devrait etre géré par WF état auf.django.workflow)
-    ## traitement, il y a un code de traitement avec des droits
-    #statut = models.IntegerField(db_column='F_STATUT', default=1)   # foreign
-
-    ## ???? toutes les valeurs sont à 0 dans sigmaWCS
-    # etat = models.BooleanField(db_column='I_ETAT', default=False)
-
-    
-    # Évaluation
+    # Évaluations (à terminer // expert classements)
     moyenne_academique = models.FloatField(verbose_name="Moyenne académique", blank=True, null=True)
     opportunite_regionale = models.CharField(max_length=255, verbose_name="Opportunité régionale", blank=True, null=True)
-
-    # traitement ????
-    #########################################################################################################
-
     #classement_1 = models.IntegerField(null=True, db_column='N_CLASSEMENT_1', blank=True)
     #classement_2 = models.IntegerField(null=True, db_column='N_CLASSEMENT_2', blank=True)
     #classement_3 = models.IntegerField(null=True, db_column='N_CLASSEMENT_3', blank=True)
-
     #coche_selection = models.BooleanField(db_column='I_COCHE_SELECTION', default=False)
-    #reponse_notification = models.CharField(max_length=6, db_column='Y_REPONSE_NOTIFICATION', choices=REPONSE, default='sr')
-    #commentaire_notification = models.CharField(max_length=255, db_column='L_COMMENTAIRE_NOTIFICATION')
+
+    # Recevabilité (à faire)
     #autres_criteres = models.CharField(max_length=255, db_column='L_AUTRES_CRITERES')
     #erreurs_recevabilite = models.TextField(db_column='L_ERREURS_RECEVABILITE')
     #repechage = models.BooleanField(db_column='I_REPECHAGE', default=False)
     #rendu_irrecevable = models.BooleanField(db_column='I_RENDU_IRRECEVABLE', default=False)
 
-    # Toutes les données n'ont aucune date de spécifiée???
-    #########################################################################################################
-    # dd_activation = models.CharField(max_length=10, db_column='DD_ACTIVATION', default='0000-00-00')
-    # df_activation = models.CharField(max_length=10, db_column='DF_ACTIVATION', default='0000-00-00')
+    # Notifications (à faire)
+    #reponse_notification = models.CharField(max_length=6, db_column='Y_REPONSE_NOTIFICATION', choices=REPONSE, default='sr')
+    #commentaire_notification = models.CharField(max_length=255, db_column='L_COMMENTAIRE_NOTIFICATION')
     
-
 
 class DossierFaculte(models.Model):
     dossier = models.ForeignKey(Dossier, verbose_name="Dossier",)
 
     # Etablissement connu de l'AUF
-    etablissement = models.ForeignKey(Etablissement, related_name="etablissement", verbose_name="Établissement", blank=True, null=True)
+    etablissement = models.ForeignKey(Etablissement, verbose_name="Établissement", blank=True, null=True)
 
     # Autre établissement
     autre_etablissement_nom = models.CharField(max_length=255, verbose_name="Autre établissement", blank=True, null=True)
-    autre_etablissement_pays = models.ForeignKey(Pays, related_name="autre_etablissement_pays", verbose_name="Pays", blank=True, null=True)
+    autre_etablissement_pays = models.ForeignKey(Pays, verbose_name="Pays", blank=True, null=True)
     autre_etablissement_adresse = models.CharField(max_length=255, verbose_name="Adresse", blank=True, null=True)
     autre_etablissement_code_postal = models.CharField(max_length=255, verbose_name="Adresse", blank=True, null=True)
     autre_etablissement_ville = models.CharField(max_length=255, verbose_name="Ville", blank=True, null=True)
@@ -207,6 +194,8 @@ class DossierFaculte(models.Model):
     faculte_telephone = models.CharField(max_length=255, verbose_name="Téléphone de la faculté", blank=True, null=True)
     faculte_fax = models.CharField(max_length=255, verbose_name="FAX de la faculté", blank=True, null=True)
     
+    class Meta:
+        abstract = True
 
 class DossierOrigine(DossierFaculte):
     """
@@ -263,11 +252,9 @@ class DossierMobilite(models.Model):
     alternance_nb_mois_accueil = models.IntegerField(verbose_name="Nombre de mois à l'accueil", blank=True, null=True)
     alternance_accueil_puis_origine = models.NullBooleanField(verbose_name="Mobilité commençée à l'accueil?", blank=True, null=True)
 
-    ## pas trouvé dans le UI...
-    ############################################################################################################
+    # Diplôme demandé
     diplome_demande_nom = models.CharField(max_length=255, verbose_name="Diplôme demandé", blank=True, null=True)
     diplome_demande_niveau = models.ForeignKey(NiveauEtude, related_name="diplome_demande_niveau", verbose_name="Niveau d'étude", blank=True, null=True)
-    ############################################################################################################
     
     # Thèse
     these_date_inscription = models.DateField(verbose_name="Date d'inscription", blank=True, null=True)
