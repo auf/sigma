@@ -47,6 +47,7 @@ ROOT_URLCONF = 'project.urls'
 
 INSTALLED_APPS = (
     'auf.django.skin',
+    'auf.django.auth',
     'admin_tools',
     'admin_tools.theming',
     'admin_tools.menu',
@@ -70,6 +71,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'auf.django.skin.context_processors.auf',
 )
 
+AUTHENTICATION_BACKENDS = (
+    'auf.django.auth.backends.CascadeBackend',
+)
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
