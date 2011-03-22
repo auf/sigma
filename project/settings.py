@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'south',
     'reversion',
+    'auf.django.admingroup',
     'sigma',
 )
 
