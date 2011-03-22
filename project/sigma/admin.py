@@ -68,6 +68,9 @@ class DiplomeInline(admin.StackedInline):
 
 class DossierAdmin(WorkflowAdmin):
     inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
+    list_display = ('id', 'appel', 'candidat', 'etat', )
+    list_filter = ('appel', 'etat', )
+    search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom', )
     fieldsets = (
         (None, {
             'fields': ('candidat', 'appel', ),
