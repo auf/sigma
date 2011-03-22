@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django.contrib import admin
+from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
 from models import Appel, Candidat, Diplome, Dossier, DossierOrigine, DossierAccueil, DossierMobilite
 
@@ -66,7 +67,7 @@ class DiplomeInline(admin.StackedInline):
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Diplômes"
 
-class DossierAdmin(WorkflowAdmin):
+class DossierAdmin(WorkflowAdmin, VersionAdmin):
     inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
     list_display = ('id', 'appel', 'candidat', 'etat', )
     list_filter = ('appel', 'etat', )
