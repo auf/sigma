@@ -90,3 +90,42 @@ class DossierWorkflow(WorkflowMixin):
 
     class Meta:
         abstract = True
+
+    def acces_declasse(self, action, request):
+        return True
+
+    def acces_en_cours(self, action, request):
+        return True
+
+    def acces_rejete(self, action, request):
+        return True
+
+    def acces_rapproche(self, action, request):
+        return True
+
+    def acces_retenu(self, action, request):
+        return True
+
+    def acces_incomplet(self, action, request):
+        return True
+
+    def acces_attente(self, action, request):
+        return True
+
+    def acces_non_classe(self, action, request):
+        return True
+
+    def acces_classe(self, action, request):
+        return True
+
+    def acces_a_verifier(self, action, request):
+        return True
+
+    def acces_boursier(self, action, request):
+        return True
+
+    def acces_recevable(self, action, request):
+        return True
+
+    def acces_irrecevable(self, action, request):
+        return True

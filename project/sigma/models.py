@@ -83,8 +83,8 @@ class Candidat(models.Model):
     sexe = models.CharField(max_length=1, verbose_name="Sexe", blank=True, null=True)
     civilite = models.CharField(max_length=2, verbose_name="Civilité", choices=CIVILITE, blank=True, null=True)
 
-    def __unicode_(self):
-        return "%s %s" % (self.prenom, self.nom)
+    def __unicode__(self):
+        return u"%s %s" % (self.nom.upper(), self.prenom)
 
 class CategorieBourse(models.Model):
     """
@@ -140,7 +140,7 @@ class Dossier(DossierWorkflow, models.Model):
     #commentaire_notification = models.CharField(max_length=255, db_column='L_COMMENTAIRE_NOTIFICATION')
     
     def __unicode__(self, ):
-        return "dossier #%s (%s pour l'appel %s)" % (self.id, self.candidat, self.appel)
+        return u"dossier #%s (%s pour l'appel %s)" % (self.id, self.candidat, self.appel)
 
 class DossierFaculte(models.Model):
     dossier = models.ForeignKey(Dossier, verbose_name="Dossier",)
