@@ -12,7 +12,8 @@ class DisciplineForm(BetterModelForm):
     disciplines = forms.ModelMultipleChoiceField(
         queryset=Discipline.objects.all(),
         label="Disciplines", 
-        widget=admin.widgets.FilteredSelectMultiple("disciplines", False)
+        widget=admin.widgets.FilteredSelectMultiple("disciplines", False),
+        required=False,
         )
 
     class Meta:
