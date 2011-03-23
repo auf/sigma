@@ -12,6 +12,7 @@ urlpatterns = patterns(
     ######## page d'accueil de demo ######
     (r'^$', 'auf.django.skin.views.demo'),
     ######################################
+    (r'^', include('sigma.urls')),
     url(r'^admin_tools/', include('admin_tools.urls')),
     (r'^admin/', include(admin.site.urls)),
     (r'^connexion/$', 'django.contrib.auth.views.login'),

@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'south',
     'reversion',
     'auf.django.admingroup',
+    'form_utils',
     'sigma',
 )
 
@@ -74,6 +75,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 AUTHENTICATION_BACKENDS = (
     'auf.django.auth.backends.CascadeBackend',
 )
+
+AUTH_PROFILE_MODULE = "sigma.userprofile"
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',

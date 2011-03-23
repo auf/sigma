@@ -16,6 +16,9 @@ class CustomMenu(Menu):
     """
     Custom Menu for SIGMA admin site.
     """
+
+    mes_disciplines = items.MenuItem(_('Mes disciplines'), reverse('mes_disciplines'))
+
     def __init__(self, **kwargs):
         Menu.__init__(self, **kwargs)
         self.children += [
@@ -35,4 +38,7 @@ class CustomMenu(Menu):
         """
         Use this method if you need to access the request context.
         """
+        request = context['request']
+        if 'experts' in [g.name.lower() for g in request.user.groups.all()]:
+            self.children.insert(1, self.mes_disciplines)
         return super(CustomMenu, self).init_with_context(context)

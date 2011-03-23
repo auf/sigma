@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django.db import models
+from django.contrib.auth.models import User
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline
 
@@ -30,6 +31,12 @@ REPONSE = (
     ('r', "r"),
 )
 
+
+class UserProfile(models.Model):
+    user = models.ForeignKey("auth.User", unique=True)
+    disciplines = models.ManyToManyField(Discipline, verbose_name="Disciplines", blank=True, null=True)
+
+User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
 
 class Appel(AppelWorkflow, models.Model):
@@ -275,4 +282,3 @@ class Diplome(models.Model):
     niveau = models.ForeignKey(NiveauEtude, related_name="niveau", verbose_name="Niveau d'étude", blank=True, null=True)
     etablissement_nom = models.CharField(max_length=255, verbose_name="Nom de l'établissement", blank=True, null=True)
     etablissement_pays = models.ForeignKey(Pays, related_name="etablissement_pays", verbose_name="Pays de l'établissement", blank=True, null=True)
-    
