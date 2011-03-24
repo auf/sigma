@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 """
 This file was generated with the custommenu management command, it contains
 the classes for the admin menu, you can customize this class as you want.
@@ -10,19 +12,39 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from admin_tools.menu import items, Menu
+from admin_tools.menu.items import MenuItem
 
+
+class MonCompteMenuItem(MenuItem):
+    """
+    Menu personnel destiné à recevoir les fonctionnalités spéciales de 
+    l'utilisateur connecté.
+    """
+    title = "Mon compte"
+    url = reverse('admin:index')
+
+    mes_disciplines = items.MenuItem(_('Mes disciplines'), reverse('mes_disciplines'))
+   
+    def init_with_context(self, context):
+        request = context['request']
+
+        self.title = request.user
+
+        if 'experts' in [g.name.lower() for g in request.user.groups.all()]:
+            self.children.append(self.mes_disciplines)
 
 class CustomMenu(Menu):
     """
     Custom Menu for SIGMA admin site.
     """
 
-    mes_disciplines = items.MenuItem(_('Mes disciplines'), reverse('mes_disciplines'))
+    mon_compte = items.MenuItem(_('Mon compte'), reverse('admin:index'))
 
     def __init__(self, **kwargs):
         Menu.__init__(self, **kwargs)
         self.children += [
             items.MenuItem(_('Dashboard'), reverse('admin:index')),
+            MonCompteMenuItem(),
             items.Bookmarks(),
             items.AppList(
                 _('Applications'),
@@ -39,6 +61,4 @@ class CustomMenu(Menu):
         Use this method if you need to access the request context.
         """
         request = context['request']
-        if 'experts' in [g.name.lower() for g in request.user.groups.all()]:
-            self.children.insert(1, self.mes_disciplines)
         return super(CustomMenu, self).init_with_context(context)
