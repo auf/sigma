@@ -31,6 +31,11 @@ REPONSE = (
     ('r', "r"),
 )
 
+NOTE_MIN = 1
+NOTE_RANGE = 1
+NOTE_MAX = 5
+NOTES = [(i, i) for i in range(NOTE_MIN, NOTE_MAX, NOTE_RANGE)]
+
 
 class UserProfile(models.Model):
     user = models.ForeignKey("auth.User", unique=True)
@@ -107,6 +112,22 @@ class NiveauEtude(models.Model):
     annees = models.CharField(max_length=2, verbose_name="Nombre d'années universitaires", )
     nom = models.CharField(max_length=255, verbose_name="nom",)
 
+class Note(models.Model):
+    """
+    Une personne attribue une note à un dossier de candidature.
+    """
+    user = models.ForeignKey(User)
+    date = models.DateField(auto_now_add=True)
+    note = models.IntegerField(choices=NOTES)
+
+class Commentaire(models.Model):
+    """
+    Une personne peut ajouter un commentaire à un dossier de candidature.
+    """
+    user = models.ForeignKey(User)
+    date = models.DateField(auto_now_add=True)
+    texte = models.TextField(verbose_name="Texte")
+
 class Dossier(DossierWorkflow, models.Model):
     """
     Informations générales du dossier de candidature.
@@ -129,6 +150,10 @@ class Dossier(DossierWorkflow, models.Model):
     derniere_bourse_annee = models.CharField(max_length=4, verbose_name="Année de la dernière bourse", blank=True, null=True)
 
     # Évaluations (à terminer // expert classements)
+    notes = models.ManyToManyField(Note, verbose_name="Notes", blank=True, null=True)
+    commentaires = models.ManyToManyField(Commentaire, verbose_name="Commentaires", blank=True, null=True)
+    moyenne_votes = models.FloatField(verbose_name="Moyenne des évaluateurs", blank=True, null=True)
+
     moyenne_academique = models.FloatField(verbose_name="Moyenne académique", blank=True, null=True)
     opportunite_regionale = models.CharField(max_length=255, verbose_name="Opportunité régionale", blank=True, null=True)
     #classement_1 = models.IntegerField(null=True, db_column='N_CLASSEMENT_1', blank=True)
@@ -148,6 +173,11 @@ class Dossier(DossierWorkflow, models.Model):
     
     def __unicode__(self, ):
         return u"dossier #%s (%s pour l'appel %s)" % (self.id, self.candidat, self.appel)
+
+    def save(self, *args, **kwargs):
+        notes = [note.note for note in self.notes.all()]
+        self.moyenne_votes = float(sum(notes)) / float(len(notes))
+        super(Dossier, self).save(*args, **kwargs)
 
 class DossierFaculte(models.Model):
     dossier = models.ForeignKey(Dossier, verbose_name="Dossier",)
@@ -282,3 +312,4 @@ class Diplome(models.Model):
     niveau = models.ForeignKey(NiveauEtude, related_name="niveau", verbose_name="Niveau d'étude", blank=True, null=True)
     etablissement_nom = models.CharField(max_length=255, verbose_name="Nom de l'établissement", blank=True, null=True)
     etablissement_pays = models.ForeignKey(Pays, related_name="etablissement_pays", verbose_name="Pays de l'établissement", blank=True, null=True)
+

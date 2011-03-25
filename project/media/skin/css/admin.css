@@ -4,3 +4,5 @@
     text-indent: 0 !important;
     width: auto !important;
 }
+
+.module table {border-right: 1px solid #DDDDDD;}

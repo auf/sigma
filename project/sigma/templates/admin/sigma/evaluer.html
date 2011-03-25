@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia form_utils_tags %}
+
+{% block extrahead %}{{ block.super }}
+{% url admin:jsi18n as jsi18nurl %}
+<script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+{{ media }}
+{{ form.media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../">{% trans "Home" %}</a> &rsaquo;
+     <a href="{% url admin:sigma_dossier_changelist %}">Dossiers</a> &rsaquo;
+     <a href="{% url admin:sigma_dossier_change dossier.id %}">{{ dossier }}</a> &rsaquo;
+     Évaluation
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    {% block object-tools %}{% endblock %}
+
+    <h1>Évaluation du {{ dossier }}</h1>
+
+    <div class="module">
+    <h2>Notations (moyenne = {{ dossier.moyenne_votes|floatformat }})</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Note</th>
+            <th>Évaluateur</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+        </thead>
+        {% for note in dossier.notes.all %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td>{{ note.note }}</td>
+            <td>{{ note.user }}</td>
+            <td>{{ note.date }}</td>
+            <td>{% if note.user == request.user %}<a href="{% url supprimer_ma_note note.id %}">supprimer</a>{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+    <form action="" method="post">
+        {{ noteForm|render:"admin/form_utils/better_form.html" }}
+        <div class="submit-row">
+            <input type="submit" name="_save" class="default" value="Enregistrer">
+        </div>
+    </form>
+
+    <div class="module">
+    <h2>Commentaires</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Commentaire</th>
+            <th>Auteur</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+        </thead>
+        {% for commentaire in dossier.commentaires.all %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td>{{ commentaire.texte|linebreaks }}</td>
+            <td>{{ commentaire.user }}</td>
+            <td>{{ commentaire.date }}</td>
+            <td>{% if commentaire.user == commentaire.user %}<a href="{% url supprimer_mon_commentaire commentaire.id %}">supprimer</a>{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    </div>
+    <form action="" method="post">
+        {{ commentaireForm|render:"admin/form_utils/better_form.html" }}
+        <div class="submit-row">
+            <input type="submit" name="_save" class="default" value="Enregistrer">
+        </div>
+    </form>
+
+</div>
+{% endblock %}
