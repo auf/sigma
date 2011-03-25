@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.template import Context, RequestContext
 from django.shortcuts import render_to_response, redirect
-from forms import DisciplineForm, NoteForm, CommentaireForm
+from forms import DisciplineForm, NoteForm, CommentaireForm, EvaluationForm
 from models import Dossier, Note, Commentaire
 
 @login_required
@@ -26,8 +26,11 @@ def mes_disciplines(request, ):
 def evaluer(request, dossier_id):
     dossier = Dossier.objects.get(id=dossier_id)
     if request.method == "POST":
+
         noteForm = NoteForm(data=request.POST)
         commentaireForm = CommentaireForm(data=request.POST)
+        evaluationForm = EvaluationForm(data=request.POST, instance=dossier)
+
         if noteForm.is_valid():
             note = noteForm.save(commit=False)
             note.user = request.user
@@ -35,6 +38,7 @@ def evaluer(request, dossier_id):
             dossier.notes.add(note)
             dossier.save()
             message = "La note a été ajoutée."
+
         if commentaireForm.is_valid():
             commentaire = commentaireForm.save(commit=False)
             commentaire.user = request.user
@@ -42,15 +46,28 @@ def evaluer(request, dossier_id):
             commentaire.save()
             dossier.commentaires.add(commentaire)
             dossier.save()
+
             message = "Le commentaire a été ajouté."
-        if noteForm.is_valid() or commentaireForm.is_valid():
+        if evaluationForm.is_valid():
+            evaluationForm.save()
+            message = "Les évaluations ont été enregistrées."
+
+        if noteForm.is_valid() or \
+           commentaireForm.is_valid() or \
+           evaluationForm.is_valid():
             request.user.message_set.create(message=message)
             return redirect(reverse('evaluer', args=[dossier.id]))
     else:
-        noteForm = NoteForm(instance=dossier)
-        commentaireForm = CommentaireForm(instance=dossier)
+        noteForm = NoteForm()
+        commentaireForm = CommentaireForm()
+        evaluationForm = EvaluationForm(instance=dossier)
     
-    c = {'dossier' : dossier, 'noteForm' : noteForm, 'commentaireForm' : commentaireForm, }
+    c = {
+        'dossier' : dossier,
+        'noteForm' : noteForm,
+        'commentaireForm' : commentaireForm,
+        'evaluationForm' : evaluationForm,    
+    }
     return render_to_response("admin/sigma/evaluer.html", \
                                Context(c), \
                                context_instance = RequestContext(request))

@@ -29,3 +29,8 @@ class CommentaireForm(BetterModelForm):
     class Meta:
         exclude = ('user', )
         model = Commentaire
+
+class EvaluationForm(BetterModelForm):
+    class Meta:
+        fields = ('moyenne_academique', 'opportunite_regionale', )
+        model = Dossier
