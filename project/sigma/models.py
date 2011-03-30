@@ -1,9 +1,11 @@
 # -*- encoding: utf-8 -*-
 
+from django import forms
 from django.db import models
 from django.contrib.auth.models import User
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline
+from fields import TYPE_PIECES
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -55,6 +57,7 @@ class Appel(AppelWorkflow, models.Model):
     date_fin = models.DateField(verbose_name="Date de fin", blank=True, null=True)
     date_activation = models.DateField(verbose_name="Date d'activation", blank=True, null=True)
     date_desactivation = models.DateField(verbose_name="Date de désactivation", blank=True, null=True)
+    pieces = models.ManyToManyField("TypePiece", verbose_name="Pieces", blank=True, null=True)
 
     def __unicode__(self):
         return "#%s : %s" %(self.id, self.nom)
@@ -175,8 +178,10 @@ class Dossier(DossierWorkflow, models.Model):
         return u"dossier #%s (%s pour l'appel %s)" % (self.id, self.candidat, self.appel)
 
     def save(self, *args, **kwargs):
-        notes = [note.note for note in self.notes.all()]
-        self.moyenne_votes = float(sum(notes)) / float(len(notes))
+        if self.id:
+            notes = [note.note for note in self.notes.all()]
+            if len(notes) > 0:
+                self.moyenne_votes = float(sum(notes)) / len(notes)
         super(Dossier, self).save(*args, **kwargs)
 
 class DossierFaculte(models.Model):
@@ -312,4 +317,53 @@ class Diplome(models.Model):
     niveau = models.ForeignKey(NiveauEtude, related_name="niveau", verbose_name="Niveau d'étude", blank=True, null=True)
     etablissement_nom = models.CharField(max_length=255, verbose_name="Nom de l'établissement", blank=True, null=True)
     etablissement_pays = models.ForeignKey(Pays, related_name="etablissement_pays", verbose_name="Pays de l'établissement", blank=True, null=True)
+
+
+#from forms_builder.forms.models import AbstractField as FBAbstractField
+#from forms_builder.forms.models import AbstractFormEntry as FBAbstractFormEntry
+#from forms_builder.forms.models import AbstractFieldEntry as FBAbstractFieldEntry
+#from forms_builder.forms.fields import *
+
+
+class TypePiece(models.Model):
+    nom = models.CharField(max_length=255)
+    field_type = models.IntegerField(verbose_name="Type", choices=[(code, p['nom']) for code, p in TYPE_PIECES.items()])
+    requis = models.BooleanField(default=True)
+    aide = models.CharField(blank=True, max_length=255)
+
+    class Meta:
+        verbose_name = "Type de pièce"
+
+    def __unicode__(self):
+        return self.nom
+
+
+class Piece(models.Model):
+    dossier = models.ForeignKey(Dossier)
+    type = models.ForeignKey(TypePiece)
+    valeur = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Pièce"
+
+    def __unicode__(self,):
+        return self.type.__unicode__()
+
+
+from django.db.models.signals import post_init
+def preparer_pieces(sender, instance, signal, *args, **kwargs):
+    """
+    Cette fonction prépare les champs dynamiques (pièces) à partir de l'appel associé
+    au dossier.
+    Si le champs n'existe plus dans l'appel, le champs est conservé.
+    """
+    if instance.id:
+        dossier_piece_types = [p.type_id for p in instance.piece_set.all()]
+        for type_piece in [p for p in instance.appel.pieces.all() if p.id not in dossier_piece_types]:
+            piece = Piece()
+            piece.dossier = instance
+            piece.type = type_piece
+            piece.save()
+
+post_init.connect(preparer_pieces, sender=Dossier)
 

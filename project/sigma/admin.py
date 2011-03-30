@@ -4,9 +4,46 @@ from django.core.urlresolvers import reverse
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
-from models import Appel, Candidat, Diplome, Dossier, DossierOrigine, DossierAccueil, DossierMobilite
+from models import *
+from forms import PieceForm
+
+
+class DossierPieceAdmin(admin.TabularInline):
+    """
+    Admin pour spécifier une valeur à un type de pièce
+    """
+    form = PieceForm
+    model = Piece
+    extra = 0
+    max_num = 0
+    can_delete = False
+
+class TypePieceAdmin(admin.ModelAdmin):
+    """
+    Admin générale de tous les types de pièces.
+    """
+    list_display = ('nom', 'field_type', 'requis', )
+
+class ProxyAppelPieces(Appel.pieces.through):
+
+    class Meta:
+        proxy=True
+        verbose_name = u"Type de pièce"
+        verbose_name_plural = u"Pièces demandées pour cet appel"
+
+    def __unicode__(self,):
+        return u"pièce"
+
+class TypePieceInline(admin.TabularInline):
+    """
+    Association des types de pièces à un appel.
+    """
+    fields = ('typepiece', )
+    model = ProxyAppelPieces
+    extra = 0
 
 class AppelAdmin(WorkflowAdmin):
+    inlines = (TypePieceInline,)
     fields = ('nom',
         'code_budgetaire',
         #'formulaire_wcs',
@@ -69,7 +106,7 @@ class DiplomeInline(admin.StackedInline):
     verbose_name = verbose_name_plural = "Diplômes"
 
 class DossierAdmin(WorkflowAdmin, VersionAdmin):
-    inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
+    inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierPieceAdmin)
     list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', '_actions', )
     list_filter = ('etat', )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom', )
@@ -97,3 +134,4 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Candidat, CandidatAdmin)
 admin.site.register(Dossier, DossierAdmin)
+admin.site.register(TypePiece, TypePieceAdmin)
