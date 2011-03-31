@@ -60,6 +60,3 @@ PROPERTY_TYPES = {
         'extra' : {'required' : False, 'widget' : AdminDateWidget, },
     },
 }
-
-
-PROPERTY_TYPES_CHOICES = [(code, p['name']) for code, p in PROPERTY_TYPES.items()]

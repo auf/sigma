@@ -2,7 +2,7 @@
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from fields import PROPERTY_TYPES_CHOICES
+from fields import PROPERTY_TYPES
 
 class TypeProperty(models.Model):
     """
@@ -10,7 +10,7 @@ class TypeProperty(models.Model):
     It's used by the MetaModel and the ValueProperty.
     """
     name = models.CharField(verbose_name=_("Nom"), max_length=255)
-    field_type = models.IntegerField(verbose_name=_("Type"), choices=PROPERTY_TYPES_CHOICES)
+    field_type = models.IntegerField(verbose_name=_("Type"), choices=[(code, p['name']) for code, p in PROPERTY_TYPES.items()])
 
     class Meta:
         abstract = True

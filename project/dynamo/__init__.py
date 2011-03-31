@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django.db.models.signals import post_init
+from fields import PROPERTY_TYPES
 
 def synchro(sender, instance, signal, *args, **kwargs):
     
@@ -31,17 +32,36 @@ def synchro(sender, instance, signal, *args, **kwargs):
         new_property.save()
 
     # Delete properties remove from MetaModel
-    for type_property in instance_type_properties:
-        if type_property not in meta_properties:
-            type_property.delete()
+    for p in instance_properties:
+        if p.type not in meta_properties:
+            p.delete()
 
 class PropertyRegisty(object):
 
-    mapping = {}    
-
     def register(self, instance_model):
+        """
+        Register InstanceModel in your application.
+        """
         post_init.connect(synchro, sender=instance_model)
         
+    def add_properties(self, prop):
+        """
+        Extends property type available : 
+
+        from django import forms
+        from datamaster_modeles.models import Etablissement
+        ETABLISSEMENT = 1001
+        ETABLISSEMENT_CHOICES = [(e.id, e.nom) for e in Etablissement.objects.all()]
+        field_etablissement = {
+            ETABLISSEMENT : {
+                'name' : u"[AUF] Établissement",
+                'field' : forms.ChoiceField,
+                'extra' : {'required' : False, 'choices' : ETABLISSEMENT_CHOICES},
+            },
+        }
+        
+        dynamo_registry.add_properties(field_etablissement)
+        """
+        PROPERTY_TYPES.update(prop)
 
 dynamo_registry = PropertyRegisty()
-
