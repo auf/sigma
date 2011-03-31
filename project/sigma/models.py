@@ -5,7 +5,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline
-from fields import TYPE_PIECES
+from dynamo import dynamo_registry
+from dynamo.models import MetaModel, InstanceModel, TypeProperty, ValueProperty
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -46,7 +47,7 @@ class UserProfile(models.Model):
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
 
-class Appel(AppelWorkflow, models.Model):
+class Appel(AppelWorkflow, MetaModel, models.Model):
     """
     Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité s'intégrant dans un projet.
     """
@@ -131,7 +132,7 @@ class Commentaire(models.Model):
     date = models.DateField(auto_now_add=True)
     texte = models.TextField(verbose_name="Texte")
 
-class Dossier(DossierWorkflow, models.Model):
+class Dossier(DossierWorkflow, InstanceModel, models.Model):
     """
     Informations générales du dossier de candidature.
     """
@@ -183,6 +184,8 @@ class Dossier(DossierWorkflow, models.Model):
             if len(notes) > 0:
                 self.moyenne_votes = float(sum(notes)) / len(notes)
         super(Dossier, self).save(*args, **kwargs)
+
+dynamo_registry.register(Dossier)
 
 class DossierFaculte(models.Model):
     dossier = models.ForeignKey(Dossier, verbose_name="Dossier",)
@@ -319,51 +322,19 @@ class Diplome(models.Model):
     etablissement_pays = models.ForeignKey(Pays, related_name="etablissement_pays", verbose_name="Pays de l'établissement", blank=True, null=True)
 
 
-#from forms_builder.forms.models import AbstractField as FBAbstractField
-#from forms_builder.forms.models import AbstractFormEntry as FBAbstractFormEntry
-#from forms_builder.forms.models import AbstractFieldEntry as FBAbstractFieldEntry
-#from forms_builder.forms.fields import *
-
-
-class TypePiece(models.Model):
-    nom = models.CharField(max_length=255)
-    field_type = models.IntegerField(verbose_name="Type", choices=[(code, p['nom']) for code, p in TYPE_PIECES.items()])
-    requis = models.BooleanField(default=True)
+class TypePiece(TypeProperty, models.Model):
     aide = models.CharField(blank=True, max_length=255)
 
     class Meta:
         verbose_name = "Type de pièce"
 
-    def __unicode__(self):
-        return self.nom
 
-
-class Piece(models.Model):
+class Piece(ValueProperty, models.Model):
     dossier = models.ForeignKey(Dossier)
     type = models.ForeignKey(TypePiece)
-    valeur = models.CharField(max_length=255, blank=True, null=True)
+    conforme = models.NullBooleanField(verbose_name="Conforme?", blank=True, null=True)
 
     class Meta:
         verbose_name = "Pièce"
 
-    def __unicode__(self,):
-        return self.type.__unicode__()
-
-
-from django.db.models.signals import post_init
-def preparer_pieces(sender, instance, signal, *args, **kwargs):
-    """
-    Cette fonction prépare les champs dynamiques (pièces) à partir de l'appel associé
-    au dossier.
-    Si le champs n'existe plus dans l'appel, le champs est conservé.
-    """
-    if instance.id:
-        dossier_piece_types = [p.type_id for p in instance.piece_set.all()]
-        for type_piece in [p for p in instance.appel.pieces.all() if p.id not in dossier_piece_types]:
-            piece = Piece()
-            piece.dossier = instance
-            piece.type = type_piece
-            piece.save()
-
-post_init.connect(preparer_pieces, sender=Dossier)
 

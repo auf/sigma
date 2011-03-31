@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'reversion',
     'auf.django.admingroup',
     'form_utils',
+    'dynamo',
     'sigma',
 )
 

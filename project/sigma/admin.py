@@ -22,10 +22,9 @@ class TypePieceAdmin(admin.ModelAdmin):
     """
     Admin générale de tous les types de pièces.
     """
-    list_display = ('nom', 'field_type', 'requis', )
+    list_display = ('name', 'field_type',  )
 
 class ProxyAppelPieces(Appel.pieces.through):
-
     class Meta:
         proxy=True
         verbose_name = u"Type de pièce"
