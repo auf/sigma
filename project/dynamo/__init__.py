@@ -62,6 +62,10 @@ class PropertyRegisty(object):
         
         dynamo_registry.add_properties(field_etablissement)
         """
+        for k in prop.keys():
+            if k in PROPERTY_TYPES.keys():
+                raise('%s (%s) : key already used by %s (%s)' % \
+                      prop[k]['name'], k, PROPERTY_TYPES[k], k)
         PROPERTY_TYPES.update(prop)
 
 dynamo_registry = PropertyRegisty()
