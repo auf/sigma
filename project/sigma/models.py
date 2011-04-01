@@ -185,8 +185,6 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
                 self.moyenne_votes = float(sum(notes)) / len(notes)
         super(Dossier, self).save(*args, **kwargs)
 
-dynamo_registry.register(Dossier)
-
 class DossierFaculte(models.Model):
     dossier = models.ForeignKey(Dossier, verbose_name="Dossier",)
 
@@ -323,7 +321,7 @@ class Diplome(models.Model):
 
 
 class TypePiece(TypeProperty, models.Model):
-    aide = models.CharField(blank=True, max_length=255)
+    pass
 
     class Meta:
         verbose_name = "Type de pièce"
@@ -337,4 +335,4 @@ class Piece(ValueProperty, models.Model):
     class Meta:
         verbose_name = "Pièce"
 
-
+dynamo_registry.register(Appel, TypePiece, Dossier, Piece)

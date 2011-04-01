@@ -5,8 +5,13 @@ from django import forms
 from django.contrib import admin
 from form_utils.forms import BetterModelForm
 from datamaster_modeles.models import Discipline
-from models import UserProfile, Dossier, Note, Commentaire, Piece
+from models import UserProfile, Note, Commentaire, Dossier, TypePiece, Piece
 from dynamo.forms import PropertyForm
+from dynamo.fields import FILE
+
+################################################################################
+# PROFIL - DISCIPLINES
+################################################################################
 
 class DisciplineForm(BetterModelForm):
     """
@@ -21,6 +26,10 @@ class DisciplineForm(BetterModelForm):
     class Meta:
         exclude = ('user', )
         model = UserProfile
+
+################################################################################
+# DOSSIER - EVALUATION
+################################################################################
 
 class NoteForm(BetterModelForm):
     class Meta:
@@ -37,7 +46,27 @@ class EvaluationForm(BetterModelForm):
         fields = ('moyenne_academique', 'opportunite_regionale', )
         model = Dossier
 
-class PieceForm(PropertyForm):
+################################################################################
+# DOSSIER - PIECES
+################################################################################
+
+class TypePieceForm(BetterModelForm):
+    """
+    Il n'y a qu'un type possible de pièces dans ce cas : fichier.
+    """
     class Meta:
-        fields = ('value', 'conforme', )
+        exclude = ('field_type',)
+        model = TypePiece
+
+    def save(self, commit=True):
+        instance = super(TypePieceForm, self).save(commit)
+        instance.field_type = FILE
+        return instance
+
+class PieceForm(PropertyForm):
+    """
+    Dans l'admin inline, on préserve le type défini par l'appel.
+    """
+    class Meta:
+        exclude = ('type', )
         model = Piece

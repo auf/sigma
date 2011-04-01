@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
-from models import *
-from forms import PieceForm
+from models import Piece, Appel, DossierOrigine, DossierAccueil, DossierMobilite, Diplome, Candidat, Dossier, TypePiece
+from forms import PieceForm, TypePieceForm
 
 
 class DossierPieceAdmin(admin.TabularInline):
@@ -22,16 +22,19 @@ class TypePieceAdmin(admin.ModelAdmin):
     """
     Admin générale de tous les types de pièces.
     """
-    list_display = ('name', 'field_type',  )
+    list_display = ('id', 'name', 'field_type',  )
+    form = TypePieceForm
 
 class ProxyAppelPieces(Appel.pieces.through):
+    """
+    Ce proxy sert uniquement dans l'admin à disposer d'un libellé
+    plus ergonomique.
+    """
     class Meta:
         proxy=True
-        verbose_name = u"Type de pièce"
-        verbose_name_plural = u"Pièces demandées pour cet appel"
 
     def __unicode__(self,):
-        return u"pièce"
+        return u"code pièce #%s" % self.id
 
 class TypePieceInline(admin.TabularInline):
     """
@@ -40,9 +43,11 @@ class TypePieceInline(admin.TabularInline):
     fields = ('typepiece', )
     model = ProxyAppelPieces
     extra = 0
+    verbose_name = u"Type de pièce"
+    verbose_name_plural = u"Pièces demandées pour cet appel"
 
 class AppelAdmin(WorkflowAdmin):
-    inlines = (TypePieceInline,)
+    inlines = (TypePieceInline, )
     fields = ('nom',
         'code_budgetaire',
         #'formulaire_wcs',
@@ -105,7 +110,7 @@ class DiplomeInline(admin.StackedInline):
     verbose_name = verbose_name_plural = "Diplômes"
 
 class DossierAdmin(WorkflowAdmin, VersionAdmin):
-    inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierPieceAdmin)
+    inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierPieceAdmin, )
     list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', '_actions', )
     list_filter = ('etat', )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom', )

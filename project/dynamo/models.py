@@ -2,7 +2,9 @@
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from dynamo import dynamo_registry
 from fields import PROPERTY_TYPES
+
 
 class TypeProperty(models.Model):
     """
@@ -25,12 +27,12 @@ class MetaModel(models.Model):
     class Meta:
         abstract = True
 
-    def get_properties_fieldname(self):
+    def get_properties_fieldname(self, type_model):
         """
         Introspect child instance, to get the m2m field name which represents TypeProperty.
         """
         for f in self._meta.many_to_many:
-            if TypeProperty in f.related.parent_model.__bases__:
+            if type_model == f.related.parent_model:
                 return f.name
         
         raise Exception('%s : There is no TypeProperty child class m2m in %s' % \
@@ -48,35 +50,24 @@ class InstanceModel(models.Model):
         abstract = True
 
 
-    def get_metamodel_fieldname(self):
+    def get_metamodel_fieldname(self, meta_model):
         """
         Introspect child instance, to get the foreignkey field name which represents MetaModel.
         """       
         fk_fields = [f for f in self._meta.fields if f.__class__.__name__ == 'ForeignKey']
         for f in fk_fields:
-            if MetaModel in f.related.parent_model.__bases__:
+            if meta_model == f.related.parent_model:
                 return f.name
         
         raise Exception('%s : There is no MetaModel child class foreign key in %s' % \
                         (self._meta.app_label, self.__class__.__name__))
 
-    def get_properties_model(self):
-        """
-        Introspect child instance, to get the foreignkey model which represents ValueProperty.
-        """       
-        for o in self._meta.get_all_related_objects():
-            if ValueProperty in o.model.__bases__:
-                return o.model
-        
-        raise Exception('%s : There is no ValueProperty child class foreign key in %s' % \
-                        (self._meta.app_label, self.__class__.__name__))
-
-    def get_properties_fieldname(self):
+    def get_properties_fieldname(self, value_model):
         """
         Introspect child instance, to get the foreignkey field name which represents ValueProperty.
         """       
         for o in self._meta.get_all_related_objects():
-            if ValueProperty in o.model.__bases__:
+            if value_model == o.model:
                 return o.var_name
         
         raise Exception('%s : There is no ValueProperty child class foreign key in %s' % \
@@ -95,13 +86,13 @@ class ValueProperty(models.Model):
     class Meta:
         abstract = True
 
-    def get_instance_fieldname(self):
+    def get_instance_fieldname(self, instance_model):
         """
         Introspect child instance, to get the foreignkey field name which represents InstanceModel.
         """       
         fk_fields = [f for f in self._meta.fields if f.__class__.__name__ == 'ForeignKey']
         for f in fk_fields:
-            if InstanceModel in f.related.parent_model.__bases__:
+            if instance_model == f.related.parent_model:
                 return f.name
         
         raise Exception('%s : There is no InstanceModel child class foreign key in %s' % \
