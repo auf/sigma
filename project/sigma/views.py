@@ -25,6 +25,7 @@ def mes_disciplines(request, ):
 @login_required
 def evaluer(request, dossier_id):
     dossier = Dossier.objects.get(id=dossier_id)
+    user_a_deja_vote = len([n for n in dossier.notes.all() if n.user == request.user]) == 1
     if request.method == "POST":
 
         noteForm = NoteForm(data=request.POST)
@@ -59,6 +60,8 @@ def evaluer(request, dossier_id):
             return redirect(reverse('evaluer', args=[dossier.id]))
     else:
         noteForm = NoteForm()
+        if user_a_deja_vote:
+            noteForm = None
         commentaireForm = CommentaireForm()
         evaluationForm = EvaluationForm(instance=dossier)
     
@@ -78,6 +81,7 @@ def supprimer_ma_note(request, note_id):
     dossier_url = reverse('evaluer', args=[dossier.id])
     if request.user == note.user:
         note.delete()
+        dossier.save() # recalculer la moyenne
         request.user.message_set.create(message="Votre note a été supprimée.")
     return redirect(dossier_url)
         

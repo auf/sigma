@@ -178,11 +178,16 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     def __unicode__(self, ):
         return u"dossier #%s (%s pour l'appel %s)" % (self.id, self.candidat, self.appel)
 
-    def save(self, *args, **kwargs):
+    def calculer_moyenne(self,):
         if self.id:
             notes = [note.note for note in self.notes.all()]
             if len(notes) > 0:
                 self.moyenne_votes = float(sum(notes)) / len(notes)
+            else:
+                self.moyenne_votes = 0
+
+    def save(self, *args, **kwargs):
+        self.calculer_moyenne()
         super(Dossier, self).save(*args, **kwargs)
 
 class DossierFaculte(models.Model):
