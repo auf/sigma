@@ -62,6 +62,7 @@ INSTALLED_APPS = (
     'form_utils',
     'dynamo',
     'sigma',
+    'passerelle',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
