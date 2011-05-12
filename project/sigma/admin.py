@@ -7,47 +7,7 @@ from auf.django.workflow.admin import WorkflowAdmin
 from models import Piece, Appel, DossierOrigine, DossierAccueil, DossierMobilite, Diplome, Candidat, Dossier, TypePiece
 from forms import PieceForm, TypePieceForm
 
-
-class DossierPieceAdmin(admin.TabularInline):
-    """
-    Admin pour spécifier une valeur à un type de pièce
-    """
-    form = PieceForm
-    model = Piece
-    extra = 0
-    max_num = 0
-    can_delete = False
-
-class TypePieceAdmin(admin.ModelAdmin):
-    """
-    Admin générale de tous les types de pièces.
-    """
-    list_display = ('id', 'name', 'field_type',  )
-    form = TypePieceForm
-
-class ProxyAppelPieces(Appel.pieces.through):
-    """
-    Ce proxy sert uniquement dans l'admin à disposer d'un libellé
-    plus ergonomique.
-    """
-    class Meta:
-        proxy=True
-
-    def __unicode__(self,):
-        return u"code pièce #%s" % self.id
-
-class TypePieceInline(admin.TabularInline):
-    """
-    Association des types de pièces à un appel.
-    """
-    fields = ('typepiece', )
-    model = ProxyAppelPieces
-    extra = 0
-    verbose_name = u"Type de pièce"
-    verbose_name_plural = u"Pièces demandées pour cet appel"
-
 class AppelAdmin(WorkflowAdmin):
-    inlines = (TypePieceInline, )
     fields = ('nom',
         'code_budgetaire',
         #'formulaire_wcs',
@@ -110,7 +70,7 @@ class DiplomeInline(admin.StackedInline):
     verbose_name = verbose_name_plural = "Diplômes"
 
 class DossierAdmin(WorkflowAdmin, VersionAdmin):
-    inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierPieceAdmin, )
+    inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
     list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', '_actions', )
     list_filter = ('etat', )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom', )
@@ -138,4 +98,3 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Candidat, CandidatAdmin)
 admin.site.register(Dossier, DossierAdmin)
-admin.site.register(TypePiece, TypePieceAdmin)

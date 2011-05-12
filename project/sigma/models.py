@@ -5,8 +5,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline
-from dynamo import dynamo_registry
-from dynamo.models import MetaModel, InstanceModel, TypeProperty, ValueProperty
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -47,7 +45,7 @@ class UserProfile(models.Model):
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
 
-class Appel(AppelWorkflow, MetaModel, models.Model):
+class Appel(AppelWorkflow, models.Model):
     """
     Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité s'intégrant dans un projet.
     """
@@ -58,7 +56,7 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     date_fin = models.DateField(verbose_name="Date de fin", blank=True, null=True)
     date_activation = models.DateField(verbose_name="Date d'activation", blank=True, null=True)
     date_desactivation = models.DateField(verbose_name="Date de désactivation", blank=True, null=True)
-    pieces = models.ManyToManyField("TypePiece", verbose_name="Pieces", blank=True, null=True)
+    #pieces = models.ManyToManyField("TypePiece", verbose_name="Pieces", blank=True, null=True)
 
     def __unicode__(self):
         return "#%s : %s" %(self.id, self.nom)
@@ -132,7 +130,7 @@ class Commentaire(models.Model):
     date = models.DateField(auto_now_add=True)
     texte = models.TextField(verbose_name="Texte")
 
-class Dossier(DossierWorkflow, InstanceModel, models.Model):
+class Dossier(DossierWorkflow, models.Model):
     """
     Informations générales du dossier de candidature.
     """
@@ -325,19 +323,17 @@ class Diplome(models.Model):
     etablissement_pays = models.ForeignKey(Pays, related_name="etablissement_pays", verbose_name="Pays de l'établissement", blank=True, null=True)
 
 
-class TypePiece(TypeProperty, models.Model):
+class TypePiece(models.Model):
     pass
 
     class Meta:
         verbose_name = "Type de pièce"
 
 
-class Piece(ValueProperty, models.Model):
+class Piece(models.Model):
     dossier = models.ForeignKey(Dossier)
     type = models.ForeignKey(TypePiece)
     conforme = models.NullBooleanField(verbose_name="Conforme?", blank=True, null=True)
 
     class Meta:
         verbose_name = "Pièce"
-
-dynamo_registry.register(Appel, TypePiece, Dossier, Piece)
