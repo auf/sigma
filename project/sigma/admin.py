@@ -5,7 +5,6 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
 from models import Piece, Appel, DossierOrigine, DossierAccueil, DossierMobilite, Diplome, Candidat, Dossier, TypePiece
-from forms import PieceForm, TypePieceForm
 
 class AppelAdmin(WorkflowAdmin):
     fields = ('nom',
