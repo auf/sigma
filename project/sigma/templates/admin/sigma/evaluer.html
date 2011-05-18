@@ -77,7 +77,7 @@
             <th></th>
         </tr>
         </thead>
-        {% for commentaire in dossier.commentaires.all %}
+        {% for commentaire in dossier.annotations.all %}
         <tr class="{% cycle 'row1' 'row2' %}">
             <td>{{ commentaire.texte|linebreaks }}</td>
             <td>{{ commentaire.user }}</td>

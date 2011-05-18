@@ -45,7 +45,7 @@ def evaluer(request, dossier_id):
             commentaire.user = request.user
             commentaire.dossier = dossier
             commentaire.save()
-            dossier.commentaires.add(commentaire)
+            dossier.annotations.add(commentaire)
             dossier.save()
 
             message = "Le commentaire a été ajouté."
