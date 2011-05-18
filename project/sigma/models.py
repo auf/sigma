@@ -230,7 +230,7 @@ class Dossier(DossierWorkflow, models.Model):
     # Évaluations (à terminer // expert classements)
     notes = models.ManyToManyField(Note, verbose_name="Notes", 
                         blank=True, null=True)
-    commentaires = models.ManyToManyField(Commentaire, 
+    annotations = models.ManyToManyField(Commentaire, 
                         verbose_name="Commentaires", blank=True, null=True)
     moyenne_votes = models.FloatField(verbose_name="Moyenne des évaluateurs", 
                         blank=True, null=True)
@@ -400,7 +400,7 @@ class Intervention(models.Model):
 class DossierMobilite(models.Model):
     """Informations sur la mobilité demandée par le candidat.
     """
-    dossier = models.ForeignKey(Dossier, verbose_name="Dossier",)
+    dossier = models.OneToOneField(Dossier, verbose_name="Dossier", related_name="mobilite")
 
     # Période de mobilité
     date_debut = models.DateField(verbose_name="Date de début souhaitée", 

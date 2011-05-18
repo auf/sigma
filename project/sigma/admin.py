@@ -71,7 +71,7 @@ class DiplomeInline(admin.StackedInline):
 class DossierAdmin(WorkflowAdmin, VersionAdmin):
     inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
     list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', '_actions', )
-    list_filter = ('etat', )
+    list_filter = ('etat', 'appel', )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom', )
     fieldsets = (
         (None, {
