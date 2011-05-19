@@ -69,10 +69,14 @@ class DiplomeInline(admin.StackedInline):
     verbose_name = verbose_name_plural = "Diplômes"
 
 class DossierAdmin(WorkflowAdmin, VersionAdmin):
+    #change_list_template = "admin/sigma/dossier/change_list.html"
     inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
-    list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', '_actions', )
-    list_filter = ('etat', 'appel', )
-    search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom', )
+    list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', 'discipline', '_actions', )
+    list_filter = ('etat', 'appel', 'discipline', )
+    search_fields = ('appel__nom',
+                     'candidat__nom', 'candidat__prenom',
+                     'discipline__code', 'discipline__nom_court', 'discipline__nom_long',
+    )
     fieldsets = (
         (None, {
             'fields': ('candidat', 'appel', ),
