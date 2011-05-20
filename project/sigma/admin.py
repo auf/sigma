@@ -20,7 +20,7 @@ class AppelAdmin(WorkflowAdmin):
         )
 
     def _actions(self, obj):
-        return "<a href='%s?appel__id__exact=%s'>Voir les candidatures</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
+        return "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
     _actions.allow_tags = True
         
 
