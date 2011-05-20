@@ -4,8 +4,9 @@ import os
 from django import forms
 from django.contrib import admin
 from form_utils.forms import BetterModelForm
+from django.forms import ModelForm
 from datamaster_modeles.models import Discipline
-from models import UserProfile, Note, Commentaire, Dossier
+from models import UserProfile, Note, Commentaire, Dossier, Expert
 
 ################################################################################
 # PROFIL - DISCIPLINES
@@ -43,3 +44,6 @@ class EvaluationForm(BetterModelForm):
     class Meta:
         fields = ('moyenne_academique', 'opportunite_regionale', )
         model = Dossier
+        
+class ExpertForm(forms.Form):
+    expert = forms.ModelMultipleChoiceField(queryset=Expert.objects.all())

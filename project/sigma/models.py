@@ -38,6 +38,35 @@ NOTE_MAX = 5
 NOTES = [(i, i) for i in range(NOTE_MIN, NOTE_MAX, NOTE_RANGE)]
 
 
+class Expert(models.Model):
+    nom = models.CharField(max_length=255, verbose_name="Nom")
+    prenom = models.CharField(max_length=255, verbose_name="Prénom")
+    courriel =  models.EmailField(max_length=75, null=True, blank=True)
+    region = models.CharField(max_length=255, verbose_name="Région", 
+                        blank=True, null=True)
+    etablissement = models.ForeignKey(Etablissement, 
+                        verbose_name="Établissement", 
+                        blank=True, null=True)
+    commentaire = models.TextField(null=True, blank=True)
+    actif = models.BooleanField()
+    disciplines = models.ManyToManyField(Discipline, 
+                        verbose_name="Disciplines", 
+                        blank=True, null=True)
+    dossiers = models.ManyToManyField('Dossier',
+                                      verbose_name='Dossiers', 
+                                      through='ExpertDossier',
+                                      blank=True, null=True)
+    
+    def __unicode__(self):
+        return "%s, %s (%d)" %(self.nom, self.prenom, self.id)
+
+class ExpertDossier(models.Model):
+    expert = models.ForeignKey('Expert')
+    dossier = models.ForeignKey('Dossier')
+    note = models.IntegerField(null=True, blank=True)
+    commentaire = models.TextField(null=True, blank=True)
+
+
 class UserProfile(models.Model):
     user = models.ForeignKey("auth.User", unique=True)
     disciplines = models.ManyToManyField(Discipline, 
