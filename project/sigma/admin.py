@@ -8,6 +8,7 @@ from auf.django.workflow.admin import WorkflowAdmin
 from models import Piece, Appel, DossierOrigine, DossierAccueil, DossierMobilite, Diplome, Candidat, Dossier, TypePiece, Expert
 
 class AppelAdmin(WorkflowAdmin):
+    list_display = ('nom', 'code_budgetaire', 'date_debut', 'date_fin', 'etat', '_actions', )
     fields = ('nom',
         'code_budgetaire',
         #'formulaire_wcs',
@@ -17,6 +18,11 @@ class AppelAdmin(WorkflowAdmin):
         'date_desactivation',
         'etat',
         )
+
+    def _actions(self, obj):
+        return "<a href='%s?appel__id__exact=%s'>Voir les candidatures</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
+    _actions.allow_tags = True
+        
 
 class CandidatAdmin(admin.ModelAdmin):
     fieldsets = (
