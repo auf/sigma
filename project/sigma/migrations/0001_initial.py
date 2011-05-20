@@ -21,6 +21,14 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('sigma', ['Expert'])
 
+        # Adding M2M table for field dossiers on 'Expert'
+        db.create_table('sigma_expert_dossiers', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('expert', models.ForeignKey(orm['sigma.expert'], null=False)),
+            ('dossier', models.ForeignKey(orm['sigma.dossier'], null=False))
+        ))
+        db.create_unique('sigma_expert_dossiers', ['expert_id', 'dossier_id'])
+
         # Adding M2M table for field disciplines on 'Expert'
         db.create_table('sigma_expert_disciplines', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
@@ -28,16 +36,6 @@ class Migration(SchemaMigration):
             ('discipline', models.ForeignKey(orm['datamaster_modeles.discipline'], null=False))
         ))
         db.create_unique('sigma_expert_disciplines', ['expert_id', 'discipline_id'])
-
-        # Adding model 'ExpertDossier'
-        db.create_table('sigma_expertdossier', (
-            ('dossier', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Dossier'])),
-            ('note', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('expert', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Expert'])),
-            ('commentaire', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('sigma', ['ExpertDossier'])
 
         # Adding model 'UserProfile'
         db.create_table('sigma_userprofile', (
@@ -112,10 +110,11 @@ class Migration(SchemaMigration):
 
         # Adding model 'Note'
         db.create_table('sigma_note', (
+            ('dossier', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notes', to=orm['sigma.Dossier'])),
             ('date', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('note', self.gf('django.db.models.fields.IntegerField')()),
+            ('note', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('expert', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Expert'])),
         ))
         db.send_create_signal('sigma', ['Note'])
 
@@ -147,14 +146,6 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
         ))
         db.send_create_signal('sigma', ['Dossier'])
-
-        # Adding M2M table for field notes on 'Dossier'
-        db.create_table('sigma_dossier_notes', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('dossier', models.ForeignKey(orm['sigma.dossier'], null=False)),
-            ('note', models.ForeignKey(orm['sigma.note'], null=False))
-        ))
-        db.create_unique('sigma_dossier_notes', ['dossier_id', 'note_id'])
 
         # Adding M2M table for field annotations on 'Dossier'
         db.create_table('sigma_dossier_annotations', (
@@ -323,11 +314,11 @@ class Migration(SchemaMigration):
         # Deleting model 'Expert'
         db.delete_table('sigma_expert')
 
+        # Removing M2M table for field dossiers on 'Expert'
+        db.delete_table('sigma_expert_dossiers')
+
         # Removing M2M table for field disciplines on 'Expert'
         db.delete_table('sigma_expert_disciplines')
-
-        # Deleting model 'ExpertDossier'
-        db.delete_table('sigma_expertdossier')
 
         # Deleting model 'UserProfile'
         db.delete_table('sigma_userprofile')
@@ -355,9 +346,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Dossier'
         db.delete_table('sigma_dossier')
-
-        # Removing M2M table for field notes on 'Dossier'
-        db.delete_table('sigma_dossier_notes')
 
         # Removing M2M table for field annotations on 'Dossier'
         db.delete_table('sigma_dossier_annotations')
@@ -618,7 +606,6 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'moyenne_academique': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'moyenne_votes': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
-            'notes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['sigma.Note']", 'symmetrical': 'False', 'null': 'True', 'blank': 'True'}),
             'opportunite_regionale': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
         'sigma.dossieraccueil': {
@@ -733,20 +720,12 @@ class Migration(SchemaMigration):
             'commentaire': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True', 'blank': 'True'}),
             'disciplines': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['datamaster_modeles.Discipline']", 'symmetrical': 'False', 'null': 'True', 'blank': 'True'}),
-            'dossiers': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['sigma.Dossier']", 'null': 'True', 'symmetrical': 'False', 'through': "orm['sigma.ExpertDossier']", 'blank': 'True'}),
+            'dossiers': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'experts'", 'blank': 'True', 'null': 'True', 'to': "orm['sigma.Dossier']"}),
             'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Etablissement']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'prenom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
-        },
-        'sigma.expertdossier': {
-            'Meta': {'object_name': 'ExpertDossier'},
-            'commentaire': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Dossier']"}),
-            'expert': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Expert']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'note': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         'sigma.intervention': {
             'Meta': {'object_name': 'Intervention'},
@@ -762,9 +741,10 @@ class Migration(SchemaMigration):
         'sigma.note': {
             'Meta': {'object_name': 'Note'},
             'date': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'notes'", 'to': "orm['sigma.Dossier']"}),
+            'expert': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Expert']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'note': ('django.db.models.fields.IntegerField', [], {}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+            'note': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         'sigma.piece': {
             'Meta': {'object_name': 'Piece'},
