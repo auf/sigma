@@ -25,21 +25,15 @@
 
     <h1>Évaluation du {{ dossier }}</h1>
 
+    <form action="" method="post">
     <div class="module">
     <h2>Évaluations</h2>
     </div>
-    <form action="" method="post">
         {{ evaluationForm|render:"admin/form_utils/better_form.html" }}
-        <div class="submit-row">
-            <input type="submit" name="_save" class="default" value="Enregistrer">
-        </div>
-    </form>
-
     <div class="module">
     <h2>Notations (moyenne = {{ dossier.moyenne_votes|floatformat }})</h2>
     </div>
 
-    <form action="" method="post">
         {% for f in noteForm.management_form %}
             {{ f }}
         {% endfor %}
@@ -52,11 +46,6 @@
             <tr><td>{{ f.instance.expert }}</td><td>{{ f.note}}</td></tr>
             </table>
         {% endfor %}
-
-        <div class="submit-row">
-            <input type="submit" name="_save" class="default" value="Enregistrer">
-        </div>
-    </form>
 
     <div class="module">
     <h2>Commentaires</h2>
@@ -80,12 +69,10 @@
     </table>
 
     </div>
-    <form action="" method="post">
         {{ commentaireForm|render:"admin/form_utils/better_form.html" }}
         <div class="submit-row">
             <input type="submit" name="_save" class="default" value="Enregistrer">
         </div>
     </form>
-
 </div>
 {% endblock %}

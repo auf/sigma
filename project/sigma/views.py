@@ -27,7 +27,6 @@ def mes_disciplines(request, ):
 def evaluer(request, dossier_id):
     dossier = Dossier.objects.get(id=dossier_id)
     if request.method == "POST":
-
         noteForm = NoteExpertForm(instance=dossier, data=request.POST)
         commentaireForm = CommentaireForm(data=request.POST)
         evaluationForm = EvaluationForm(data=request.POST, instance=dossier)
@@ -35,6 +34,7 @@ def evaluer(request, dossier_id):
         if noteForm.is_valid():
             noteForm.save()
             message = "Les notes ont été enregistrées."
+            request.user.message_set.create(message=message)
 
         if commentaireForm.is_valid():
             commentaire = commentaireForm.save(commit=False)
@@ -43,17 +43,15 @@ def evaluer(request, dossier_id):
             commentaire.save()
             dossier.annotations.add(commentaire)
             dossier.save()
-
             message = "Le commentaire a été ajouté."
-        if evaluationForm.is_valid():
+            request.user.message_set.create(message=message)
+
+        if  evaluationForm.is_valid():
             evaluationForm.save()
             message = "Les évaluations ont été enregistrées."
-
-        if noteForm.is_valid() or \
-           commentaireForm.is_valid() or \
-           evaluationForm.is_valid():
             request.user.message_set.create(message=message)
-            return redirect(reverse('evaluer', args=[dossier.id]))
+
+        return redirect(reverse('evaluer', args=[dossier.id]))
     else:
         noteForm = NoteExpertForm(instance=dossier)
         commentaireForm = CommentaireForm()
