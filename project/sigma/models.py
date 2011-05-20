@@ -47,12 +47,24 @@ class Expert(models.Model):
     etablissement = models.ForeignKey(Etablissement, 
                         verbose_name="Établissement", 
                         blank=True, null=True)
-    
     commentaire = models.TextField(null=True, blank=True)
     actif = models.BooleanField()
     disciplines = models.ManyToManyField(Discipline, 
                         verbose_name="Disciplines", 
                         blank=True, null=True)
+    dossiers = models.ManyToManyField('Dossier',
+                                      verbose_name='Dossiers', 
+                                      through='ExpertDossier',
+                                      blank=True, null=True)
+    
+    def __unicode__(self):
+        return "%s, %s (%d)" %(self.nom, self.prenom, self.id)
+
+class ExpertDossier(models.Model):
+    expert = models.ForeignKey('Expert')
+    dossier = models.ForeignKey('Dossier')
+    note = models.IntegerField(null=True, blank=True)
+    commentaire = models.TextField(null=True, blank=True)
 
 
 class UserProfile(models.Model):

@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.template import Context, RequestContext
 from django.shortcuts import render_to_response, redirect
-from forms import DisciplineForm, NoteForm, CommentaireForm, EvaluationForm
+from forms import DisciplineForm, NoteForm, CommentaireForm, EvaluationForm, ExpertForm
 from models import Dossier, Note, Commentaire
 
 @login_required
@@ -94,4 +94,17 @@ def supprimer_mon_commentaire(request, note_id):
         commentaire.delete()
         request.user.message_set.create(message="Votre commentaire a été supprimé.")
     return redirect(dossier_url)
+    
+@login_required 
+def affecter_experts_dossiers(request):
+    form = ExpertForm()
+    c = {'form' : form}
+    
+    if request.method == "POST":
+        form = ExpertForm(request.POST)
+        ids = request.GET.get('ids').split(',')
+
+    return render_to_response("admin/sigma/affecter_experts.html", \
+                               Context(c), \
+                               context_instance = RequestContext(request))
         
