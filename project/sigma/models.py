@@ -39,18 +39,18 @@ NOTES = [(i, i) for i in range(NOTE_MIN, NOTE_MAX, NOTE_RANGE)]
 
 
 class Expert(models.Model):
-    nom = models.CharField(max_length=255, verbose_name="Nom")
-    prenom = models.CharField(max_length=255, verbose_name="Prénom")
+    nom = models.CharField(max_length=255, verbose_name=u"Nom")
+    prenom = models.CharField(max_length=255, verbose_name=u"uPrénom")
     courriel =  models.EmailField(max_length=75, null=True, blank=True)
-    region = models.CharField(max_length=255, verbose_name="Région", 
+    region = models.CharField(max_length=255, verbose_name=u"Région", 
                         blank=True, null=True)
     etablissement = models.ForeignKey(Etablissement, 
-                        verbose_name="Établissement", 
+                        verbose_name=u"Établissement", 
                         blank=True, null=True)
     commentaire = models.TextField(null=True, blank=True)
     actif = models.BooleanField()
     disciplines = models.ManyToManyField(Discipline, 
-                        verbose_name="Disciplines", 
+                        verbose_name=u"Disciplines", 
                         blank=True, null=True)
     dossiers = models.ManyToManyField('Dossier',
                                       verbose_name='Dossiers', 
