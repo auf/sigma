@@ -208,6 +208,8 @@ class Dossier(DossierWorkflow, models.Model):
     """
     appel = models.ForeignKey(Appel, related_name="appel",
                         verbose_name="Appel")
+    appel.admin_filter_select = True
+
     candidat = models.ForeignKey(Candidat, related_name="candidat", 
                         verbose_name="Candidat")
     candidat_statut = models.CharField(max_length=255,
@@ -265,6 +267,9 @@ class Dossier(DossierWorkflow, models.Model):
     # Notifications (à faire)
     #reponse_notification = models.CharField(max_length=6, db_column='Y_REPONSE_NOTIFICATION', choices=REPONSE, default='sr')
     #commentaire_notification = models.CharField(max_length=255, db_column='L_COMMENTAIRE_NOTIFICATION')
+
+    # ce champs est système, il est saisi dans la partie mobilité mais il est copié ici pour pouvoir être filtré
+    discipline = models.ForeignKey(Discipline, verbose_name="Discipline", blank=True, null=True)
     
     def __unicode__(self, ):
         return u"dossier #%s (%s pour l'appel %s)" % (self.id, 
@@ -278,13 +283,26 @@ class Dossier(DossierWorkflow, models.Model):
             else:
                 self.moyenne_votes = 0
 
+    def __init__(self, *args, **kwargs):
+        """
+        A l'instanciation, on synchronise les meta pour optimisation
+        """
+        super(Dossier, self).__init__(*args, **kwargs)
+
+        try:
+            if self.discipline != self.mobilite.discipline:
+                self.discipline = self.mobilite.discipline
+                self.save()
+        except:
+            pass
+
+
     def save(self, *args, **kwargs):
         self.calculer_moyenne()
+
         super(Dossier, self).save(*args, **kwargs)
 
 class DossierFaculte(models.Model):
-    dossier = models.ForeignKey(Dossier, verbose_name="Dossier",)
-
     # Etablissement connu de l'AUF
     etablissement = models.ForeignKey(Etablissement, 
                         verbose_name="Établissement", 
@@ -390,13 +408,13 @@ class DossierOrigine(DossierFaculte):
     """
     Informations sur le contexte d'origine du candidat.
     """
-    pass
+    dossier = models.ForeignKey(Dossier, verbose_name="Dossier", related_name="origine")
 
 class DossierAccueil(DossierFaculte):
     """
     Informations sur le contexte d'accueil du candidat.
     """
-    pass
+    dossier = models.ForeignKey(Dossier, verbose_name="Dossier", related_name="accueil")
 
 
 class Public(models.Model):

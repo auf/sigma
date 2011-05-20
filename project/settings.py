@@ -59,6 +59,7 @@ INSTALLED_APPS = (
     'south',
     'reversion',
     'auf.django.admingroup',
+    'auf.django.workflow',
     'form_utils',
     'sigma',
     'passerelle',
