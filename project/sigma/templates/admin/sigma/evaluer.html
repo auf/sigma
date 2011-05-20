@@ -12,7 +12,7 @@
 
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
-     <a href="../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">{% trans "Home" %}</a> &rsaquo;
      <a href="{% url admin:sigma_dossier_changelist %}">Dossiers</a> &rsaquo;
      <a href="{% url admin:sigma_dossier_change dossier.id %}">{{ dossier }}</a> &rsaquo;
      Évaluation
