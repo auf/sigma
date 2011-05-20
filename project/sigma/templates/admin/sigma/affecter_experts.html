@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia form_utils_tags %}
+
+{% block extrahead %}{{ block.super }}
+{% url admin:jsi18n as jsi18nurl %}
+<script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+{{ media }}
+{{ form.media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../">{% trans "Home" %}</a> &rsaquo;
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    {% block object-tools %}{% endblock %}
+
+
+
+    <div class="module">
+    <h2>Affectation experts</h2>
+    </div>
+    <form action="" method="post">
+        {{ form.as_p }}
+        <div class="submit-row">
+            <input type="submit" name="_save" class="default" value="Enregistrer">
+        </div>
+    </form>
+
+
+
+</div>
+{% endblock %}

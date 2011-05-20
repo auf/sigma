@@ -1,19 +1,22 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+class Migration(SchemaMigration):
     
     def forwards(self, orm):
-        "Write your forwards methods here."
-        from django.core.management import call_command
-        call_command("loaddata", "0004_permissions.json")
-   
+        
+        # Changing field 'Note.note'
+        db.alter_column('sigma_note', 'note', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True))
+    
     
     def backwards(self, orm):
-        "Write your backwards methods here."
+        
+        # Changing field 'Note.note'
+        db.alter_column('sigma_note', 'note', self.gf('django.db.models.fields.IntegerField')())
+    
     
     models = {
         'auth.group': {
@@ -212,6 +215,13 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'CategorieBourse'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
+        'sigma.commentaire': {
+            'Meta': {'object_name': 'Commentaire'},
+            'date': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'texte': ('django.db.models.fields.TextField', [], {}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
         'sigma.diplome': {
             'Meta': {'object_name': 'Diplome'},
             'date': ('django.db.models.fields.DateField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -224,6 +234,7 @@ class Migration(DataMigration):
         },
         'sigma.dossier': {
             'Meta': {'object_name': 'Dossier'},
+            'annotations': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['sigma.Commentaire']", 'symmetrical': 'False', 'null': 'True', 'blank': 'True'}),
             'appel': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appel'", 'to': "orm['sigma.Appel']"}),
             'bureau_rattachement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Bureau']", 'null': 'True', 'blank': 'True'}),
             'candidat': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'candidat'", 'to': "orm['sigma.Candidat']"}),
@@ -233,9 +244,11 @@ class Migration(DataMigration):
             'dernier_projet_description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'derniere_bourse_annee': ('django.db.models.fields.CharField', [], {'max_length': '4', 'null': 'True', 'blank': 'True'}),
             'derniere_bourse_categorie': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'bourse_categorie'", 'blank': 'True', 'null': 'True', 'to': "orm['sigma.CategorieBourse']"}),
+            'discipline': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Discipline']", 'null': 'True', 'blank': 'True'}),
             'etat': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'moyenne_academique': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'moyenne_votes': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'opportunite_regionale': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
         'sigma.dossieraccueil': {
@@ -248,7 +261,7 @@ class Migration(DataMigration):
             'autre_etablissement_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'autre_etablissement_valide': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
             'autre_etablissement_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Dossier']"}),
+            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'accueil'", 'to': "orm['sigma.Dossier']"}),
             'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Etablissement']", 'null': 'True', 'blank': 'True'}),
             'faculte_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'faculte_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -291,7 +304,7 @@ class Migration(DataMigration):
             'dir_ori_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'dir_ori_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'discipline': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Discipline']", 'null': 'True', 'blank': 'True'}),
-            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Dossier']"}),
+            'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'mobilite'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
             'duree': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'formation_en_cours_diplome': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'formation_en_cours_niveau': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'formation_en_cours_niveau'", 'blank': 'True', 'null': 'True', 'to': "orm['sigma.NiveauEtude']"}),
@@ -318,7 +331,7 @@ class Migration(DataMigration):
             'autre_etablissement_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'autre_etablissement_valide': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
             'autre_etablissement_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Dossier']"}),
+            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'origine'", 'to': "orm['sigma.Dossier']"}),
             'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Etablissement']", 'null': 'True', 'blank': 'True'}),
             'faculte_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'faculte_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -344,6 +357,19 @@ class Migration(DataMigration):
             'resp_sc_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'resp_sc_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
+        'sigma.expert': {
+            'Meta': {'object_name': 'Expert'},
+            'actif': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
+            'commentaire': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True', 'blank': 'True'}),
+            'disciplines': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['datamaster_modeles.Discipline']", 'symmetrical': 'False', 'null': 'True', 'blank': 'True'}),
+            'dossiers': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'experts'", 'blank': 'True', 'null': 'True', 'to': "orm['sigma.Dossier']"}),
+            'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Etablissement']", 'null': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'prenom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
+        },
         'sigma.intervention': {
             'Meta': {'object_name': 'Intervention'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -355,16 +381,46 @@ class Migration(DataMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },
+        'sigma.note': {
+            'Meta': {'object_name': 'Note'},
+            'date': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'notes'", 'to': "orm['sigma.Dossier']"}),
+            'expert': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Expert']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'note': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'})
+        },
+        'sigma.piece': {
+            'Meta': {'object_name': 'Piece'},
+            'conforme': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Dossier']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.TypePiece']"})
+        },
         'sigma.public': {
             'Meta': {'object_name': 'Public'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+        },
+        'sigma.typepiece': {
+            'Meta': {'object_name': 'TypePiece'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         'sigma.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
             'disciplines': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['datamaster_modeles.Discipline']", 'symmetrical': 'False', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'unique': 'True'})
+        },
+        'workflow.workflowcommentaire': {
+            'Meta': {'object_name': 'WorkflowCommentaire'},
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
+            'date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'etat_final': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'etat_initial': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'texte': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
         }
     }
     

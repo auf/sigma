@@ -1,12 +1,14 @@
 # -*- encoding: utf-8 -*-
 
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
-from models import Piece, Appel, DossierOrigine, DossierAccueil, DossierMobilite, Diplome, Candidat, Dossier, TypePiece
+from models import Piece, Appel, DossierOrigine, DossierAccueil, DossierMobilite, Diplome, Candidat, Dossier, TypePiece, Expert
 
 class AppelAdmin(WorkflowAdmin):
+    list_display = ('nom', 'code_budgetaire', 'date_debut', 'date_fin', 'etat', '_actions', )
     fields = ('nom',
         'code_budgetaire',
         #'formulaire_wcs',
@@ -16,6 +18,11 @@ class AppelAdmin(WorkflowAdmin):
         'date_desactivation',
         'etat',
         )
+
+    def _actions(self, obj):
+        return "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
+    _actions.allow_tags = True
+        
 
 class CandidatAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -70,9 +77,12 @@ class DiplomeInline(admin.StackedInline):
 
 class DossierAdmin(WorkflowAdmin, VersionAdmin):
     inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
-    list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', '_actions', )
-    list_filter = ('etat', )
-    search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom', )
+    list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', 'discipline', '_actions', )
+    list_filter = ('etat', 'appel', 'discipline', )
+    search_fields = ('appel__nom',
+                     'candidat__nom', 'candidat__prenom',
+                     'discipline__code', 'discipline__nom_court', 'discipline__nom_long',
+    )
     fieldsets = (
         (None, {
             'fields': ('candidat', 'appel', ),
@@ -94,6 +104,18 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
         return "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
     _actions.allow_tags = True
 
+    
+class ExpertAdmin(admin.ModelAdmin):
+    pass
+    
+
+def affecter_dossiers_expert(modeladmin, request, queryset):
+    selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+    return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
+    
+admin.site.add_action(affecter_dossiers_expert, 'Affecter experts')
+
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Candidat, CandidatAdmin)
 admin.site.register(Dossier, DossierAdmin)
+admin.site.register(Expert, ExpertAdmin)
