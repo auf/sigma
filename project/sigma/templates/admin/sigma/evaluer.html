@@ -37,34 +37,26 @@
 
     <div class="module">
     <h2>Notations (moyenne = {{ dossier.moyenne_votes|floatformat }})</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Note</th>
-            <th>Évaluateur</th>
-            <th>Date</th>
-            <th></th>
-        </tr>
-        </thead>
-        {% for note in dossier.notes.all %}
-        <tr class="{% cycle 'row1' 'row2' %}">
-            <td>{{ note.note }}</td>
-            <td>{{ note.user }}</td>
-            <td>{{ note.date }}</td>
-            <td>{% if note.user == request.user %}<a href="{% url supprimer_ma_note note.id %}">supprimer</a>{% endif %}</td>
-        </tr>
-        {% endfor %}
-    </table>
     </div>
 
-    {% if noteForm %}
     <form action="" method="post">
-        {{ noteForm|render:"admin/form_utils/better_form.html" }}
+        {% for f in noteForm.management_form %}
+            {{ f }}
+        {% endfor %}
+    
+        {% for f in noteForm.forms %}
+            <table>
+            {% for field in f %}
+                {% if field.is_hidden %}{{ field }}{% endif %}
+            {% endfor %}
+            <tr><td>{{ f.instance.expert }}</td><td>{{ f.note}}</td></tr>
+            </table>
+        {% endfor %}
+
         <div class="submit-row">
             <input type="submit" name="_save" class="default" value="Enregistrer">
         </div>
     </form>
-    {% endif %}
 
     <div class="module">
     <h2>Commentaires</h2>

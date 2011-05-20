@@ -3,6 +3,7 @@
 import os
 from django import forms
 from django.contrib import admin
+from django.forms.models import inlineformset_factory
 from form_utils.forms import BetterModelForm
 from django.forms import ModelForm
 from datamaster_modeles.models import Discipline
@@ -32,8 +33,12 @@ class DisciplineForm(BetterModelForm):
 
 class NoteForm(BetterModelForm):
     class Meta:
-        exclude = ('user', )
+        exclude = ('expert', )
         model = Note
+
+class NoteExpertForm(inlineformset_factory(Dossier, Note,  extra=0, form=NoteForm)):
+    pass
+
 
 class CommentaireForm(BetterModelForm):
     class Meta:
@@ -46,4 +51,17 @@ class EvaluationForm(BetterModelForm):
         model = Dossier
         
 class ExpertForm(forms.Form):
-    expert = forms.ModelMultipleChoiceField(queryset=Expert.objects.all())
+    experts = forms.ModelMultipleChoiceField(queryset=Expert.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        self.dossiers = kwargs.pop('dossiers')
+        super(ExpertForm, self).__init__(*args, **kwargs)
+
+
+    def save(self):
+        for d in self.dossiers:
+            d.experts = self.cleaned_data.get('experts', [])
+            d.save()
+    
+
+

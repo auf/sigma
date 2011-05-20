@@ -77,7 +77,7 @@ class DiplomeInline(admin.StackedInline):
 
 class DossierAdmin(WorkflowAdmin, VersionAdmin):
     inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
-    list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', 'discipline', )
+    list_display = ('id', 'appel', 'candidat', 'etat', 'moyenne_votes', 'discipline', '_actions', )
     list_filter = ('etat', 'appel', 'discipline', )
     search_fields = ('appel__nom',
                      'candidat__nom', 'candidat__prenom',
@@ -99,6 +99,10 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
             'fields': ('dernier_projet_description', 'dernier_projet_annee', 'derniere_bourse_categorie', 'derniere_bourse_annee',),
         }),
     )
+
+    def _actions(self, obj):
+        return "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
+    _actions.allow_tags = True
 
     
 class ExpertAdmin(admin.ModelAdmin):

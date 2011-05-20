@@ -40,7 +40,7 @@ NOTES = [(i, i) for i in range(NOTE_MIN, NOTE_MAX, NOTE_RANGE)]
 
 class Expert(models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
-    prenom = models.CharField(max_length=255, verbose_name=u"uPrénom")
+    prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     courriel =  models.EmailField(max_length=75, null=True, blank=True)
     region = models.CharField(max_length=255, verbose_name=u"Région", 
                         blank=True, null=True)
@@ -54,18 +54,11 @@ class Expert(models.Model):
                         blank=True, null=True)
     dossiers = models.ManyToManyField('Dossier',
                                       verbose_name='Dossiers', 
-                                      through='ExpertDossier',
+                                      related_name="experts",
                                       blank=True, null=True)
     
     def __unicode__(self):
         return "%s, %s (%d)" %(self.nom, self.prenom, self.id)
-
-class ExpertDossier(models.Model):
-    expert = models.ForeignKey('Expert')
-    dossier = models.ForeignKey('Dossier')
-    note = models.IntegerField(null=True, blank=True)
-    commentaire = models.TextField(null=True, blank=True)
-
 
 class UserProfile(models.Model):
     user = models.ForeignKey("auth.User", unique=True)
@@ -190,9 +183,10 @@ class Note(models.Model):
     """
     Une personne attribue une note à un dossier de candidature.
     """
-    user = models.ForeignKey(User)
+    dossier = models.ForeignKey("Dossier", related_name="notes")
+    expert = models.ForeignKey(Expert)
     date = models.DateField(auto_now_add=True)
-    note = models.IntegerField(choices=NOTES)
+    note = models.IntegerField(choices=NOTES, blank=True, null=True)
 
 class Commentaire(models.Model):
     """
@@ -242,8 +236,6 @@ class Dossier(DossierWorkflow, models.Model):
                         blank=True, null=True)
 
     # Évaluations (à terminer // expert classements)
-    notes = models.ManyToManyField(Note, verbose_name=u"Notes", 
-                        blank=True, null=True)
     annotations = models.ManyToManyField(Commentaire, 
                         verbose_name=u"Commentaires", blank=True, null=True)
     moyenne_votes = models.FloatField(verbose_name=u"Moyenne des évaluateurs", 
@@ -277,7 +269,7 @@ class Dossier(DossierWorkflow, models.Model):
 
     def calculer_moyenne(self,):
         if self.id:
-            notes = [note.note for note in self.notes.all()]
+            notes = [note.note for note in self.notes.all() if note.note is not None]
             if len(notes) > 0:
                 self.moyenne_votes = float(sum(notes)) / len(notes)
             else:
@@ -295,6 +287,15 @@ class Dossier(DossierWorkflow, models.Model):
                 self.save()
         except:
             pass
+
+        if self.id is not None:
+            experts_presents = [n.expert for n in self.notes.all()]
+            for expert in self.experts.all():
+               if expert not in experts_presents:
+                 note = Note()
+                 note.dossier = self
+                 note.expert = expert
+                 note.save()
 
 
     def save(self, *args, **kwargs):

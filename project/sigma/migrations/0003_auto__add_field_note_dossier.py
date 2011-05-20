@@ -8,146 +8,15 @@ class Migration(SchemaMigration):
     
     def forwards(self, orm):
         
-        # Adding model 'Expert'
-        db.create_table('sigma_expert', (
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('prenom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('commentaire', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('region', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('etablissement', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Etablissement'], null=True, blank=True)),
-            ('courriel', self.gf('django.db.models.fields.EmailField')(max_length=75, null=True, blank=True)),
-            ('actif', self.gf('django.db.models.fields.BooleanField')(default=False, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('sigma', ['Expert'])
+        # Removing M2M table for field notes on 'Dossier'
+        db.delete_table('sigma_dossier_notes')
 
-        # Adding M2M table for field disciplines on 'Expert'
-        db.create_table('sigma_expert_disciplines', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('expert', models.ForeignKey(orm['sigma.expert'], null=False)),
-            ('discipline', models.ForeignKey(orm['datamaster_modeles.discipline'], null=False))
-        ))
-        db.create_unique('sigma_expert_disciplines', ['expert_id', 'discipline_id'])
-
-        # Adding model 'ExpertDossier'
-        db.create_table('sigma_expertdossier', (
-            ('dossier', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Dossier'])),
-            ('note', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('expert', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Expert'])),
-            ('commentaire', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('sigma', ['ExpertDossier'])
-
-        # Adding model 'UserProfile'
-        db.create_table('sigma_userprofile', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], unique=True)),
-        ))
-        db.send_create_signal('sigma', ['UserProfile'])
-
-        # Adding M2M table for field disciplines on 'UserProfile'
-        db.create_table('sigma_userprofile_disciplines', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('userprofile', models.ForeignKey(orm['sigma.userprofile'], null=False)),
-            ('discipline', models.ForeignKey(orm['datamaster_modeles.discipline'], null=False))
-        ))
-        db.create_unique('sigma_userprofile_disciplines', ['userprofile_id', 'discipline_id'])
-
-        # Adding model 'Appel'
-        db.create_table('sigma_appel', (
-            ('etat', self.gf('django.db.models.fields.CharField')(default=None, max_length=20, null=True, blank=True)),
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('code_budgetaire', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('formulaire_wcs', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('date_debut', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('date_fin', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('date_activation', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('date_desactivation', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('sigma', ['Appel'])
-
-        # Adding model 'Candidat'
-        db.create_table('sigma_candidat', (
-            ('ville', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('pays', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pays', blank=True, null=True, to=orm['datamaster_modeles.Pays'])),
-            ('naissance_date', self.gf('django.db.models.fields.DateField')(max_length=255, null=True, blank=True)),
-            ('courriel_perso', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('telephone_pro', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('nationalite', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Pays'], null=True, blank=True)),
-            ('nom_jeune_fille', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('courriel_pro', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('date_modification', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('sexe', self.gf('django.db.models.fields.CharField')(max_length=1, null=True, blank=True)),
-            ('adresse', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('date_creation', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('telephone_perso', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('code_postal', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('prenom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('naissance_pays', self.gf('django.db.models.fields.related.ForeignKey')(related_name='naissance_pays', blank=True, null=True, to=orm['datamaster_modeles.Pays'])),
-            ('region', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('fax_pro', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('naissance_ville', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('civilite', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
-            ('fax_perso', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-        ))
-        db.send_create_signal('sigma', ['Candidat'])
-
-        # Adding model 'CategorieBourse'
-        db.create_table('sigma_categoriebourse', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('sigma', ['CategorieBourse'])
-
-        # Adding model 'NiveauEtude'
-        db.create_table('sigma_niveauetude', (
-            ('annees', self.gf('django.db.models.fields.CharField')(max_length=2)),
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('sigma', ['NiveauEtude'])
-
-        # Adding model 'Note'
-        db.create_table('sigma_note', (
-            ('date', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('note', self.gf('django.db.models.fields.IntegerField')()),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-        ))
-        db.send_create_signal('sigma', ['Note'])
-
-        # Adding model 'Commentaire'
-        db.create_table('sigma_commentaire', (
-            ('date', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('texte', self.gf('django.db.models.fields.TextField')()),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-        ))
-        db.send_create_signal('sigma', ['Commentaire'])
-
-        # Adding model 'Dossier'
-        db.create_table('sigma_dossier', (
-            ('etat', self.gf('django.db.models.fields.CharField')(default=None, max_length=20, null=True, blank=True)),
-            ('moyenne_academique', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
-            ('opportunite_regionale', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('derniere_bourse_categorie', self.gf('django.db.models.fields.related.ForeignKey')(related_name='bourse_categorie', blank=True, null=True, to=orm['sigma.CategorieBourse'])),
-            ('candidat', self.gf('django.db.models.fields.related.ForeignKey')(related_name='candidat', to=orm['sigma.Candidat'])),
-            ('candidat_fonction', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('dernier_projet_description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('moyenne_votes', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
-            ('dernier_projet_annee', self.gf('django.db.models.fields.CharField')(max_length=4, null=True, blank=True)),
-            ('appel', self.gf('django.db.models.fields.related.ForeignKey')(related_name='appel', to=orm['sigma.Appel'])),
-            ('discipline', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Discipline'], null=True, blank=True)),
-            ('bureau_rattachement', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Bureau'], null=True, blank=True)),
-            ('candidat_statut', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('derniere_bourse_annee', self.gf('django.db.models.fields.CharField')(max_length=4, null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('sigma', ['Dossier'])
-
+        # Adding field 'Note.dossier'
+        db.add_column('sigma_note', 'dossier', self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='notes', to=orm['sigma.Dossier']), keep_default=False)
+    
+    
+    def backwards(self, orm):
+        
         # Adding M2M table for field notes on 'Dossier'
         db.create_table('sigma_dossier_notes', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
@@ -156,235 +25,8 @@ class Migration(SchemaMigration):
         ))
         db.create_unique('sigma_dossier_notes', ['dossier_id', 'note_id'])
 
-        # Adding M2M table for field annotations on 'Dossier'
-        db.create_table('sigma_dossier_annotations', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('dossier', models.ForeignKey(orm['sigma.dossier'], null=False)),
-            ('commentaire', models.ForeignKey(orm['sigma.commentaire'], null=False))
-        ))
-        db.create_unique('sigma_dossier_annotations', ['dossier_id', 'commentaire_id'])
-
-        # Adding model 'DossierOrigine'
-        db.create_table('sigma_dossierorigine', (
-            ('resp_inst_fax', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_fax', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_adresse', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_pays', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Pays'], null=True, blank=True)),
-            ('resp_inst_courriel', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('resp_sc_prenom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_inst_fonction', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_courriel', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_ville', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_inst_telephone', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_code_postal', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_url', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_civilite', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
-            ('resp_inst_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_adresse', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_region', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_erreur', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_ville', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_inst_civilite', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
-            ('autre_etablissement_valide', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
-            ('resp_inst_prenom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_telephone', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_telephone', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_code_postal', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_courriel', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_fax', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('dossier', self.gf('django.db.models.fields.related.ForeignKey')(related_name='origine', to=orm['sigma.Dossier'])),
-            ('etablissement', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Etablissement'], null=True, blank=True)),
-            ('resp_sc_fonction', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-        ))
-        db.send_create_signal('sigma', ['DossierOrigine'])
-
-        # Adding model 'DossierAccueil'
-        db.create_table('sigma_dossieraccueil', (
-            ('resp_inst_fax', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_fax', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_adresse', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_pays', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Pays'], null=True, blank=True)),
-            ('resp_inst_courriel', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('resp_sc_prenom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_inst_fonction', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_courriel', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_ville', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_inst_telephone', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_code_postal', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_url', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_civilite', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
-            ('resp_inst_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_adresse', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_region', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_erreur', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_ville', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_inst_civilite', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
-            ('autre_etablissement_valide', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
-            ('resp_inst_prenom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_telephone', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_telephone', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autre_etablissement_code_postal', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_courriel', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('faculte_fax', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('dossier', self.gf('django.db.models.fields.related.ForeignKey')(related_name='accueil', to=orm['sigma.Dossier'])),
-            ('etablissement', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Etablissement'], null=True, blank=True)),
-            ('resp_sc_fonction', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('resp_sc_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-        ))
-        db.send_create_signal('sigma', ['DossierAccueil'])
-
-        # Adding model 'Public'
-        db.create_table('sigma_public', (
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('sigma', ['Public'])
-
-        # Adding model 'Intervention'
-        db.create_table('sigma_intervention', (
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('sigma', ['Intervention'])
-
-        # Adding model 'DossierMobilite'
-        db.create_table('sigma_dossiermobilite', (
-            ('intitule_projet', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('type_intervention', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Intervention'], null=True, blank=True)),
-            ('diplome_demande_niveau', self.gf('django.db.models.fields.related.ForeignKey')(related_name='diplome_demande_niveau', blank=True, null=True, to=orm['sigma.NiveauEtude'])),
-            ('dir_ori_prenom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('dir_acc_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('sous_discipline', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('autres_publics', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('date_fin', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('dir_ori_civilite', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('alternance_accueil_puis_origine', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
-            ('alternance_nb_mois_accueil', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('diplome_demande_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('discipline', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Discipline'], null=True, blank=True)),
-            ('mots_clefs', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('date_debut', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('formation_en_cours_diplome', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('alternance_nb_mois_origine', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('these_soutenance_pays', self.gf('django.db.models.fields.related.ForeignKey')(related_name='soutenance_pays', blank=True, null=True, to=orm['datamaster_modeles.Pays'])),
-            ('these_date_obtention_prevue', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('public_vise', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Public'], null=True, blank=True)),
-            ('dir_acc_civilite', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
-            ('duree', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('dir_acc_prenom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('these_type_autre', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('these_date_inscription', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('these_soutenance_date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('formation_en_cours_niveau', self.gf('django.db.models.fields.related.ForeignKey')(related_name='formation_en_cours_niveau', blank=True, null=True, to=orm['sigma.NiveauEtude'])),
-            ('dossier', self.gf('django.db.models.fields.related.OneToOneField')(related_name='mobilite', unique=True, to=orm['sigma.Dossier'])),
-            ('these_type', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
-            ('dir_ori_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-        ))
-        db.send_create_signal('sigma', ['DossierMobilite'])
-
-        # Adding model 'Diplome'
-        db.create_table('sigma_diplome', (
-            ('etablissement_nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('dossier', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Dossier'])),
-            ('niveau', self.gf('django.db.models.fields.related.ForeignKey')(related_name='niveau', blank=True, null=True, to=orm['sigma.NiveauEtude'])),
-            ('date', self.gf('django.db.models.fields.DateField')(max_length=255, null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('etablissement_pays', self.gf('django.db.models.fields.related.ForeignKey')(related_name='etablissement_pays', blank=True, null=True, to=orm['datamaster_modeles.Pays'])),
-        ))
-        db.send_create_signal('sigma', ['Diplome'])
-
-        # Adding model 'TypePiece'
-        db.create_table('sigma_typepiece', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('sigma', ['TypePiece'])
-
-        # Adding model 'Piece'
-        db.create_table('sigma_piece', (
-            ('dossier', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.Dossier'])),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['sigma.TypePiece'])),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('conforme', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('sigma', ['Piece'])
-    
-    
-    def backwards(self, orm):
-        
-        # Deleting model 'Expert'
-        db.delete_table('sigma_expert')
-
-        # Removing M2M table for field disciplines on 'Expert'
-        db.delete_table('sigma_expert_disciplines')
-
-        # Deleting model 'ExpertDossier'
-        db.delete_table('sigma_expertdossier')
-
-        # Deleting model 'UserProfile'
-        db.delete_table('sigma_userprofile')
-
-        # Removing M2M table for field disciplines on 'UserProfile'
-        db.delete_table('sigma_userprofile_disciplines')
-
-        # Deleting model 'Appel'
-        db.delete_table('sigma_appel')
-
-        # Deleting model 'Candidat'
-        db.delete_table('sigma_candidat')
-
-        # Deleting model 'CategorieBourse'
-        db.delete_table('sigma_categoriebourse')
-
-        # Deleting model 'NiveauEtude'
-        db.delete_table('sigma_niveauetude')
-
-        # Deleting model 'Note'
-        db.delete_table('sigma_note')
-
-        # Deleting model 'Commentaire'
-        db.delete_table('sigma_commentaire')
-
-        # Deleting model 'Dossier'
-        db.delete_table('sigma_dossier')
-
-        # Removing M2M table for field notes on 'Dossier'
-        db.delete_table('sigma_dossier_notes')
-
-        # Removing M2M table for field annotations on 'Dossier'
-        db.delete_table('sigma_dossier_annotations')
-
-        # Deleting model 'DossierOrigine'
-        db.delete_table('sigma_dossierorigine')
-
-        # Deleting model 'DossierAccueil'
-        db.delete_table('sigma_dossieraccueil')
-
-        # Deleting model 'Public'
-        db.delete_table('sigma_public')
-
-        # Deleting model 'Intervention'
-        db.delete_table('sigma_intervention')
-
-        # Deleting model 'DossierMobilite'
-        db.delete_table('sigma_dossiermobilite')
-
-        # Deleting model 'Diplome'
-        db.delete_table('sigma_diplome')
-
-        # Deleting model 'TypePiece'
-        db.delete_table('sigma_typepiece')
-
-        # Deleting model 'Piece'
-        db.delete_table('sigma_piece')
+        # Deleting field 'Note.dossier'
+        db.delete_column('sigma_note', 'dossier_id')
     
     
     models = {
@@ -618,7 +260,6 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'moyenne_academique': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'moyenne_votes': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
-            'notes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['sigma.Note']", 'symmetrical': 'False', 'null': 'True', 'blank': 'True'}),
             'opportunite_regionale': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
         'sigma.dossieraccueil': {
@@ -762,9 +403,10 @@ class Migration(SchemaMigration):
         'sigma.note': {
             'Meta': {'object_name': 'Note'},
             'date': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'dossier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'notes'", 'to': "orm['sigma.Dossier']"}),
+            'expert': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Expert']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'note': ('django.db.models.fields.IntegerField', [], {}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+            'note': ('django.db.models.fields.IntegerField', [], {})
         },
         'sigma.piece': {
             'Meta': {'object_name': 'Piece'},

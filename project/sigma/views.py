@@ -2,9 +2,10 @@
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.template import Context, RequestContext
 from django.shortcuts import render_to_response, redirect
-from forms import DisciplineForm, NoteForm, CommentaireForm, EvaluationForm, ExpertForm
+from forms import DisciplineForm, NoteExpertForm, CommentaireForm, EvaluationForm, ExpertForm
 from models import Dossier, Note, Commentaire
 
 @login_required
@@ -25,20 +26,15 @@ def mes_disciplines(request, ):
 @login_required
 def evaluer(request, dossier_id):
     dossier = Dossier.objects.get(id=dossier_id)
-    user_a_deja_vote = len([n for n in dossier.notes.all() if n.user == request.user]) == 1
     if request.method == "POST":
 
-        noteForm = NoteForm(data=request.POST)
+        noteForm = NoteExpertForm(instance=dossier, data=request.POST)
         commentaireForm = CommentaireForm(data=request.POST)
         evaluationForm = EvaluationForm(data=request.POST, instance=dossier)
 
         if noteForm.is_valid():
-            note = noteForm.save(commit=False)
-            note.user = request.user
-            note.save()
-            dossier.notes.add(note)
-            dossier.save()
-            message = "La note a été ajoutée."
+            noteForm.save()
+            message = "Les notes ont été enregistrées."
 
         if commentaireForm.is_valid():
             commentaire = commentaireForm.save(commit=False)
@@ -59,9 +55,7 @@ def evaluer(request, dossier_id):
             request.user.message_set.create(message=message)
             return redirect(reverse('evaluer', args=[dossier.id]))
     else:
-        noteForm = NoteForm()
-        if user_a_deja_vote:
-            noteForm = None
+        noteForm = NoteExpertForm(instance=dossier)
         commentaireForm = CommentaireForm()
         evaluationForm = EvaluationForm(instance=dossier)
     
@@ -74,16 +68,6 @@ def evaluer(request, dossier_id):
     return render_to_response("admin/sigma/evaluer.html", \
                                Context(c), \
                                context_instance = RequestContext(request))
-@login_required
-def supprimer_ma_note(request, note_id):
-    note = Note.objects.get(id=note_id)
-    dossier = note.dossier_set.all()[0]
-    dossier_url = reverse('evaluer', args=[dossier.id])
-    if request.user == note.user:
-        note.delete()
-        dossier.save() # recalculer la moyenne
-        request.user.message_set.create(message="Votre note a été supprimée.")
-    return redirect(dossier_url)
         
 @login_required
 def supprimer_mon_commentaire(request, note_id):
@@ -97,13 +81,19 @@ def supprimer_mon_commentaire(request, note_id):
     
 @login_required 
 def affecter_experts_dossiers(request):
-    form = ExpertForm()
-    c = {'form' : form}
+    dossier_ids = request.GET.get('ids').split(',')
+    dossiers = Dossier.objects.filter(id__in=dossier_ids)
     
     if request.method == "POST":
-        form = ExpertForm(request.POST)
-        ids = request.GET.get('ids').split(',')
+        form = ExpertForm(request.POST, dossiers=dossiers)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, "Les experts ont été affectés aux dossiers.")
+            return redirect("admin:sigma_appel_changelist")
+    else:
+        form = ExpertForm(dossiers=dossiers)
 
+    c = {'form' : form}
     return render_to_response("admin/sigma/affecter_experts.html", \
                                Context(c), \
                                context_instance = RequestContext(request))
