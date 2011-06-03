@@ -4,7 +4,7 @@ from django import forms
 from django.db import models
 from django.contrib.auth.models import User
 from workflow import AppelWorkflow, DossierWorkflow
-from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline
+from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline, Region
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -75,6 +75,7 @@ class Appel(AppelWorkflow, models.Model):
     s'intégrant dans un projet.
     """
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
+    region = models.ForeignKey(Region)
     code_budgetaire = models.CharField(max_length=255, 
                         verbose_name=u"Code budgétaire", 
                         blank=True, null=True)
@@ -196,10 +197,18 @@ class Commentaire(models.Model):
     date = models.DateField(auto_now_add=True)
     texte = models.TextField(verbose_name=u"Texte")
 
+class DossierManager(models.Manager):
+    def get_query_set(self):
+        fkeys = ('appel', )
+        return super(DossierManager, self).get_query_set().select_related(*fkeys).all()
+
 class Dossier(DossierWorkflow, models.Model):
     """
     Informations générales du dossier de candidature.
     """
+
+    objects = DossierManager()
+
     appel = models.ForeignKey(Appel, related_name="appel",
                         verbose_name=u"Appel")
     appel.admin_filter_select = True
@@ -562,3 +571,14 @@ class Piece(models.Model):
 
     class Meta:
         verbose_name = "Pièce"
+
+class GroupeRegional(models.Model):
+    region = models.ForeignKey(Region)
+    users = models.ManyToManyField('auth.User', related_name="groupes_regionaux", verbose_name=u"Membres", blank=True, null=True)
+    
+    class Meta:
+        verbose_name = "Groupe régional"
+        verbose_name_plural = "Groupes régionaux"
+
+    def __unicode__(self):
+        return self.region.nom
