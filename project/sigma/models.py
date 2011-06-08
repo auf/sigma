@@ -72,7 +72,6 @@ class AppelManager(models.Manager):
 
     def region(self, user):
         regions = [g.region for g in user.groupes_regionaux.all()]
-        print regions
         return self.get_query_set().filter(region__in=regions)
 
     def get_query_set(self):
