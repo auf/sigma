@@ -98,6 +98,7 @@ class Candidat(models.Model):
     """
     Personne qui répond à un appel d'offre.
     """
+    dossier = models.ForeignKey('Dossier', verbose_name=u"Dossier", related_name="candidat")
     # meta
     date_creation = models.DateField(auto_now_add=True, 
                         verbose_name=u"Date de création")
@@ -213,8 +214,6 @@ class Dossier(DossierWorkflow, models.Model):
                         verbose_name=u"Appel")
     appel.admin_filter_select = True
 
-    candidat = models.ForeignKey(Candidat, related_name="candidat", 
-                        verbose_name=u"Candidat")
     candidat_statut = models.CharField(max_length=255,
                         verbose_name=u"Statut du candidat",  
                         choices=CANDIDAT_STATUT, blank=True, null=True)
@@ -298,13 +297,17 @@ class Dossier(DossierWorkflow, models.Model):
             pass
 
         if self.id is not None:
-            experts_presents = [n.expert for n in self.notes.all()]
-            for expert in self.experts.all():
-               if expert not in experts_presents:
-                 note = Note()
-                 note.dossier = self
-                 note.expert = expert
-                 note.save()
+            
+            try:
+                experts_presents = [n.expert for n in self.notes.all()]
+                for expert in self.experts.all():
+                   if expert not in experts_presents:
+                     note = Note()
+                     note.dossier = self
+                     note.expert = expert
+                     note.save()
+            except:
+                pass
 
 
     def save(self, *args, **kwargs):

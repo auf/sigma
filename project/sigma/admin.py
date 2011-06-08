@@ -70,6 +70,13 @@ class DossierMobiliteInline(admin.StackedInline):
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Mobilité"
+    
+class DossierCandidatInline(admin.StackedInline):
+    model = Candidat
+    max_num = 1
+    template = "admin/sigma/edit_inline/stacked.html"
+    verbose_name = verbose_name_plural = "Informations sur le candidat"
+
 
 class DiplomeInline(admin.StackedInline):
     model = Diplome
@@ -77,9 +84,13 @@ class DiplomeInline(admin.StackedInline):
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Diplômes"
 
+def affecter_dossiers_expert(modeladmin, request, queryset):
+    selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+    return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
+    
 class DossierAdmin(WorkflowAdmin, VersionAdmin):
-    inlines = (DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
-    list_display = ('id', 'appel', '_region', 'candidat', 'etat', 'moyenne_votes', 'discipline', '_actions', )
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
+    list_display = ('id', 'appel', '_region', 'etat', 'moyenne_votes', 'discipline', '_actions', )
     list_filter = ('etat', 'appel', 'discipline', )
     search_fields = ('appel__nom',
                      'candidat__nom', 'candidat__prenom',
@@ -87,7 +98,7 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
     )
     fieldsets = (
         (None, {
-            'fields': ('candidat', 'appel', ),
+            'fields': ('appel', ),
         }),
         ('État du dossier', {
             'fields': ('etat', ),
@@ -101,6 +112,8 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
             'fields': ('dernier_projet_description', 'dernier_projet_annee', 'derniere_bourse_categorie', 'derniere_bourse_annee',),
         }),
     )
+    
+    #actions = [affecter_dossiers_expert]
 
     def _actions(self, obj):
         return "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
@@ -124,14 +137,10 @@ class GroupeRegionalAdmin(admin.ModelAdmin):
     pass
     
 
-def affecter_dossiers_expert(modeladmin, request, queryset):
-    selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
-    return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
     
-admin.site.add_action(affecter_dossiers_expert, 'Affecter experts')
+#admin.site.add_action(affecter_dossiers_expert, 'Affecter experts')
 
 admin.site.register(Appel, AppelAdmin)
-admin.site.register(Candidat, CandidatAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)
 admin.site.register(GroupeRegional, GroupeRegionalAdmin)
