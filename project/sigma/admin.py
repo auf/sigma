@@ -6,9 +6,10 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
 from models import *
+from forms import GroupeRegionalAdminForm
 
 class AppelAdmin(WorkflowAdmin):
-    list_display = ('nom', 'code_budgetaire', 'date_debut', 'date_fin', 'etat', '_actions', )
+    list_display = ('nom', 'region', 'code_budgetaire', 'date_debut', 'date_fin', 'etat', '_actions', )
     list_filter = ('region', )
     fields = ('nom',
         'region',
@@ -24,7 +25,9 @@ class AppelAdmin(WorkflowAdmin):
     def _actions(self, obj):
         return "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
     _actions.allow_tags = True
-        
+
+    def queryset(self, request):
+        return Appel.objects.region(request.user)
 
 class CandidatAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -123,19 +126,25 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
         return obj.appel.region
     _region.short_description = "Région"
 
-
     def queryset(self, request):
-        regions = [g.region for g in request.user.groupes_regionaux.all()]
-        return super(DossierAdmin, self).queryset(request).filter(appel__region__in=regions)
+        return Dossier.objects.region(request.user)
 
-    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(DossierAdmin, self).get_form(request, obj, **kwargs)
+        if form.declared_fields.has_key('appel'):
+            appel_field = form.declared_fields['appel']
+        else:
+            appel_field = form.base_fields['appel']
+
+        appel_field.queryset = Appel.objects.region(request.user)
+        return form
+
 class ExpertAdmin(admin.ModelAdmin):
     pass
     
 
 class GroupeRegionalAdmin(admin.ModelAdmin):
-    pass
-    
+    form = GroupeRegionalAdminForm
 
     
 #admin.site.add_action(affecter_dossiers_expert, 'Affecter experts')

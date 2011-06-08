@@ -3,11 +3,12 @@
 import os
 from django import forms
 from django.contrib import admin
+from django.contrib.auth.models import User
 from django.forms.models import inlineformset_factory
 from form_utils.forms import BetterModelForm
 from django.forms import ModelForm
 from datamaster_modeles.models import Discipline
-from models import UserProfile, Note, Commentaire, Dossier, Expert
+from models import *
 
 ################################################################################
 # PROFIL - DISCIPLINES
@@ -64,4 +65,27 @@ class ExpertForm(forms.Form):
             d.save()
     
 
+################################################################################
+# Groupe Régional - ADMIN
+################################################################################
 
+class GroupeRegionalAdminForm(forms.ModelForm):
+    users = forms.ModelMultipleChoiceField(
+        label="Membres",
+        queryset=User.objects.filter(is_active=True).order_by('username'), 
+        widget=admin.widgets.FilteredSelectMultiple("Membres", False),
+        required=False,
+        )
+    
+    class Meta:
+        model = GroupeRegional
+
+    def __init__(self, *args, **kwargs):
+        super(GroupeRegionalAdminForm, self).__init__(*args, **kwargs)
+
+        # cas édition, on prépopule les users déjà membre
+        if kwargs.has_key('instance'):
+            instance = kwargs['instance']
+            user_ids = [u.id for u in instance.users.all().order_by('username')]
+            print user_ids
+            self.fields['users'].initial = user_ids
