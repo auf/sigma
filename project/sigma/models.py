@@ -110,7 +110,7 @@ class Candidat(models.Model):
     """
     Personne qui répond à un appel d'offre.
     """
-    dossier = models.ForeignKey('Dossier', verbose_name=u"Dossier", related_name="candidat")
+    dossier = models.OneToOneField('Dossier', verbose_name=u"Dossier", related_name="candidat")
     # meta
     date_creation = models.DateField(auto_now_add=True, 
                         verbose_name=u"Date de création")
