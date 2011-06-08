@@ -116,7 +116,7 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
         }),
     )
     
-    #actions = [affecter_dossiers_expert]
+    actions = [affecter_dossiers_expert]
 
     def _actions(self, obj):
         return "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
@@ -147,8 +147,6 @@ class GroupeRegionalAdmin(admin.ModelAdmin):
     form = GroupeRegionalAdminForm
 
     
-#admin.site.add_action(affecter_dossiers_expert, 'Affecter experts')
-
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)
