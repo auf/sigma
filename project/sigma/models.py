@@ -68,12 +68,25 @@ class UserProfile(models.Model):
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
+class AppelManager(models.Manager):
+
+    def region(self, user):
+        regions = [g.region for g in user.groupes_regionaux.all()]
+        print regions
+        return self.get_query_set().filter(region__in=regions)
+
+    def get_query_set(self):
+        fkeys = ('region', )
+        return super(AppelManager, self).get_query_set().select_related(*fkeys).all()
 
 class Appel(AppelWorkflow, models.Model):
     """
     Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité 
     s'intégrant dans un projet.
     """
+
+    objects = AppelManager()
+
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     region = models.ForeignKey(Region)
     code_budgetaire = models.CharField(max_length=255, 
@@ -198,6 +211,11 @@ class Commentaire(models.Model):
     texte = models.TextField(verbose_name=u"Texte")
 
 class DossierManager(models.Manager):
+
+    def region(self, user):
+        regions = [g.region for g in user.groupes_regionaux.all()]
+        return self.get_query_set().filter(appel__region__in=regions)
+
     def get_query_set(self):
         fkeys = ('appel', )
         return super(DossierManager, self).get_query_set().select_related(*fkeys).all()
@@ -296,9 +314,18 @@ class Dossier(DossierWorkflow, models.Model):
                 self.save()
         except:
             pass
-
+        
+        # Prépouplation des objets notes selon les experts sélectionnés
         if self.id is not None:
-            experts_presents = [n.expert for n in self.notes.all()]
+            experts_presents = []
+            
+            for n in self.notes.all():
+                try:
+                    experts_presents.append(n.expert)
+                except:
+                    # l'expert a été supprimé
+                    pass
+
             for expert in self.experts.all():
                if expert not in experts_presents:
                  note = Note()
