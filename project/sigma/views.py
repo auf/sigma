@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.template import Context, RequestContext
 from django.shortcuts import render_to_response, redirect
 from forms import DisciplineForm, NoteExpertForm, CommentaireForm, EvaluationForm, ExpertForm
-from models import Dossier, Note, Commentaire
+from models import Dossier, Note, Commentaire, Expert
 
 @login_required
 def mes_disciplines(request, ):
@@ -87,9 +87,12 @@ def affecter_experts_dossiers(request):
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.SUCCESS, "Les experts ont été affectés aux dossiers.")
-            return redirect("admin:sigma_appel_changelist")
+            return redirect("admin:sigma_dossier_changelist")
     else:
         form = ExpertForm(dossiers=dossiers)
+
+    regions = [g.region for g in request.user.groupes_regionaux.all()]
+    form.fields['experts'].queryset = Expert.objects.filter(region__in=regions)
 
     c = {'form' : form}
     return render_to_response("admin/sigma/affecter_experts.html", \
