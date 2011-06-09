@@ -7,7 +7,7 @@ from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
 from datamaster_modeles.models import Region
 from models import *
-from forms import GroupeRegionalAdminForm
+from forms import GroupeRegionalAdminForm, RequiredInlineFormSet
 
 class AppelAdmin(WorkflowAdmin):
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut', 'date_fin', 'etat', '_actions', )
@@ -87,6 +87,7 @@ class DossierMobiliteInline(admin.StackedInline):
     verbose_name = verbose_name_plural = "Mobilité"
     
 class DossierCandidatInline(admin.StackedInline):
+    formset = RequiredInlineFormSet
     model = Candidat
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"

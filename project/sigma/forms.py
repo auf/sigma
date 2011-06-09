@@ -4,11 +4,24 @@ import os
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.forms.models import inlineformset_factory
+from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from form_utils.forms import BetterModelForm
 from django.forms import ModelForm
 from datamaster_modeles.models import Discipline
 from models import *
+
+class RequiredInlineFormSet(BaseInlineFormSet):
+  """
+  Generates an inline formset that is required
+  """
+
+  def _construct_form(self, i, **kwargs):
+    """
+    Override the method to change the form attribute empty_permitted
+    """
+    form = super(RequiredInlineFormSet, self)._construct_form(i, **kwargs)
+    form.empty_permitted = False
+    return form
 
 ################################################################################
 # PROFIL - DISCIPLINES
@@ -87,5 +100,4 @@ class GroupeRegionalAdminForm(forms.ModelForm):
         if kwargs.has_key('instance'):
             instance = kwargs['instance']
             user_ids = [u.id for u in instance.users.all().order_by('username')]
-            print user_ids
             self.fields['users'].initial = user_ids

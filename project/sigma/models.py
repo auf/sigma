@@ -288,8 +288,11 @@ class Dossier(DossierWorkflow, models.Model):
     discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline", blank=True, null=True)
     
     def __unicode__(self, ):
-        return u"dossier #%s (%s pour l'appel %s)" % (self.id, 
-                            self.candidat, self.appel)
+        try:
+            candidat = u"%s pour l'" % self.candidat
+        except:
+            candidat = u""
+        return u"dossier #%s (%sappel %s)" % (self.id, candidat, self.appel)
 
     def calculer_moyenne(self,):
         if self.id:
