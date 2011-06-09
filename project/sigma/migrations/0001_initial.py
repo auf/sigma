@@ -13,7 +13,7 @@ class Migration(SchemaMigration):
             ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('prenom', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('commentaire', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('region', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('region', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Region'])),
             ('etablissement', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Etablissement'], null=True, blank=True)),
             ('courriel', self.gf('django.db.models.fields.EmailField')(max_length=75, null=True, blank=True)),
             ('actif', self.gf('django.db.models.fields.BooleanField')(default=False, blank=True)),
@@ -58,6 +58,7 @@ class Migration(SchemaMigration):
             ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('code_budgetaire', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('formulaire_wcs', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('region', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Region'])),
             ('date_debut', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('date_fin', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('date_activation', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
@@ -74,17 +75,18 @@ class Migration(SchemaMigration):
             ('courriel_perso', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('telephone_pro', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('nationalite', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Pays'], null=True, blank=True)),
+            ('sexe', self.gf('django.db.models.fields.CharField')(max_length=1, null=True, blank=True)),
             ('nom_jeune_fille', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('courriel_pro', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('date_modification', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
             ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('sexe', self.gf('django.db.models.fields.CharField')(max_length=1, null=True, blank=True)),
+            ('nationalite', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Pays'], null=True, blank=True)),
             ('adresse', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('date_creation', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('telephone_perso', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('code_postal', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('prenom', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('dossier', self.gf('django.db.models.fields.related.OneToOneField')(related_name='candidat', unique=True, to=orm['sigma.Dossier'])),
             ('naissance_pays', self.gf('django.db.models.fields.related.ForeignKey')(related_name='naissance_pays', blank=True, null=True, to=orm['datamaster_modeles.Pays'])),
             ('region', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('fax_pro', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
@@ -133,7 +135,6 @@ class Migration(SchemaMigration):
             ('moyenne_academique', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
             ('opportunite_regionale', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('derniere_bourse_categorie', self.gf('django.db.models.fields.related.ForeignKey')(related_name='bourse_categorie', blank=True, null=True, to=orm['sigma.CategorieBourse'])),
-            ('candidat', self.gf('django.db.models.fields.related.ForeignKey')(related_name='candidat', to=orm['sigma.Candidat'])),
             ('candidat_fonction', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('dernier_projet_description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('moyenne_votes', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
@@ -307,6 +308,21 @@ class Migration(SchemaMigration):
             ('conforme', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
         ))
         db.send_create_signal('sigma', ['Piece'])
+
+        # Adding model 'GroupeRegional'
+        db.create_table('sigma_grouperegional', (
+            ('region', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Region'])),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        ))
+        db.send_create_signal('sigma', ['GroupeRegional'])
+
+        # Adding M2M table for field users on 'GroupeRegional'
+        db.create_table('sigma_grouperegional_users', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('grouperegional', models.ForeignKey(orm['sigma.grouperegional'], null=False)),
+            ('user', models.ForeignKey(orm['auth.user'], null=False))
+        ))
+        db.create_unique('sigma_grouperegional_users', ['grouperegional_id', 'user_id'])
     
     
     def backwards(self, orm):
@@ -373,6 +389,12 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Piece'
         db.delete_table('sigma_piece')
+
+        # Deleting model 'GroupeRegional'
+        db.delete_table('sigma_grouperegional')
+
+        # Removing M2M table for field users on 'GroupeRegional'
+        db.delete_table('sigma_grouperegional_users')
     
     
     models = {
@@ -540,7 +562,8 @@ class Migration(SchemaMigration):
             'etat': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'formulaire_wcs': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Region']"})
         },
         'sigma.candidat': {
             'Meta': {'object_name': 'Candidat'},
@@ -551,6 +574,7 @@ class Migration(SchemaMigration):
             'courriel_pro': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'date_creation': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'date_modification': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'candidat'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
             'fax_perso': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'fax_pro': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -594,7 +618,6 @@ class Migration(SchemaMigration):
             'annotations': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['sigma.Commentaire']", 'symmetrical': 'False', 'null': 'True', 'blank': 'True'}),
             'appel': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appel'", 'to': "orm['sigma.Appel']"}),
             'bureau_rattachement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Bureau']", 'null': 'True', 'blank': 'True'}),
-            'candidat': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'candidat'", 'to': "orm['sigma.Candidat']"}),
             'candidat_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'candidat_statut': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'dernier_projet_annee': ('django.db.models.fields.CharField', [], {'max_length': '4', 'null': 'True', 'blank': 'True'}),
@@ -725,7 +748,13 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'prenom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
+            'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Region']"})
+        },
+        'sigma.grouperegional': {
+            'Meta': {'object_name': 'GroupeRegional'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['datamaster_modeles.Region']"}),
+            'users': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'groupes_regionaux'", 'blank': 'True', 'null': 'True', 'to': "orm['auth.User']"})
         },
         'sigma.intervention': {
             'Meta': {'object_name': 'Intervention'},

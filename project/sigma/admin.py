@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
+from datamaster_modeles.models import Region
 from models import *
 from forms import GroupeRegionalAdminForm
 
@@ -25,6 +26,17 @@ class AppelAdmin(WorkflowAdmin):
     def _actions(self, obj):
         return "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
     _actions.allow_tags = True
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(AppelAdmin, self).get_form(request, obj, **kwargs)
+        if form.declared_fields.has_key('region'):
+            region_field = form.declared_fields['region']
+        else:
+            region_field = form.base_fields['region']
+
+        region_ids = [g.region.id for g in request.user.groupes_regionaux.all()]
+        region_field.queryset = Region.objects.filter(id__in=region_ids)
+        return form
 
     def queryset(self, request):
         return Appel.objects.region(request.user)

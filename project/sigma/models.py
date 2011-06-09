@@ -42,8 +42,7 @@ class Expert(models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     courriel =  models.EmailField(max_length=75, null=True, blank=True)
-    region = models.CharField(max_length=255, verbose_name=u"Région", 
-                        blank=True, null=True)
+    region = models.ForeignKey(Region)
     etablissement = models.ForeignKey(Etablissement, 
                         verbose_name=u"Établissement", 
                         blank=True, null=True)
