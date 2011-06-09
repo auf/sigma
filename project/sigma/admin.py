@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
+from export.admin import ExportAdmin
 from datamaster_modeles.models import Region
 from models import *
 from forms import GroupeRegionalAdminForm, RequiredInlineFormSet
@@ -104,7 +105,8 @@ def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
     return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
     
-class DossierAdmin(WorkflowAdmin, VersionAdmin):
+class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
+    change_list_template = "admin/sigma/dossier_change_list.html"
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
     list_display = ('id', 'appel', '_region', 'etat', 'moyenne_votes', 'discipline', '_actions', )
     list_filter = ('etat', 'appel', 'discipline', )

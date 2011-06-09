@@ -228,7 +228,7 @@ class DossierManager(models.Manager):
         return self.get_query_set().filter(appel__region__in=regions)
 
     def get_query_set(self):
-        fkeys = ('appel', )
+        fkeys = ('appel', 'origine', 'accueil', )
         return super(DossierManager, self).get_query_set().select_related(*fkeys).all()
 
 class Dossier(DossierWorkflow, models.Model):
@@ -458,13 +458,13 @@ class DossierOrigine(DossierFaculte):
     """
     Informations sur le contexte d'origine du candidat.
     """
-    dossier = models.ForeignKey(Dossier, verbose_name=u"Dossier", related_name="origine")
+    dossier = models.OneToOneField(Dossier, verbose_name=u"Dossier", related_name="origine")
 
 class DossierAccueil(DossierFaculte):
     """
     Informations sur le contexte d'accueil du candidat.
     """
-    dossier = models.ForeignKey(Dossier, verbose_name=u"Dossier", related_name="accueil")
+    dossier = models.OneToOneField(Dossier, verbose_name=u"Dossier", related_name="accueil")
 
 
 class Public(models.Model):
@@ -600,7 +600,7 @@ class TypePiece(models.Model):
     pass
 
     class Meta:
-        verbose_name = "Type de pièce"
+        verbose_name = u"Type de pièce"
 
 
 class Piece(models.Model):
@@ -610,14 +610,14 @@ class Piece(models.Model):
                         blank=True, null=True)
 
     class Meta:
-        verbose_name = "Pièce"
+        verbose_name = u"Pièce"
 
 class GroupeRegional(models.Model):
     region = models.ForeignKey(Region)
     users = models.ManyToManyField('auth.User', related_name="groupes_regionaux", verbose_name=u"Membres", blank=True, null=True)
     
     class Meta:
-        verbose_name = "Groupe régional"
+        verbose_name = u"Groupe régional"
         verbose_name_plural = "Groupes régionaux"
 
     def __unicode__(self):
