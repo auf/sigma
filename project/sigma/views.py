@@ -91,8 +91,7 @@ def affecter_experts_dossiers(request):
     else:
         form = ExpertForm(dossiers=dossiers)
 
-    regions = [g.region for g in request.user.groupes_regionaux.all()]
-    form.fields['experts'].queryset = Expert.objects.filter(region__in=regions)
+    form.fields['experts'].queryset = Expert.objects.region(request.user)
 
     c = {'form' : form}
     return render_to_response("admin/sigma/affecter_experts.html", \

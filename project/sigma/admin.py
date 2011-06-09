@@ -153,7 +153,26 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin):
         return form
 
 class ExpertAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'nom', 'prenom', '_region', )
+    list_filter = ('region', )
+
+    def queryset(self, request):
+        return Expert.objects.region(request.user)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(ExpertAdmin, self).get_form(request, obj, **kwargs)
+        if form.declared_fields.has_key('region'):
+            region_field = form.declared_fields['region']
+        else:
+            region_field = form.base_fields['region']
+
+        region_ids = [g.region.id for g in request.user.groupes_regionaux.all()]
+        region_field.queryset = Region.objects.filter(id__in=region_ids)
+        return form
+
+    def _region(self, obj):
+        return obj.region
+    _region.short_description = "Région"
     
 
 class GroupeRegionalAdmin(admin.ModelAdmin):

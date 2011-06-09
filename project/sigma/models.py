@@ -37,8 +37,20 @@ NOTE_RANGE = 1
 NOTE_MAX = 5
 NOTES = [(i, i) for i in range(NOTE_MIN, NOTE_MAX, NOTE_RANGE)]
 
+class ExpertManager(models.Manager):
+
+    def region(self, user):
+        regions = [g.region for g in user.groupes_regionaux.all()]
+        return self.get_query_set().filter(region__in=regions)
+
+    def get_query_set(self):
+        fkeys = ('region', )
+        return super(ExpertManager, self).get_query_set().select_related(*fkeys).all()
 
 class Expert(models.Model):
+    
+    objects = ExpertManager()
+
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     courriel =  models.EmailField(max_length=75, null=True, blank=True)
