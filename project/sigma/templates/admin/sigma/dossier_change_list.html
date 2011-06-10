@@ -5,8 +5,7 @@
 {% block object-tools %}
     <ul class="object-tools">
 
-        <li><a href="{% url admin:sigma_dossier_export %}">Exporter</a></li>
-
+        <li><a href="{{ export_url }}">{% trans 'Export CSV' %}</a></li>
         {% if not is_popup %}
             <li><a href="{{recoverlist_url}}" class="recoverlink">{% blocktrans with cl.opts.verbose_name_plural|escape as name %}Recover deleted {{name}}{% endblocktrans %}</a></li>
         {% endif %}

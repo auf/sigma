@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
-from export.admin import ExportAdmin
+from auf.django.export.admin import ExportAdmin
 from datamaster_modeles.models import Region
 from models import *
 from forms import GroupeRegionalAdminForm, RequiredInlineFormSet
