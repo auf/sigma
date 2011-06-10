@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from form_utils.forms import BetterModelForm
 from django.forms import ModelForm
+from dynamo.forms import PropertyForm
+from dynamo.fields import TEXT
 from datamaster_modeles.models import Discipline
 from models import *
 
@@ -101,3 +103,43 @@ class GroupeRegionalAdminForm(forms.ModelForm):
             instance = kwargs['instance']
             user_ids = [u.id for u in instance.users.all().order_by('username')]
             self.fields['users'].initial = user_ids
+
+
+################################################################################
+# Dynamo - ADMIN
+################################################################################
+class ConformiteForm(PropertyForm):
+   """
+   Dans l'admin inline, on préserve le type défini par l'appel.
+   """
+   class Meta:
+       exclude = ('type', 'value', )
+       model = Conformite
+
+class TypeConformiteForm(BetterModelForm):
+    """
+    Il n'y a qu'un type possible de pièces dans ce cas : boolean.
+    """
+    class Meta:
+        exclude = ('field_type',)
+        model = TypeConformite
+
+    def save(self, commit=True):
+        instance = super(TypeConformiteForm, self).save(commit)
+        instance.field_type = TEXT
+        return instance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

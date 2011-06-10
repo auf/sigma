@@ -3,6 +3,8 @@
 from django import forms
 from django.db import models
 from django.contrib.auth.models import User
+from dynamo import dynamo_registry
+from dynamo.models import *
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline, Region
 
@@ -89,7 +91,7 @@ class AppelManager(models.Manager):
         fkeys = ('region', )
         return super(AppelManager, self).get_query_set().select_related(*fkeys).all()
 
-class Appel(AppelWorkflow, models.Model):
+class Appel(AppelWorkflow, MetaModel, models.Model):
     """
     Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité 
     s'intégrant dans un projet.
@@ -113,6 +115,8 @@ class Appel(AppelWorkflow, models.Model):
                         blank=True, null=True)
     date_desactivation = models.DateField(verbose_name=u"Date de désactivation", 
                         blank=True, null=True)
+
+    conformites = models.ManyToManyField("TypeConformite", verbose_name="Confirmités à demander", blank=True, null=True)
 
     def __unicode__(self):
         return "#%s : %s" %(self.id, self.nom)
@@ -231,7 +235,7 @@ class DossierManager(models.Manager):
         fkeys = ('appel', 'origine', 'accueil', )
         return super(DossierManager, self).get_query_set().select_related(*fkeys).all()
 
-class Dossier(DossierWorkflow, models.Model):
+class Dossier(DossierWorkflow, InstanceModel, models.Model):
     """
     Informations générales du dossier de candidature.
     """
@@ -595,23 +599,6 @@ class Diplome(models.Model):
                         verbose_name=u"Pays de l'établissement", 
                         blank=True, null=True)
 
-
-class TypePiece(models.Model):
-    pass
-
-    class Meta:
-        verbose_name = u"Type de pièce"
-
-
-class Piece(models.Model):
-    dossier = models.ForeignKey(Dossier)
-    type = models.ForeignKey(TypePiece)
-    conforme = models.NullBooleanField(verbose_name=u"Conforme?", 
-                        blank=True, null=True)
-
-    class Meta:
-        verbose_name = u"Pièce"
-
 class GroupeRegional(models.Model):
     region = models.ForeignKey(Region)
     users = models.ManyToManyField('auth.User', related_name="groupes_regionaux", verbose_name=u"Membres", blank=True, null=True)
@@ -622,3 +609,31 @@ class GroupeRegional(models.Model):
 
     def __unicode__(self):
         return self.region.nom
+
+################################################################################
+# Dynamo
+################################################################################
+class TypeConformite(TypeProperty, models.Model):
+    """
+    Lié à l'appel
+    """
+    class Meta:
+        verbose_name = u"Type de conformité"
+        verbose_name_plural = u"Types de conformité"
+
+class Conformite(ValueProperty, models.Model):
+    """
+    Lié au dossier
+    """
+    dossier = models.ForeignKey(Dossier)
+    type = models.ForeignKey("TypeConformite")
+    conforme = models.NullBooleanField(verbose_name=u"Conforme?", 
+                        blank=True, null=True)
+
+    class Meta:
+        verbose_name = u"Conformité"
+
+# on relie tous les modèles ensembles pour générer les admin
+dynamo_registry.register(Appel, TypeConformite, Dossier, Conformite)
+
+

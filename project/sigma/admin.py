@@ -8,9 +8,48 @@ from auf.django.workflow.admin import WorkflowAdmin
 from auf.django.export.admin import ExportAdmin
 from datamaster_modeles.models import Region
 from models import *
-from forms import GroupeRegionalAdminForm, RequiredInlineFormSet
+from forms import *
 
+class DossierConformiteAdmin(admin.TabularInline):
+    """
+    Admin pour spécifier spécifier si la conformité est passée ou non
+    """
+    form = ConformiteForm
+    model = Conformite
+    extra = 0
+    max_num = 0
+    can_delete = False
+
+class TypeConformiteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'field_type',  )
+    form = TypeConformiteForm
+
+class ProxyAppelConformite(Appel.conformites.through):
+    """
+    Ce proxy sert uniquement dans l'admin à disposer d'un libellé
+    plus ergonomique.
+    """
+
+    class Meta:
+        proxy=True
+        verbose_name = u"Type de conformité"
+        verbose_name_plural = u"Conformités demandées pour cet appel"
+
+    def __unicode__(self,):
+        return u"code conformité #%s" % self.id
+
+class TypeConformiteInline(admin.TabularInline):
+    """
+    Association des types de conformité à un appel.
+    """
+    fields = ('typeconformite', )
+    model = ProxyAppelConformite
+    extra = 0
+    verbose_name = u"Type de conformités"
+    verbose_name_plural = u"Conformités demandées pour cet appel"
+    
 class AppelAdmin(WorkflowAdmin):
+    inlines = (TypeConformiteInline, )
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut', 'date_fin', 'etat', '_actions', )
     list_filter = ('region', )
     fields = ('nom',
@@ -94,7 +133,6 @@ class DossierCandidatInline(admin.StackedInline):
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Informations sur le candidat"
 
-
 class DiplomeInline(admin.StackedInline):
     model = Diplome
     max_num = 1
@@ -107,7 +145,7 @@ def affecter_dossiers_expert(modeladmin, request, queryset):
     
 class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, )
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin,)
     list_display = ('id', 'appel', '_region', 'etat', 'moyenne_votes', 'discipline', '_actions', )
     list_filter = ('etat', 'appel', 'discipline', )
     search_fields = ('appel__nom',
@@ -185,3 +223,4 @@ admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)
 admin.site.register(GroupeRegional, GroupeRegionalAdmin)
+admin.site.register(TypeConformite, TypeConformiteAdmin)
