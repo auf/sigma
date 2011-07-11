@@ -50,14 +50,16 @@ class TypeConformiteInline(admin.TabularInline):
     
 class AppelAdmin(WorkflowAdmin):
     inlines = (TypeConformiteInline, )
-    list_display = ('nom', 'region', 'code_budgetaire', 'date_debut', 'date_fin', 'etat', '_actions', )
+    list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
     list_filter = ('region', )
     fields = ('nom',
         'region',
         'code_budgetaire',
         #'formulaire_wcs',
-        'date_debut',
-        'date_fin',
+        'date_debut_appel',
+        'date_fin_appel',
+        'date_debut_mobilite',
+        'date_fin_mobilite',
         'date_activation',
         'date_desactivation',
         'etat',

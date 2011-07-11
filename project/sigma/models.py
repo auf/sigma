@@ -107,16 +107,21 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     formulaire_wcs = models.CharField(max_length=255, 
                         verbose_name=u"Nom du formulaire WCS", 
                         blank=True, null=True)
-    date_debut = models.DateField(verbose_name=u"Date de début", 
+    date_debut_appel = models.DateField(verbose_name=u"Début de l'appel", 
                         blank=True, null=True)
-    date_fin = models.DateField(verbose_name=u"Date de fin", 
+    date_fin_appel = models.DateField(verbose_name=u"Fin de l'appel", 
+                        blank=True, null=True)
+    date_debut_mobilite = models.DateField(verbose_name=u"Début de la mobilité", 
+                        blank=True, null=True)
+    date_fin_mobilite = models.DateField(verbose_name=u"Fin de la mobilité", 
                         blank=True, null=True)
     date_activation = models.DateField(verbose_name=u"Date d'activation", 
                         blank=True, null=True)
     date_desactivation = models.DateField(verbose_name=u"Date de désactivation", 
                         blank=True, null=True)
 
-    conformites = models.ManyToManyField("TypeConformite", verbose_name="Confirmités à demander", blank=True, null=True)
+    conformites = models.ManyToManyField("TypeConformite", verbose_name="Confirmités à demander",
+                                         blank=True, null=True)
 
     def __unicode__(self):
         return "#%s : %s" %(self.id, self.nom)
@@ -133,11 +138,15 @@ class Candidat(models.Model):
                         verbose_name=u"Date de modification")
 
     # identification personne
-    nom = models.CharField(max_length=255, verbose_name=u"Nom de famille")
+    civilite = models.CharField(max_length=2, verbose_name=u"Civilité", 
+                        choices=CIVILITE,
+                        blank=True, null=True)
+    nom = models.CharField(max_length=255, verbose_name=u"Nom de famille", 
+                            help_text=u"EN MAJUSCULE")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     nom_jeune_fille = models.CharField(max_length=255, 
                         verbose_name=u"Nom de jeune fille", 
-                        blank=True, null=True)
+                        blank=True, null=True, help_text=u"EN MAJUSCULE")
 
     # identification avancée personne
     nationalite = models.ForeignKey(Pays, verbose_name=u"Nationalité", 
@@ -166,28 +175,13 @@ class Candidat(models.Model):
                         blank=True, null=True)
     telephone_perso = models.CharField(max_length=255, 
                         verbose_name=u"Téléphone personnel", 
-                        blank=True, null=True)
-    fax_perso = models.CharField(max_length=255, verbose_name=u"FAX personnel", 
-                        blank=True, null=True)
+                        blank=True, null=True, help_text=u"(+ code régional)")
     courriel_perso = models.CharField(max_length=255, 
-                        verbose_name=u"Courriel personnel", 
+                        verbose_name=u"Courrier électronique", 
                         blank=True, null=True)
     telephone_pro = models.CharField(max_length=255, 
                         verbose_name=u"Téléphone professionnel", 
-                        blank=True, null=True)
-    fax_pro = models.CharField(max_length=255, 
-                        verbose_name=u"FAX professionnel", 
-                        blank=True, null=True)
-    courriel_pro = models.CharField(max_length=255, 
-                        verbose_name=u"Courriel professionnel", 
-                        blank=True, null=True)
-
-    # renseignements divers
-    sexe = models.CharField(max_length=1, verbose_name=u"Genre", 
-                        blank=True, null=True)
-    civilite = models.CharField(max_length=2, verbose_name=u"Civilité", 
-                        choices=CIVILITE,
-                        blank=True, null=True)
+                        blank=True, null=True, help_text=u"(+ code régional)")
 
     def __unicode__(self):
         return u"%s %s" % (self.nom.upper(), self.prenom)
