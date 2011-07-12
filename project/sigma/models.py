@@ -34,6 +34,17 @@ REPONSE = (
     ('r', "r"),
 )
 
+PERIODE = (
+    ('civile', "Année civile"),
+    ('academique', "Année académique"),
+)
+
+BAREME = (
+    ('mensuel', "Mensuel"),
+    ('perdiem', "Perdiem"),
+    ('allocation', "Allocation unique"),
+)
+
 NOTE_MIN = 1
 NOTE_RANGE = 1
 NOTE_MAX = 5
@@ -102,8 +113,7 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     region = models.ForeignKey(Region)
     code_budgetaire = models.CharField(max_length=255, 
-                        verbose_name=u"Code budgétaire", 
-                        blank=True, null=True)
+                        verbose_name=u"Code budgétaire")
     formulaire_wcs = models.CharField(max_length=255, 
                         verbose_name=u"Nom du formulaire WCS", 
                         blank=True, null=True)
@@ -115,11 +125,35 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
                         blank=True, null=True)
     date_fin_mobilite = models.DateField(verbose_name=u"Fin de la mobilité", 
                         blank=True, null=True)
-    date_activation = models.DateField(verbose_name=u"Date d'activation", 
+    appel_en_ligne = models.BooleanField(verbose_name=u"Appel d’offres en ligne")
+    periode = models.CharField(max_length=32, verbose_name=u"Période de mobilité", 
+                        choices=PERIODE, blank=True, null=True)
+    bareme = models.CharField(max_length=32, verbose_name=u"Barème", 
+                        choices=BAREME, blank=True, null=True)
+    montant_mensuel_origine_sud = models.IntegerField(
+                        verbose_name=u"Montant mensuel pays origine Sud", 
                         blank=True, null=True)
-    date_desactivation = models.DateField(verbose_name=u"Date de désactivation", 
+    montant_mensuel_origine_nord = models.IntegerField(
+                        verbose_name=u"Montant mensuel pays origine Nord", 
                         blank=True, null=True)
-
+    montant_mensuel_accueil_sud = models.IntegerField(
+                        verbose_name=u"Montant mensuel pays accueil Sud", 
+                        blank=True, null=True)
+    montant_mensuel_accueil_nord = models.IntegerField(
+                        verbose_name=u"Montant mensuel pays accueil Nord", 
+                        blank=True, null=True)
+    montant_prime_installation = models.IntegerField(
+                        verbose_name=u"Montant prime installation", 
+                        blank=True, null=True)
+    montant_perdiem_sud = models.IntegerField(
+                        verbose_name=u"Montant jour (perdiem) pays Sud ", 
+                        blank=True, null=True)
+    montant_perdiem_nord = models.IntegerField(
+                        verbose_name=u"Montant jour (perdiem) pays Nord", 
+                        blank=True, null=True)
+    montant_allocation_unique = models.IntegerField(
+                        verbose_name=u"Montant allocation unique", 
+                        blank=True, null=True)    
     conformites = models.ManyToManyField("TypeConformite", verbose_name="Confirmités à demander",
                                          blank=True, null=True)
 
@@ -156,9 +190,6 @@ class Candidat(models.Model):
                         blank=True, null=True)
     naissance_date = models.DateField(max_length=255, 
                         verbose_name=u"Date de naissance", 
-                        blank=True, null=True)
-    naissance_pays = models.ForeignKey(Pays, related_name="naissance_pays", 
-                        verbose_name=u"Pays de naissance", 
                         blank=True, null=True)
 
     # coordonnées
