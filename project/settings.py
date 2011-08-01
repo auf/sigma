@@ -62,6 +62,7 @@ INSTALLED_APPS = (
     'auf.django.workflow',
     'form_utils',
     'sigma',
+    'suivi',
     'passerelle',
     'auf.django.export',
 )

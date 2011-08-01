@@ -9,6 +9,7 @@ from auf.django.export.admin import ExportAdmin
 from datamaster_modeles.models import Region
 from models import *
 from forms import *
+from suivi.models import BoursierCoda
 
 class DossierConformiteAdmin(admin.TabularInline):
     """
@@ -149,6 +150,11 @@ class DiplomeInline(admin.StackedInline):
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Diplômes"
+    
+class MappageCodaInline(admin.StackedInline):
+    model = BoursierCoda
+    extra = 0
+    verbose_name = verbose_name_plural = "Mappage Coda"
 
 def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
@@ -156,8 +162,8 @@ def affecter_dossiers_expert(modeladmin, request, queryset):
     
 class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin,)
-    list_display = ('id', 'appel', '_region', 'etat', 'moyenne_votes', 'discipline', '_actions', )
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, MappageCodaInline,)
+    list_display = ('id', 'appel', '_region', 'etat', 'moyenne_votes', 'discipline', '_evaluer', '_suivi' )
     list_filter = ('etat', 'appel', 'discipline', )
     search_fields = ('appel__nom',
                      'candidat__nom', 'candidat__prenom',
@@ -182,9 +188,15 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     
     actions = [affecter_dossiers_expert]
 
-    def _actions(self, obj):
+    def _evaluer(self, obj):
         return "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
-    _actions.allow_tags = True
+    _evaluer.allow_tags = True
+    _evaluer.short_description = 'Évaluation'
+    
+    def _suivi(self, obj):
+        return "<a href='%s'>Suivi</a>" % reverse('suivi', args=(obj.id, ))
+    _suivi.allow_tags = True
+    _suivi.short_description = 'Suivi administratif'
 
     def _region(self, obj):
         return obj.appel.region
