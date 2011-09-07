@@ -72,9 +72,12 @@ class WCSAppel(WCS):
         """
         retourne le nom de l'appel à partir de l'id de la liste.
         """
-        idx = int(appel_id)
-        liste_appels = self.liste()
-        return liste_appels[idx]
+        try:
+            idx = int(appel_id)
+            liste_appels = self.liste()
+            return liste_appels[idx]
+        except ValueError:
+            return appel_id
 
     def dossiers(self, appel_id):
         """
@@ -126,13 +129,15 @@ class WCSAppel(WCS):
 
         # comparasion de tous les dossier à l'étalon
         errors = []
+        champs = {}
         for d in dossiers:
             diff = etalon_set.difference(set(d.keys()))
             if len(diff) > 0:
                 errors.append((d, diff))
+            champs = d.keys()
 
         if len(errors) == 0:
-            return True, errors
+            return True, champs
         else:
             return False, errors
 
