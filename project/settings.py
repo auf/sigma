@@ -63,8 +63,8 @@ INSTALLED_APPS = (
     'form_utils',
     'sigma',
     'suivi',
-    'passerelle',
     'auf.django.export',
+    'wcs',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
