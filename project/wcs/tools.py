@@ -1,6 +1,12 @@
 # -*- encoding: utf-8 -*-
 
+import os
 from wrappers import WCSAppel
+from models import MODELES_SIGMA
+from project.sigma import models as SIGMAmodels
+from django.template.loader import render_to_string
+
+DEFAULT_MAPPING = 'default_mapping'
 
 class Appel:
 
@@ -37,3 +43,66 @@ class Appel:
         print "="*80
         for k, v in self.wcs.dossier(appel_id, dossier_id).items():
             print "* %-40s : %s" % (k, v)
+
+    def default_mapping(self):
+        champs = {}
+        for modele_name in MODELES_SIGMA:
+            mod = getattr(SIGMAmodels, modele_name)
+            champs[modele_name] = {}
+            for f in  mod._meta.fields:
+                k = "sigma|%s|%s" % (modele_name, f.name)
+                champs[modele_name][k] = (modele_name, f.name)
+        print render_to_string('wcs/default_mapping.txt', {"champs": champs}, )
+
+
+    def _safe_module_name(self, nom):
+        nom.lower()
+        nom = nom.replace('-', '_')
+        nom = nom.replace('.', '_')
+        return nom
+
+    def custom_mapping(self, appel_id):
+        from conf import default_mapping
+        statut, data = self.wcs.test(appel_id)
+        if statut is False:
+            return
+        surcharge = {}
+        wcs = {}
+        for f in data:
+            if f in default_mapping.MAPPING.keys():
+                surcharge[f] = ('', '')
+            else:
+                wcs[f] = ('', '')
+
+        champs = {u'surcharge defaut' : surcharge, u'wcs specifique' : wcs, }
+        data = render_to_string('wcs/custom_mapping.txt', {"champs": champs}, )
+
+        appel_nom = self._safe_module_name(self.wcs.appel_id2txt(appel_id))
+        custom_mapping = os.path.join(os.path.dirname(__file__), 'conf', "%s.py" % appel_nom)
+        if not os.path.exists(custom_mapping):
+            f = open(custom_mapping, 'w+',)
+            f.write(data)
+            f.close()
+            print "Fichier crée : %s" % custom_mapping
+        else:
+            print "Le fichier existe déjà!"
+            
+        
+    def importer(self, appel_id):
+        appel_nom = self.wcs.appel_id2txt(appel_id)
+        module_name =  self._safe_module_name(appel_nom)
+
+        conf = __import__('conf',  globals(), locals(), [module_name, DEFAULT_MAPPING], -1)
+        try:
+            mapping = conf.__dict__[module_name]
+        except:
+            mapping = conf.__dict__[DEFAULT_MAPPING]
+            
+        for k,v  in mapping.MAPPING.items():
+            print "%s : %s" %(k, v)
+
+        #dossiers = self.wcs.dossiers(appel_id)
+        #print u"Importation des dossiers de l'appel : %s" % appel_nom
+        #for idx, dossier_data in enumerate(dossiers):
+        #    dossier = DossierProxy(dossier_data)
+        #    pass

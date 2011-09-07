@@ -11,12 +11,14 @@ CACHE_PATH = os.path.join(os.path.dirname(__file__), '_cache')
 class WCS(object):
 
     def __init__(self):
+        # accès par HTTPS autentifié
         passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
         passman.add_password(None, settings.WCS_SIGMA_URL, settings.WCS_SIGMA_USER, settings.WCS_SIGMA_PASS)
         authhandler = urllib2.HTTPBasicAuthHandler(passman)
         opener = urllib2.build_opener(authhandler)
         urllib2.install_opener(opener)
 
+        # création d'un cache local
         if not os.path.exists(CACHE_PATH):
             os.mkdir(CACHE_PATH)
  
@@ -29,6 +31,9 @@ class WCS(object):
                 os.remove(os.path.join(root, f))
 
     def _retrieve(self, url):
+        """
+        GET HTTP distant, ou provient du cache si il existe.
+        """
         key = "_" + url.replace('/', '-')
         file_path = os.path.join(CACHE_PATH, key)
         if os.path.exists(file_path):

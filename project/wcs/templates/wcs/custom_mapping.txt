@@ -1,0 +1,11 @@
+# -*- encoding: utf-8 -*-
+
+from default_mapping import *
+
+MAPPING.update({
+{% for mod, fields in champs.items %}
+    # Module : {{ mod }}{% for k, data in fields.items %}
+    #'{{ k }}' : ('{{ data.0 }}', '{{ data.1 }}') ,{% endfor %}
+    
+{% endfor %}
+})

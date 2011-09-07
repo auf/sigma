@@ -22,10 +22,7 @@ class Command(BaseCommand):
         """
         Dispatcher de commandes
         """
-        try:
-            classname, method = args[0:2]
-            classname = classname.title()
-            instance = getattr(cmd, classname)()
-            getattr(instance, method)(*args[2:])
-        except:
-            print self.__doc__
+        classname, method = args[0:2]
+        classname = classname.title()
+        instance = getattr(cmd, classname)()
+        getattr(instance, method)(*args[2:])
