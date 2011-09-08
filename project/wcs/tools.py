@@ -3,7 +3,8 @@
 import os
 from wrappers import WCSAppel
 from models import MODELES_SIGMA
-from project.sigma import models as SIGMAmodels
+from utils import Importeur
+from project.sigma import models as sigma
 from django.template.loader import render_to_string
 
 DEFAULT_MAPPING = 'default_mapping'
@@ -98,11 +99,16 @@ class Appel:
         except:
             mapping = conf.__dict__[DEFAULT_MAPPING]
             
-        for k,v  in mapping.MAPPING.items():
-            print "%s : %s" %(k, v)
 
-        #dossiers = self.wcs.dossiers(appel_id)
-        #print u"Importation des dossiers de l'appel : %s" % appel_nom
-        #for idx, dossier_data in enumerate(dossiers):
-        #    dossier = DossierProxy(dossier_data)
-        #    pass
+        dossiers = self.wcs.dossiers(appel_id)
+        try:
+            appel = sigma.Appel.objects.get(nom=appel_nom)
+        except:
+            print "L'appel n'existe pas dans SIGMA : %s" % appel_nom
+            return
+
+        print u"Importation des dossiers de l'appel : %s" % appel_nom
+        for dossier_id, dossier_nom in enumerate(dossiers[0:1]):
+            dossier_data = self.wcs.dossier(appel_id, dossier_id)
+            importeur = Importeur(appel, dossier_data, mapping)
+            importeur.run()

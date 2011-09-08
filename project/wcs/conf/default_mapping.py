@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+from project.wcs.models import *
+
 MAPPING = {
 
     # Module : Dossier

@@ -6,8 +6,12 @@ from project.sigma import models as sigma
 
 MODELES_SIGMA = ('Dossier', 'DossierOrigine', 'DossierAccueil', 'DossierMobilite', )
 
-class DossierProxy(sigma.Dossier):
+class Dossier(sigma.Dossier):
+    class Meta:
+        proxy = True
 
+
+class Candidat(sigma.Candidat):
     class Meta:
         proxy = True
 
