@@ -1,6 +1,15 @@
 # -*- encoding: utf-8 -*-
 
+from django import forms
 from default_mapping import *
+from project.sigma import models as sigma
+from project.wcs import forms as wcs
+
+#class Dossier(wcs.DossierForm):
+#    pass   
+#
+#class Candidat(wcs.CandidatForm):
+#    pass
 
 MAPPING.update({
 
@@ -44,7 +53,7 @@ MAPPING.update({
     #'civilite_du_responsable_2' : ('', '') ,
     #'prenom_du_responsable_2' : ('', '') ,
     #'code_postal' : ('', '') ,
-    #'prenom' : ('', '') ,
+    'prenom' : ('Candidat', 'prenom') ,
     #'date_de_naissance' : ('', '') ,
     #'nom_du_responsable' : ('', '') ,
     #'adresse_electronique_du_responsable' : ('', '') ,

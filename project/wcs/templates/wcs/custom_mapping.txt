@@ -1,6 +1,15 @@
 # -*- encoding: utf-8 -*-
 
+from django import forms
 from default_mapping import *
+from project.sigma import models as sigma
+from project.wcs import forms as wcs
+
+#class Dossier(wcs.DossierForm):
+#    pass   
+#
+#class Candidat(wcs.CandidatForm):
+#    pass
 
 MAPPING.update({
 {% for mod, fields in champs.items %}

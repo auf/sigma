@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from project.wcs.models import *
+from project.wcs.forms import *
 
 MAPPING = {
 

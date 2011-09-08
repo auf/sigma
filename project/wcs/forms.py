@@ -1,11 +1,16 @@
 # -*- encoding: utf-8 -*-
 
 from django import forms
-from models import WCSChamps
+from project.sigma import models as sigma
 
-class WCSChampsForm(forms.ModelForm):
+class DossierForm(forms.ModelForm):
     
-    wcs = forms.ChoiceField(label=u"Champs WCS", choices=())
-
     class Meta:
-        model = WCSChamps
+        model = sigma.Dossier
+        exclude = ('etat', 'appel', 'candidat', )
+
+class CandidatForm(forms.ModelForm):
+    
+    class Meta:
+        model = sigma.Candidat
+        exclude = ('dossier', )

@@ -87,9 +87,12 @@ class Appel:
             print "Fichier crée : %s" % custom_mapping
         else:
             print "Le fichier existe déjà!"
-            
-        
-    def importer(self, appel_id):
+    
+    def importer(self, appel_id, mode='dryrun'):
+        if mode not in ('dryrun', 'run'):
+            print "mode : 'dryrun', 'run'"
+            return
+
         appel_nom = self.wcs.appel_id2txt(appel_id)
         module_name =  self._safe_module_name(appel_nom)
 
@@ -111,4 +114,8 @@ class Appel:
         for dossier_id, dossier_nom in enumerate(dossiers[0:1]):
             dossier_data = self.wcs.dossier(appel_id, dossier_id)
             importeur = Importeur(appel, dossier_data, mapping)
-            importeur.run()
+            method = getattr(importeur, mode)
+            errors = method()
+            if errors:
+                print errors
+                
