@@ -1,6 +1,8 @@
 # -*- encoding: utf-8 -*-
 
+from django.db import transaction
 from project.sigma import models as sigma
+
 
 class Importeur(object):
 
@@ -46,16 +48,18 @@ class Importeur(object):
         Validation de tous les forms.
         """
         status = True
-        errors = None
+        errors = {}
         for classname, f in self.forms.items():
             if not f.is_valid():
                 status = False
                 errors[classname] = f.errors
         return status, errors
-            
-    def dbwrite(self):
+    
+    @transaction.commit_manually
+    def dbwrite(self, dry=True):
         """
         Écriture des objets en BD si l'objet n'existe pas.
+        Établissement des liens entre les objets.
         """
         dossierForm = self.forms['Dossier']
         candidatForm = self.forms['Candidat']
@@ -63,16 +67,51 @@ class Importeur(object):
         dossier = dossierForm.save(commit=False)
         candidat = candidatForm.save(commit=False)
 
+        # Test la présence d'un dossier similaire
         test = sigma.Dossier.objects.filter(appel=self.appel, candidat__nom=candidat.nom, candidat__prenom=candidat.prenom)
         if len(test) > 0:    
             print "Ce dossier a déjà été importé : %s" % test[0]
             return
 
-        dossier.appel = self.appel
-        dossier.save()
+        transaction.commit()
 
-        candidat.dossier = dossier
-        candidat.save()
+        # Création des objets et de leurs relations
+        try:
+            dossier.appel = self.appel
+            dossier.save()
+
+            candidat.dossier = dossier
+            candidat.save()
+
+            # OneToOneFields, si ces objets ne sont pas en BD, la suppression dans l'admin est brisée
+            try:
+                dossier.origine
+            except:
+                origine = sigma.DossierOrigine()
+                origine.dossier = dossier
+                origine.save()
+
+            try:
+                dossier.accueil
+            except:
+                accueil = sigma.DossierAccueil()
+                accueil.dossier = dossier
+                accueil.save()
+    
+            try:
+                dossier.mobilite
+            except:
+                mobilite = sigma.DossierMobilite()
+                mobilite.dossier = dossier
+                mobilite.save()
+        except:
+            transaction.rollback()
+            
+        if dry:
+            transaction.rollback()
+        else:
+            transaction.commit()
+            
 
     def dryrun(self):
         """
@@ -82,10 +121,13 @@ class Importeur(object):
         status, errors = self.validate()
         if not status:
             return errors
-  
+        self.dbwrite(dry=True)
+
+
     def run(self):
         """
         Test AVEC écritures db.
         """
         self.dryrun()
-        self.dbwrite()
+        self.dbwrite(dry=False)
+        

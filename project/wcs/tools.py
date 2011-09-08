@@ -48,12 +48,21 @@ class Appel:
     def default_mapping(self):
         champs = {}
         for modele_name in MODELES_SIGMA:
-            mod = getattr(SIGMAmodels, modele_name)
+            mod = getattr(sigma, modele_name)
             champs[modele_name] = {}
             for f in  mod._meta.fields:
                 k = "sigma|%s|%s" % (modele_name, f.name)
                 champs[modele_name][k] = (modele_name, f.name)
-        print render_to_string('wcs/default_mapping.txt', {"champs": champs}, )
+        data = render_to_string('wcs/default_mapping.txt', {"champs": champs}, )
+
+        default_mapping = os.path.join(os.path.dirname(__file__), 'conf', "%s.py" % DEFAULT_MAPPING)
+        if not os.path.exists(default_mapping):
+            f = open(default_mapping, 'w+',)
+            f.write(data)
+            f.close()
+            print "Fichier crée : %s" % default_mapping
+        else:
+            print "Le fichier existe déjà!"
 
 
     def _safe_module_name(self, nom):
@@ -88,6 +97,14 @@ class Appel:
         else:
             print "Le fichier existe déjà!"
     
+    def get_mapping_module(self, module_name):
+        conf = __import__('conf',  globals(), locals(), [module_name, DEFAULT_MAPPING], -1)
+        try:
+            mapping = conf.__dict__[module_name]
+        except:
+            mapping = conf.__dict__[DEFAULT_MAPPING]
+        return mapping
+
     def importer(self, appel_id, mode='dryrun'):
         if mode not in ('dryrun', 'run'):
             print "mode : 'dryrun', 'run'"
@@ -95,15 +112,9 @@ class Appel:
 
         appel_nom = self.wcs.appel_id2txt(appel_id)
         module_name =  self._safe_module_name(appel_nom)
-
-        conf = __import__('conf',  globals(), locals(), [module_name, DEFAULT_MAPPING], -1)
-        try:
-            mapping = conf.__dict__[module_name]
-        except:
-            mapping = conf.__dict__[DEFAULT_MAPPING]
-            
-
+        mapping = self.get_mapping_module(module_name)
         dossiers = self.wcs.dossiers(appel_id)
+
         try:
             appel = sigma.Appel.objects.get(nom=appel_nom)
         except:

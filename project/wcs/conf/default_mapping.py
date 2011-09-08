@@ -93,6 +93,28 @@ MAPPING = {
     'sigma|DossierOrigine|resp_inst_fax' : ('DossierOrigine', 'resp_inst_fax') ,
     
 
+    # Module : Candidat
+    'sigma|Candidat|telephone_pro' : ('Candidat', 'telephone_pro') ,
+    'sigma|Candidat|naissance_date' : ('Candidat', 'naissance_date') ,
+    'sigma|Candidat|telephone_perso' : ('Candidat', 'telephone_perso') ,
+    'sigma|Candidat|dossier' : ('Candidat', 'dossier') ,
+    'sigma|Candidat|pays' : ('Candidat', 'pays') ,
+    'sigma|Candidat|region' : ('Candidat', 'region') ,
+    'sigma|Candidat|courriel_perso' : ('Candidat', 'courriel_perso') ,
+    'sigma|Candidat|adresse' : ('Candidat', 'adresse') ,
+    'sigma|Candidat|naissance_ville' : ('Candidat', 'naissance_ville') ,
+    'sigma|Candidat|nom_jeune_fille' : ('Candidat', 'nom_jeune_fille') ,
+    'sigma|Candidat|prenom' : ('Candidat', 'prenom') ,
+    'sigma|Candidat|code_postal' : ('Candidat', 'code_postal') ,
+    'sigma|Candidat|id' : ('Candidat', 'id') ,
+    'sigma|Candidat|nom' : ('Candidat', 'nom') ,
+    'sigma|Candidat|civilite' : ('Candidat', 'civilite') ,
+    'sigma|Candidat|ville' : ('Candidat', 'ville') ,
+    'sigma|Candidat|date_creation' : ('Candidat', 'date_creation') ,
+    'sigma|Candidat|date_modification' : ('Candidat', 'date_modification') ,
+    'sigma|Candidat|nationalite' : ('Candidat', 'nationalite') ,
+    
+
     # Module : DossierMobilite
     'sigma|DossierMobilite|these_date_inscription' : ('DossierMobilite', 'these_date_inscription') ,
     'sigma|DossierMobilite|these_type_autre' : ('DossierMobilite', 'these_type_autre') ,
@@ -128,4 +150,3 @@ MAPPING = {
     
 
 }
-

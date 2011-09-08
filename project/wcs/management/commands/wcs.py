@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django.core.management.base import BaseCommand, CommandError
-from project.wcs import tools as cmd
+from project.wcs.tools import Appel
 
 class Command(BaseCommand):
     """
@@ -9,20 +9,17 @@ class Command(BaseCommand):
     Aide
     ====
 
-    Appel
-    -----
-    * appel liste
-    * appel clear
-    * appel dossiers <appel_id>
-    * appel dossier <appel_id> <dossier_id>
-    * appel test <appel_id>
+    * liste
+    * clear
+    * dossiers <appel_id>
+    * dossier <appel_id> <dossier_id>
+    * test <appel_id>
 
     """
     def handle(self, *args, **options):
         """
         Dispatcher de commandes
         """
-        classname, method = args[0:2]
-        classname = classname.title()
-        instance = getattr(cmd, classname)()
-        getattr(instance, method)(*args[2:])
+        method = args[0]
+        appel = Appel()
+        getattr(appel, method)(*args[1:])

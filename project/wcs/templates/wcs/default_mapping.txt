@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+from project.wcs.forms import *
+
 MAPPING = {
 {% for mod, fields in champs.items %}
     # Module : {{ mod }}{% for k, data in fields.items %}
