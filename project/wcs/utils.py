@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-from django.db import transaction
+from django.db import transaction, connection
 from project.sigma import models as sigma
-
+from models import MODELES_SIGMA
 
 class Importeur(object):
 
@@ -111,18 +111,28 @@ class Importeur(object):
             transaction.rollback()
         else:
             transaction.commit()
-            
+
+    def set_transaction_support(self):
+        cursor = connection.cursor()
+        for table in MODELES_SIGMA:
+            cursor.execute("ALTER TABLE sigma_%s ENGINE=INNODB;" % table.lower() )
+
+    def unset_transaction_support(self):
+        cursor = connection.cursor()
+        for table in MODELES_SIGMA:
+            cursor.execute("ALTER TABLE sigma_%s ENGINE=MYISAM;" % table.lower() )
 
     def dryrun(self):
         """
         Test SANS écritures db.
         """
+        self.set_transaction_support()
         self.preprocess()
         status, errors = self.validate()
         if not status:
             return errors
         self.dbwrite(dry=True)
-
+        self.unset_transaction_support()
 
     def run(self):
         """

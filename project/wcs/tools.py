@@ -122,6 +122,7 @@ class Appel:
             return
 
         print u"Importation des dossiers de l'appel : %s" % appel_nom
+        statut = True
         for dossier_id, dossier_nom in enumerate(dossiers[0:1]):
             dossier_data = self.wcs.dossier(appel_id, dossier_id)
             importeur = Importeur(appel, dossier_data, mapping)
@@ -129,4 +130,8 @@ class Appel:
             errors = method()
             if errors:
                 print errors
-                
+                statut = False
+        if statut:
+            print "importation OK (%s)" % mode
+        else:
+            print "Il y a eu des erreurs (%s)" % mode     
