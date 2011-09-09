@@ -108,3 +108,209 @@ class CandidatForm(CleanFormMixin):
 
     def prepare_nationalite(self, value):
         return value
+
+
+class DossierFaculteForm(CleanFormMixin):
+
+    def prepare_autre_etablissement_ville(self, value):
+        return value
+    
+    def prepare_autre_etablissement_code_postal(self, value):
+        return value
+
+    def prepare_resp_inst_civilite(self, value):
+        return value
+
+    def prepare_faculte_courriel(self, value):
+        return value
+
+    def prepare_resp_sc_telephone(self, value):
+        return value
+    
+    def prepare_autre_etablissement_pays(self, value):
+        return value
+
+    def prepare_resp_sc_fonction(self, value):
+        return value
+
+    def prepare_resp_inst_prenom(self, value):
+        return value
+
+    def prepare_resp_sc_fax(self,value):
+        return value
+
+    def prepare_autre_etablissement_adresse(self, value):
+        return value
+
+    def prepare_resp_inst_telephone(self, value):
+        return value
+
+    def prepare_faculte_nom(self, value):
+        return value
+
+    def prepare_resp_sc_prenom(self, value):
+        return value
+
+    def prepare_resp_sc_civilite(self, value):
+        return value
+
+    def prepare_resp_inst_fonction(self, value):
+        return value
+
+    def prepare_etablissement(self, value):
+        return value
+
+    def prepare_autre_etablissement_erreur(self, value):
+        return value
+
+    def prepare_resp_inst_courriel(self, value):
+        return value
+
+    def prepare_autre_etablissement_nom(self, value):
+        return value
+
+    def prepare_resp_sc_nom(self, value):
+        return value
+
+    def prepare_faculte_adresse(self, value):
+        return value
+
+    def prepare_faculte_telephone(self, value):
+        return value
+
+    def prepare_resp_inst_nom(self, value):
+        return value
+
+    def prepare_faculte_fax(self, value):
+        return value
+
+    def prepare_faculte_url(self, value):
+        return value
+
+    def prepare_resp_sc_courriel(self, value):
+        return value
+
+    def prepare_faculte_ville(self, value):
+        return value
+
+    def prepare_autre_etablissement_valide(self, value):
+        return value
+
+    def prepare_faculte_code_postal(self, value):
+        return value
+
+    def prepare_resp_inst_fax(self, value):
+        return value
+
+
+class DossierOrigineForm(DossierFaculteForm):
+ 
+    class Meta:
+        model = sigma.DossierOrigine
+        exclude = ('dossier', )
+
+
+
+class DossierAccueilForm(DossierFaculteForm):
+ 
+    class Meta:
+        model = sigma.DossierAccueil
+        exclude = ('dossier', )
+
+
+class DossierMobiliteForm(CleanFormMixin):
+ 
+    class Meta:
+        model = sigma.DossierMobilite
+        exclude = ('dossier', )
+
+
+    def prepare_(self, value):
+        return value
+
+    def prepare_these_date_inscription(self, value):
+        return value
+
+    def prepare_these_type_autre(self, value):
+        return value
+
+    def prepare_alternance_nb_mois_origine(self, value):
+        return value
+
+    def prepare_diplome_demande_nom(self, value):
+        return value
+
+    def prepare_formation_en_cours_niveau(self, value):
+        return value
+
+    def prepare_autres_publics(self, value):
+        return value
+
+    def prepare_diplome_demande_niveau(self, value):
+        return value
+
+    def prepare_these_date_obtention_prevue(self, value):
+        return value
+
+    def prepare_dir_ori_civilite(self, value):
+        return value
+
+    def prepare_these_type(self, value):
+        return value
+
+    def prepare_date_debut(self, value):
+        return value
+
+    def prepare_public_vise(self, value):
+        return value
+
+    def prepare_formation_en_cours_diplome(self, value):
+        return value
+
+    def prepare_alternance_accueil_puis_origine(self, value):
+        return value
+
+    def prepare_alternance_nb_mois_accueil(self, value):
+        return value
+
+    def prepare_duree(self, value):
+        return value
+
+    def prepare_date_fin(self, value):
+        return value
+
+    def prepare_intitule_projet(self, value):
+        return value
+
+    def prepare_type_intervention(self, value):
+        return value
+
+    def prepare_these_soutenance_date(self, value):
+        return value
+
+    def prepare_dir_ori_prenom(self, value):
+        return value
+
+    def prepare_dir_acc_prenom(self, value):
+        return value
+
+    def prepare_mots_clefs(self, value):
+        return value
+
+    def prepare_dir_acc_civilite(self, value):
+        return value
+
+    def prepare_dir_ori_nom(self, value):
+        return value
+
+    def prepare_dir_acc_nom(self, value):
+        return value
+
+    def prepare_discipline(self, value):
+        return value
+
+    def prepare_these_soutenance_pays(self, value):
+        return value
+
+    def prepare_sous_discipline(self, value):
+        return value
