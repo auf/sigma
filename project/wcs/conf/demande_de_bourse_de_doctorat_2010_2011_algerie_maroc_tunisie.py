@@ -90,7 +90,7 @@ MAPPING.update({
     #'etat_des_travaux_realises' : ('', '') ,
     #'si_autre_diplome_precisez' : ('', '') ,
     #'nom_du_candidat' : ('', '') ,
-    #'pays_de_nationalite' : ('', '') ,
+    'pays_de_nationalite' : ('Candidat', 'pays') ,
     #'etablissement_d_accueil_membre_de_l_auf' : ('', '') ,
     #'nom_du_responsable_2' : ('', '') ,
     #'descriptif_detaille_du_sujet_de_these' : ('', '') ,

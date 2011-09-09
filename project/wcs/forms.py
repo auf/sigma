@@ -3,6 +3,7 @@
 from django import forms
 from project.sigma import models as sigma
 
+
 class DossierForm(forms.ModelForm):
     
     class Meta:
@@ -10,7 +11,9 @@ class DossierForm(forms.ModelForm):
         exclude = ('etat', 'appel', 'candidat', )
 
 class CandidatForm(forms.ModelForm):
-    
+ 
+    def clean_pays(self, value):
+   
     class Meta:
         model = sigma.Candidat
         exclude = ('dossier', )

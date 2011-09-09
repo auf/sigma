@@ -26,7 +26,7 @@ class Appel:
     def dossiers(self, appel_id):
         dossiers = self.wcs.dossiers(appel_id)
         print u"Liste des dossiers de l'appel : %s" % self.wcs.appel_id2txt(appel_id)
-        print "="*80
+        print u"="*80
         for idx, dossier in enumerate(dossiers):
             print u"* %s : %s" % (str(idx).zfill(3), dossier)
 
@@ -34,16 +34,22 @@ class Appel:
         print u"Test des données l'appel : %s" % self.wcs.appel_id2txt(appel_id)
         statut, errors = self.wcs.test(appel_id)
         if statut:
-            print 'Intégrité OK'
+            print u'Intégrité OK'
         else:
             for e in errors:
                 print "* %s : %s" % e
 
     def dossier(self, appel_id, dossier_id):
         print u"Dossier : %s" % self.wcs.dossier_id2txt(appel_id, dossier_id)
-        print "="*80
+        print u"="*80
         for k, v in self.wcs.dossier(appel_id, dossier_id).items():
-            print "* %-40s : %s" % (k, v)
+
+            if isinstance(v, unicode):
+                v = v.encode("utf-8")
+            try:
+                print "* %-40s : %s" % (k, v)
+            except:
+                print u"*** %s (%s)" % (k, type(v))
 
     def default_mapping(self):
         champs = {}
@@ -60,9 +66,9 @@ class Appel:
             f = open(default_mapping, 'w+',)
             f.write(data)
             f.close()
-            print "Fichier crée : %s" % default_mapping
+            print u"Fichier crée : %s" % default_mapping
         else:
-            print "Le fichier existe déjà!"
+            print u"Le fichier existe déjà!"
 
 
     def _safe_module_name(self, nom):
@@ -93,9 +99,9 @@ class Appel:
             f = open(custom_mapping, 'w+',)
             f.write(data)
             f.close()
-            print "Fichier crée : %s" % custom_mapping
+            print u"Fichier crée : %s" % custom_mapping
         else:
-            print "Le fichier existe déjà!"
+            print u"Le fichier existe déjà!"
     
     def get_mapping_module(self, module_name):
         conf = __import__('conf',  globals(), locals(), [module_name, DEFAULT_MAPPING], -1)
@@ -118,7 +124,7 @@ class Appel:
         try:
             appel = sigma.Appel.objects.get(nom=appel_nom)
         except:
-            print "L'appel n'existe pas dans SIGMA : %s" % appel_nom
+            print u"L'appel n'existe pas dans SIGMA : %s" % appel_nom
             return
 
         print u"Importation des dossiers de l'appel : %s" % appel_nom
@@ -132,6 +138,6 @@ class Appel:
                 print errors
                 statut = False
         if statut:
-            print "importation OK (%s)" % mode
+            print u"importation OK (%s)" % mode
         else:
-            print "Il y a eu des erreurs (%s)" % mode     
+            print u"Il y a eu des erreurs (%s)" % mode     
