@@ -1,6 +1,9 @@
 # -*- encoding: utf-8 -*-
 
+import sys
 import os
+import traceback
+from django.db import transaction, connection
 from wrappers import WCSAppel
 from models import MODELES_SIGMA
 from utils import Importeur
@@ -111,7 +114,22 @@ class Appel:
             mapping = conf.__dict__[DEFAULT_MAPPING]
         return mapping
 
+    def set_transaction_support(self):
+        cursor = connection.cursor()
+        for table in MODELES_SIGMA:
+            cursor.execute("ALTER TABLE sigma_%s ENGINE=INNODB;" % table.lower() )
+
+    def unset_transaction_support(self):
+        cursor = connection.cursor()
+        for table in MODELES_SIGMA:
+            cursor.execute("ALTER TABLE sigma_%s ENGINE=MYISAM;" % table.lower() )
+
+
+    @transaction.commit_manually
     def importer(self, appel_id, mode='dryrun'):
+
+        self.set_transaction_support()
+
         if mode not in ('dryrun', 'run'):
             print "mode : 'dryrun', 'run'"
             return
@@ -129,15 +147,30 @@ class Appel:
 
         print u"Importation des dossiers de l'appel : %s" % appel_nom
         statut = True
-        for dossier_id, dossier_nom in enumerate(dossiers[0:1]):
-            dossier_data = self.wcs.dossier(appel_id, dossier_id)
-            importeur = Importeur(appel, dossier_data, mapping)
-            method = getattr(importeur, mode)
-            errors = method()
-            if errors:
-                print errors
-                statut = False
-        if statut:
-            print u"importation OK (%s)" % mode
+
+        transaction.commit()
+        try:
+            for dossier_id, dossier_nom in enumerate(dossiers):
+                dossier_data = self.wcs.dossier(appel_id, dossier_id)
+                importeur = Importeur(appel, dossier_data, mapping)
+                errors = importeur.run()
+                if errors:
+                    print errors
+        except Exception, e:
+            print "="*80
+            print dossier_nom
+            print "-"*80
+            print e
+            print "="*80
+            
+
+            transaction.rollback()
+            return
+        
+        if mode=='dryrun':
+            transaction.rollback()
         else:
-            print u"Il y a eu des erreurs (%s)" % mode     
+            transaction.commit()
+            print "importation réussie"
+
+        self.unset_transaction_support()

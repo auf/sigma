@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
 
-from django.db import transaction, connection
 from project.sigma import models as sigma
 from models import MODELES_SIGMA
 
@@ -55,8 +54,7 @@ class Importeur(object):
                 errors[classname] = f.errors
         return status, errors
     
-    @transaction.commit_manually
-    def dbwrite(self, dry=True):
+    def dbwrite(self,):
         """
         Écriture des objets en BD si l'objet n'existe pas.
         Établissement des liens entre les objets.
@@ -73,71 +71,40 @@ class Importeur(object):
             print "Ce dossier a déjà été importé : %s" % test[0]
             return
 
-        transaction.commit()
 
         # Création des objets et de leurs relations
+        dossier.appel = self.appel
+        dossier.save()
+
+        candidat.dossier = dossier
+        candidat.save()
+
+        # OneToOneFields, si ces objets ne sont pas en BD, la suppression dans l'admin est brisée
         try:
-            dossier.appel = self.appel
-            dossier.save()
-
-            candidat.dossier = dossier
-            candidat.save()
-
-            # OneToOneFields, si ces objets ne sont pas en BD, la suppression dans l'admin est brisée
-            try:
-                dossier.origine
-            except:
-                origine = sigma.DossierOrigine()
-                origine.dossier = dossier
-                origine.save()
-
-            try:
-                dossier.accueil
-            except:
-                accueil = sigma.DossierAccueil()
-                accueil.dossier = dossier
-                accueil.save()
-    
-            try:
-                dossier.mobilite
-            except:
-                mobilite = sigma.DossierMobilite()
-                mobilite.dossier = dossier
-                mobilite.save()
+            dossier.origine
         except:
-            transaction.rollback()
+            origine = sigma.DossierOrigine()
+            origine.dossier = dossier
+            origine.save()
+
+        try:
+            dossier.accueil
+        except:
+            accueil = sigma.DossierAccueil()
+            accueil.dossier = dossier
+            accueil.save()
+    
+        try:
+            dossier.mobilite
+        except:
+            mobilite = sigma.DossierMobilite()
+            mobilite.dossier = dossier
+            mobilite.save()
             
-        if dry:
-            transaction.rollback()
-        else:
-            transaction.commit()
 
-    def set_transaction_support(self):
-        cursor = connection.cursor()
-        for table in MODELES_SIGMA:
-            cursor.execute("ALTER TABLE sigma_%s ENGINE=INNODB;" % table.lower() )
-
-    def unset_transaction_support(self):
-        cursor = connection.cursor()
-        for table in MODELES_SIGMA:
-            cursor.execute("ALTER TABLE sigma_%s ENGINE=MYISAM;" % table.lower() )
-
-    def dryrun(self):
-        """
-        Test SANS écritures db.
-        """
-        self.set_transaction_support()
+    def run(self):
         self.preprocess()
         status, errors = self.validate()
         if not status:
             return errors
-        self.dbwrite(dry=True)
-        self.unset_transaction_support()
-
-    def run(self):
-        """
-        Test AVEC écritures db.
-        """
-        self.dryrun()
-        self.dbwrite(dry=False)
-        
+        self.dbwrite()
