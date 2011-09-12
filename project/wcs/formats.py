@@ -2,6 +2,7 @@
 
 import os
 import re
+from django import forms
 from datamaster_modeles import models as ref
 
 def code_from_pattern(pattern=r'^$', s=u''):
@@ -20,6 +21,9 @@ def str2pays(s):
     input = Arménie (AM - Europe centrale et orientale)
     output = id de l'objet Pays
     """
+    if s is None:
+        return s
+
     pattern = r'.*\((?P<code>\w{2}).*\)$'
     code_pays = code_from_pattern(pattern, s)
     try:
