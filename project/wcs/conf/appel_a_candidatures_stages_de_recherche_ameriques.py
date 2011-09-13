@@ -15,7 +15,7 @@ MAPPING.update({
 
     # Module : wcs specifique
     'telephone_2' : ('Dossier', 'telephone') ,
-    #'attestation_d_accord_du_directeur_de_these_justifiant_le_stage_de_recherche' : ('', '') ,
+    'attestation_d_accord_du_directeur_de_these_justifiant_le_stage_de_recherche' : ('Piece', 'attestation') ,
     #'adresse_electronique_du_responsable_2' : ('', '') ,
     #'cocher_la_case_ci_dessous_obligatoire' : ('', '') ,
     #'pays' : ('', '') ,
@@ -66,7 +66,7 @@ MAPPING.update({
     #'pays_de_nationalite' : ('', '') ,
     #'telephone' : ('', '') ,
     #'nombre_total_de_mois' : ('', '') ,
-    #'descriptif_detaille_du_sujet_de_these' : ('', '') ,
+    'descriptif_detaille_du_sujet_de_these' : ('Piece', 'these') ,
     #'wcs_user_email' : ('', '') ,
     
 

@@ -1,9 +1,11 @@
 # -*- encoding: utf-8 -*-
 
+import StringIO
 import simplejson as json
 import re
 import urllib2
 import os
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.conf import settings
 
 CACHE_PATH = os.path.join(os.path.dirname(__file__), '_cache')
@@ -113,7 +115,18 @@ class WCSAppel(WCS):
         d = self.dossier_id2txt(appel_id, dossier_id)
         url = "%s/data/%s.json" % (appel_nom, d)
         dossier_json = self._retrieve(url)
-        return json.loads(dossier_json)
+        dossier_data = json.loads(dossier_json)
+        for k, v in dossier_data.items():
+            if isinstance(v, str) and v.startswith(d):
+                fic_url = "%s/data/%s" % (appel_nom, v)
+                raw_file = self._retrieve(fic_url)
+                f = StringIO.StringIO(raw_file)
+                f.seek(0,2)
+                size = f.tell()
+                f_name = v.replace(d, '')
+                f = InMemoryUploadedFile(f, k, f_name, '', size, '')
+                dossier_data[k] = f
+        return dossier_data
 
     def test(self, appel_id):
         """

@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from project.sigma import models as sigma
 from models import MODELES_SIGMA
 
@@ -40,7 +41,11 @@ class Importeur(object):
         for classname, data in mapped_data.items():
             form_name = "%sForm" % classname
             klass = getattr(self.mapping_module, form_name)
-            self.forms[classname] = klass(data)
+            files = {}
+            for k, v in data.items():
+                if isinstance(v, InMemoryUploadedFile):
+                    files[k] = v
+            self.forms[classname] = klass(data, files)
 
     def validate(self):
         """
@@ -78,6 +83,15 @@ class Importeur(object):
 
         candidat.dossier = dossier
         candidat.save()
+
+        if self.forms.has_key('Piece'):
+            pieceForm = self.forms['Piece']
+            instances = pieceForm.save(commit=False)
+            for instance in instances:
+                instance.dossier = dossier
+                instance.save()
+        else:
+            print "Pas de pièces jointes"
 
         # OneToOneFields, si ces objets ne sont pas en BD, la suppression dans l'admin est brisée
         try:

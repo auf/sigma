@@ -624,6 +624,16 @@ class Diplome(models.Model):
                         verbose_name=u"Pays de l'établissement", 
                         blank=True, null=True)
 
+class Piece(models.Model):
+    """
+    """
+    dossier = models.ForeignKey(Dossier, related_name="pieces")
+    nom = models.CharField(max_length=255, verbose_name=u"Nom", blank=True, null=True)
+    fichier = models.FileField(verbose_name=u"Fichier", upload_to="pieces", blank=True, null=True)
+
+    def __unicode__(self):
+        return u"%s" % self.nom
+
 class GroupeRegional(models.Model):
     region = models.ForeignKey(Region)
     users = models.ManyToManyField('auth.User', related_name="groupes_regionaux", verbose_name=u"Membres", blank=True, null=True)

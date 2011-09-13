@@ -161,6 +161,8 @@ class Appel:
             print dossier_nom
             print "-"*80
             print e
+            import traceback
+            traceback.print_exc(file=sys.stdout)
             print "="*80
             
 
@@ -173,4 +175,4 @@ class Appel:
             transaction.commit()
             print "importation réussie"
 
-        self.unset_transaction_support()
+        #self.unset_transaction_support()

@@ -1,6 +1,10 @@
 # -*- encoding: utf-8 -*-
 
 from django import forms
+from django.forms.util import ErrorList
+from django.forms.formsets import formset_factory
+from django.forms.models import modelformset_factory
+from django.forms.formsets import TOTAL_FORM_COUNT, INITIAL_FORM_COUNT, MAX_NUM_FORM_COUNT
 from project.sigma import models as sigma
 from formats import *
 
@@ -8,6 +12,14 @@ class CleanFormMixin(forms.ModelForm):
     """
     Mixin form pour cabler une fonction de preparation des données
     """
+
+    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
+                 initial=None, error_class=ErrorList, label_suffix=':',
+                 empty_permitted=False):
+        return super(CleanFormMixin, self).__init__(data, files, auto_id, prefix,
+                                                    initial, error_class, label_suffix,
+                                                    empty_permitted)
+
     def _clean_fields(self):
         for name, field in self.fields.items():
             value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
@@ -17,6 +29,45 @@ class CleanFormMixin(forms.ModelForm):
 
         return super(CleanFormMixin, self)._clean_fields()
 
+class _PieceForm(CleanFormMixin):
+    
+    class Meta:
+        model = sigma.Piece
+        exclude = ('dossier', )
+
+
+class PieceForm(modelformset_factory(sigma.Piece, exclude=('dossier', ))):
+
+    def __init__(self, *args, **kwargs):
+        """
+        Surchage le formset pour manipuler les data afin de les formatter comme si
+        elles avaient été postées.
+        """
+        _prefix = 'form-'
+        data, files = args
+
+        # request.POST (ne contient pas les clefs avec les fichiers)
+        clean_data = {}
+
+        # request.FILES
+        clean_files = {}
+
+        for idx, k in enumerate(data):
+            f_k = "%s%d-nom" % (_prefix, idx)
+            clean_data[f_k] = k
+
+            f_fic = "%s%d-fichier" % (_prefix, idx)
+            clean_files[f_fic] = data[k]
+             
+        # On ajoute manuellement les meta servant au formset
+        metadata = {}
+        metadata[_prefix + TOTAL_FORM_COUNT] = len(data)
+        metadata[_prefix + INITIAL_FORM_COUNT] = 0
+        metadata[_prefix + MAX_NUM_FORM_COUNT] = len(data)
+
+        clean_data.update(metadata)
+        new_args = (clean_data, clean_files)
+        super(PieceForm, self).__init__(*new_args, **kwargs)
 
 class DossierForm(CleanFormMixin):
     

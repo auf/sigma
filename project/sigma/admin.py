@@ -48,7 +48,7 @@ class TypeConformiteInline(admin.TabularInline):
     extra = 0
     verbose_name = u"Type de conformités"
     verbose_name_plural = u"Conformités demandées pour cet appel"
-    
+
 class AppelAdmin(WorkflowAdmin):
     inlines = (TypeConformiteInline, )
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
@@ -156,13 +156,20 @@ class MappageCodaInline(admin.StackedInline):
     extra = 0
     verbose_name = verbose_name_plural = "Mappage Coda"
 
+class PieceInline(admin.TabularInline):
+    model = Piece
+    extra = 0
+    verbose_name = u"Pièce jointe"
+    verbose_name_plural = u"Pièces jointes"
+    
+
 def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
     return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
     
 class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, MappageCodaInline,)
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, MappageCodaInline, PieceInline)
     list_display = ('id', 'appel', '_region', 'etat', 'moyenne_votes', 'discipline', '_evaluer', '_suivi' )
     list_filter = ('etat', 'appel', 'discipline', )
     search_fields = ('appel__nom',
