@@ -7,6 +7,7 @@ from dynamo import dynamo_registry
 from dynamo.models import *
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline, Region
+from project.wcs.wrappers import WCSAppel
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -102,6 +103,9 @@ class AppelManager(models.Manager):
         fkeys = ('region', )
         return super(AppelManager, self).get_query_set().select_related(*fkeys).all()
 
+wcs = WCSAppel()
+APPEL_WCS_CHOICES = [(appel, appel) for appel in wcs.liste()]
+
 class Appel(AppelWorkflow, MetaModel, models.Model):
     """
     Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité 
@@ -114,7 +118,8 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     region = models.ForeignKey(Region)
     code_budgetaire = models.CharField(max_length=255, 
                         verbose_name=u"Code budgétaire")
-    formulaire_wcs = models.CharField(max_length=255, 
+    formulaire_wcs = models.CharField(max_length=255,
+                        choices=APPEL_WCS_CHOICES,
                         verbose_name=u"Nom du formulaire WCS", 
                         blank=True, null=True)
     date_debut_appel = models.DateField(verbose_name=u"Début de l'appel", 

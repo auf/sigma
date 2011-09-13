@@ -56,7 +56,7 @@ class AppelAdmin(WorkflowAdmin):
     fields = ('nom',
         'region',
         'code_budgetaire',
-        #'formulaire_wcs',
+        'formulaire_wcs',
         'date_debut_appel',
         'date_fin_appel',
         'date_debut_mobilite',

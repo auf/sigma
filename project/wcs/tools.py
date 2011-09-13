@@ -142,7 +142,7 @@ class Appel:
         dossiers = self.wcs.dossiers(appel_id)
 
         try:
-            appel = sigma.Appel.objects.get(nom=appel_nom)
+            appel = sigma.Appel.objects.get(formulaire_wcs=appel_nom)
         except:
             print u"L'appel n'existe pas dans SIGMA : %s" % appel_nom
             return
