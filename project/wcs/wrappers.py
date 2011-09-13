@@ -123,9 +123,13 @@ class WCSAppel(WCS):
                 f = StringIO.StringIO(raw_file)
                 f.seek(0,2)
                 size = f.tell()
-                f_name = v.replace(d, '')
-                f = InMemoryUploadedFile(f, k, f_name, '', size, '')
-                dossier_data[k] = f
+                if size > 0:
+                    f_name = v.replace(d, '')
+                    f = InMemoryUploadedFile(f, k, f_name, '', size, '')
+                    dossier_data[k] = f
+                else:
+                    del dossier_data[k]
+
         return dossier_data
 
     def test(self, appel_id):

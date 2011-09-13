@@ -155,6 +155,8 @@ class Appel:
                 importeur = Importeur(appel, dossier_data, mapping)
                 errors = importeur.run()
                 if errors:
+                    print dossier_nom
+                    print "-"*80
                     print errors
         except Exception, e:
             print "="*80
