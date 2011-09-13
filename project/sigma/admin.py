@@ -248,8 +248,15 @@ class ExpertAdmin(admin.ModelAdmin):
 class GroupeRegionalAdmin(admin.ModelAdmin):
     form = GroupeRegionalAdminForm
 
+class AttributWCSAdmin(admin.ModelAdmin):
+    search_fields = ('dossier__id', )
+    list_display = ('_dossier', 'attribut', 'valeur', )
+
+    def _dossier(self, obj):
+        return obj.dossier.id
     
 admin.site.register(TypePiece)
+admin.site.register(AttributWCS, AttributWCSAdmin)
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)

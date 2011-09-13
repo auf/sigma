@@ -115,6 +115,13 @@ class Importeur(object):
             mobilite.dossier = dossier
             mobilite.save()
             
+        # Copie des données WCS
+        for k, v in self.wcs_data.items():
+            data = sigma.AttributWCS()
+            data.dossier = dossier
+            data.attribut = k
+            data.valeur = unicode(v)
+            data.save()
 
     def run(self):
         self.preprocess()
