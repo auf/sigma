@@ -624,6 +624,14 @@ class Diplome(models.Model):
                         verbose_name=u"Pays de l'établissement", 
                         blank=True, null=True)
 
+class TypePiece(models.Model):
+    """
+    """
+    nom = models.CharField(max_length=255, verbose_name=u"Nom système",)
+
+    def __unicode__(self):
+        return u"%s" % self.nom
+
 class Piece(models.Model):
     """
     """

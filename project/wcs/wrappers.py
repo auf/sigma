@@ -128,7 +128,7 @@ class WCSAppel(WCS):
                     f = InMemoryUploadedFile(f, k, f_name, '', size, '')
                     dossier_data[k] = f
                 else:
-                    del dossier_data[k]
+                    dossier_data[k] = None
 
         return dossier_data
 

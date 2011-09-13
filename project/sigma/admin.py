@@ -249,6 +249,7 @@ class GroupeRegionalAdmin(admin.ModelAdmin):
     form = GroupeRegionalAdminForm
 
     
+admin.site.register(TypePiece)
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)

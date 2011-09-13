@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from project.wcs.forms import *
+from project.sigma import models as sigma
 
 MAPPING = {
 
@@ -150,3 +151,7 @@ MAPPING = {
     
 
 }
+
+for type_piece in sigma.TypePiece.objects.all():
+    k = "sigma|Piece|%s" % (type_piece.nom)
+    MAPPING[k] = ('Piece', type_piece.nom)

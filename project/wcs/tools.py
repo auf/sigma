@@ -84,7 +84,9 @@ class Appel:
         from conf import default_mapping
         statut, data = self.wcs.test(appel_id)
         if statut is False:
+            print "Test intégrité KO"
             return
+
         surcharge = {}
         wcs = {}
         for f in data:
