@@ -1,0 +1,60 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia form_utils_tags %}
+
+{% block extrahead %}{{ block.super }}
+{% url admin:jsi18n as jsi18nurl %}
+<script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+{{ media }}
+{{ form.media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../">{% trans "Home" %}</a> &rsaquo;
+     Importation de dossiers
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    {% block object-tools %}{% endblock %}
+
+    <h1>Importer les dossiers du formulaire : {{ appel }}</h1>
+    
+    {% if statut %}
+
+        <h2>Champs traités</h2>
+        <ul>
+        {% for champs in champs_traites %}
+            <li>{{ champs }}</li>
+        {% endfor %}
+        </ul>
+
+        <h2>Champs non traités</h2>
+        <ul>
+        {% for champs in champs_non_traites %}
+            <li>{{ champs }}</li>
+        {% endfor %}
+        </ul>
+
+        <h2>Rapport de test</h2>
+        <ul>
+        {% for msg in output %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+
+    {% endif %}
+
+
+
+    <div class="submit-row">
+        <input type="submit" name="_save" class="default" value="Importer">
+    </div>
+
+    </form>
+
+</div>
+{% endblock %}

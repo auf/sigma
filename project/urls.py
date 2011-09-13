@@ -11,6 +11,7 @@ urlpatterns = patterns(
     '',
     (r'^$', 'project.views.index'),
     (r'^', include('sigma.urls')),
+    (r'^', include('wcs.urls')),
     (r'^', include('suivi.urls')),
     url(r'^admin_tools/', include('admin_tools.urls')),
     (r'^admin/', include(admin.site.urls)),

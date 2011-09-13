@@ -13,46 +13,50 @@ from django.template.loader import render_to_string
 DEFAULT_MAPPING = 'default_mapping'
 
 class Appel:
-
+    messages = []
     wcs = WCSAppel()
+
+    def out(self, s):
+        self.messages.append(s)
+        print s
 
     def clear(self):
         self.wcs.clear()
 
     def liste(self):
         appels = self.wcs.liste()
-        print u"Liste des appels"
-        print "="*80
+        self.out(u"Liste des appels")
+        self.out("="*80)
         for idx, appel in enumerate(appels):
-            print u"* %s : %s" % (str(idx).zfill(3), appel)
+            self.out(u"* %s : %s" % (str(idx).zfill(3), appel))
 
     def dossiers(self, appel_id):
         dossiers = self.wcs.dossiers(appel_id)
-        print u"Liste des dossiers de l'appel : %s" % self.wcs.appel_id2txt(appel_id)
-        print u"="*80
+        self.out(u"Liste des dossiers de l'appel : %s" % self.wcs.appel_id2txt(appel_id))
+        self.out(u"="*80)
         for idx, dossier in enumerate(dossiers):
-            print u"* %s : %s" % (str(idx).zfill(3), dossier)
+            self.out(u"* %s : %s" % (str(idx).zfill(3), dossier))
 
     def test(self, appel_id):
-        print u"Test des données l'appel : %s" % self.wcs.appel_id2txt(appel_id)
+        self.out(u"Test des données l'appel : %s" % self.wcs.appel_id2txt(appel_id))
         statut, errors = self.wcs.test(appel_id)
         if statut:
-            print u'Intégrité OK'
+            self.out(u'Intégrité OK')
         else:
             for e in errors:
-                print "* %s : %s" % e
+                self.out("* %s : %s" % e)
 
     def dossier(self, appel_id, dossier_id):
-        print u"Dossier : %s" % self.wcs.dossier_id2txt(appel_id, dossier_id)
-        print u"="*80
+        self.out(u"Dossier : %s" % self.wcs.dossier_id2txt(appel_id, dossier_id))
+        self.out(u"="*80)
         for k, v in self.wcs.dossier(appel_id, dossier_id).items():
 
             if isinstance(v, unicode):
                 v = v.encode("utf-8")
             try:
-                print "* %-40s : %s" % (k, v)
+                self.out("* %-40s : %s" % (k, v))
             except:
-                print u"*** %s (%s)" % (k, type(v))
+                self.out(u"*** %s (%s)" % (k, type(v)))
 
     def default_mapping(self):
         champs = {}
@@ -69,9 +73,9 @@ class Appel:
             f = open(default_mapping, 'w+',)
             f.write(data)
             f.close()
-            print u"Fichier crée : %s" % default_mapping
+            self.out(u"Fichier crée : %s" % default_mapping)
         else:
-            print u"Le fichier existe déjà!"
+            self.out(u"Le fichier existe déjà!")
 
 
     def _safe_module_name(self, nom):
@@ -84,7 +88,7 @@ class Appel:
         from conf import default_mapping
         statut, data = self.wcs.test(appel_id)
         if statut is False:
-            print "Test intégrité KO"
+            self.out("Test intégrité KO")
             return
 
         surcharge = {}
@@ -104,12 +108,12 @@ class Appel:
             f = open(custom_mapping, 'w+',)
             f.write(data)
             f.close()
-            print u"Fichier crée : %s" % custom_mapping
+            self.out(u"Fichier crée : %s" % custom_mapping)
         else:
-            print u"Le fichier existe déjà!"
+            self.out(u"Le fichier existe déjà!")
     
     def get_mapping_module(self, module_name):
-        conf = __import__('conf',  globals(), locals(), [module_name, DEFAULT_MAPPING], -1)
+        conf = __import__('conf',  globals(), locals(), [str(module_name), str(DEFAULT_MAPPING)], -1)
         try:
             mapping = conf.__dict__[module_name]
         except:
@@ -133,7 +137,7 @@ class Appel:
         self.set_transaction_support()
 
         if mode not in ('dryrun', 'run'):
-            print "mode : 'dryrun', 'run'"
+            self.out("mode : 'dryrun', 'run'")
             return
 
         appel_nom = self.wcs.appel_id2txt(appel_id)
@@ -144,10 +148,10 @@ class Appel:
         try:
             appel = sigma.Appel.objects.get(formulaire_wcs=appel_nom)
         except:
-            print u"L'appel n'existe pas dans SIGMA : %s" % appel_nom
+            self.out(u"L'appel n'existe pas dans SIGMA : %s" % appel_nom)
             return
 
-        print u"Importation des dossiers de l'appel : %s" % appel_nom
+        self.out(u"Importation des dossiers de l'appel : %s" % appel_nom)
         statut = True
 
         transaction.commit()
@@ -157,17 +161,17 @@ class Appel:
                 importeur = Importeur(appel, dossier_data, mapping)
                 errors = importeur.run()
                 if errors:
-                    print dossier_nom
-                    print "-"*80
-                    print errors
+                    self.out(dossier_nom)
+                    self.out("-"*80)
+                    self.out(errors)
         except Exception, e:
-            print "="*80
-            print dossier_nom
-            print "-"*80
-            print e
+            self.out("="*80)
+            self.out(dossier_nom)
+            self.out("-"*80)
+            self.out(e)
             import traceback
             traceback.print_exc(file=sys.stdout)
-            print "="*80
+            self.out("="*80)
             
 
             transaction.rollback()
@@ -175,8 +179,9 @@ class Appel:
         
         if mode=='dryrun':
             transaction.rollback()
+            self.out("Importation testée")
         else:
             transaction.commit()
-            print "importation réussie"
+            self.out("Importation réussie")
 
         #self.unset_transaction_support()

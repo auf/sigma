@@ -77,7 +77,7 @@ class DossierForm(CleanFormMixin):
 
 
     def prepare_discipline(self, value):
-        return value
+        return str2discipline(value)
 
     def prepare_derniere_bourse_annee(self, value):
         return value

@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+from django.utils.safestring import SafeUnicode
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from project.sigma import models as sigma
 from models import MODELES_SIGMA
@@ -90,8 +91,6 @@ class Importeur(object):
             for instance in instances:
                 instance.dossier = dossier
                 instance.save()
-        else:
-            print "Pas de pièces jointes"
 
         # OneToOneFields, si ces objets ne sont pas en BD, la suppression dans l'admin est brisée
         try:
@@ -121,7 +120,14 @@ class Importeur(object):
             data.dossier = dossier
             data.attribut = k
             data.valeur = unicode(v)
-            data.save()
+            try:
+                data.save()
+            except Exception, e:
+                print e
+                print dossier
+                print k
+                print type(v)
+                print v
 
     def run(self):
         self.preprocess()

@@ -29,7 +29,7 @@ MAPPING.update({
     #'municipalite_ville_3' : ('', '') ,
     #'fonction' : ('', '') ,
     #'wcs_workflow_status' : ('', '') ,
-    #'discipline' : ('', '') ,
+    'discipline' : ('Dossier', 'discipline') ,
     #'civilite' : ('', '') ,
     #'faculte_departement_ou_laboratoire' : ('', '') ,
     #'calendrier_du_stage' : ('', '') ,

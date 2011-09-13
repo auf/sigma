@@ -31,4 +31,18 @@ def str2pays(s):
     except:
         raise forms.ValidationError("REGEX Pays : %s" % s)
 
+def str2discipline(s):
+    """
+    Exemple :
+    input = Anthropologie (D104)
+    output = id de l'objet Reference
+    """
+    if s is None:
+        return s
+    pattern = r'.*\((?P<code>\w*)\)$'
+    code_discipline = code_from_pattern(pattern, s)
+    try:
+        return ref.Discipline.objects.get(code=code_discipline).id
+    except:
+        raise forms.ValidationError("REGEX Discipline : %s" % s)
     
