@@ -647,6 +647,20 @@ class Piece(models.Model):
     def __unicode__(self):
         return u"%s" % self.nom
 
+class AttributWCS(models.Model):
+    """
+    """
+    dossier = models.ForeignKey(Dossier, related_name="attributs_wcs")
+    attribut = models.CharField(max_length=255, verbose_name=u"Attribut", blank=True, null=True)
+    valeur = models.TextField(verbose_name=u"Valeur", blank=True, null=True)
+    
+    class Meta:
+        verbose_name = u"Attribut WCS"
+        verbose_name_plural = u"Attributs WCS"
+
+    def __unicode__(self):
+        return u"%s" % self.attribut
+
 class GroupeRegional(models.Model):
     region = models.ForeignKey(Region)
     users = models.ManyToManyField('auth.User', related_name="groupes_regionaux", verbose_name=u"Membres", blank=True, null=True)
