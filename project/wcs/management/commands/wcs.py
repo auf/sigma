@@ -1,7 +1,9 @@
 # -*- encoding: utf-8 -*-
 
+import datetime
 from django.core.management.base import BaseCommand, CommandError
 from project.wcs.tools import Appel
+from project.wcs.models import Spool
 
 class Command(BaseCommand):
     """
@@ -25,12 +27,31 @@ class Command(BaseCommand):
     
     * importer <appel_id> dryrun|run : importe les dossiers
                                        (dryrun ne fait aucunes écritures)
+
+    * cron : exécute ce qui est dans le spooler
+
     """
+
+    def cron(self):
+        for spool in Spool.objects.filter(requesting=True, date_requesting_debut=None):
+            spool.date_requesting_debut = datetime.datetime.now()
+            spool.save()
+            spool.dryrun()
+            
+        for spool in Spool.objects.filter(processing=True, date_processing_debut=None):
+            spool.date_processing_debut = datetime.datetime.now()
+            spool.save()
+            spool.run()
+        
     def handle(self, *args, **options):
         """
         Dispatcher de commandes
         """
         method = args[0]
+
+        if method == 'cron':
+            self.cron()
+            return
 
         if method == 'aide':
             print self.__doc__

@@ -65,6 +65,12 @@ class Importeur(object):
         Écriture des objets en BD si l'objet n'existe pas.
         Établissement des liens entre les objets.
         """
+        if 'Dossier' not in self.forms.keys():
+            return False, {u'Dossier' : u'Aucun mapping'}
+
+        if 'Candidat' not in self.forms.keys():
+            return False, {u'Candidat' : u'Aucun mapping'}
+
         dossierForm = self.forms['Dossier']
         candidatForm = self.forms['Candidat']
         
@@ -74,7 +80,7 @@ class Importeur(object):
         # Test la présence d'un dossier similaire
         test = sigma.Dossier.objects.filter(appel=self.appel, candidat__nom=candidat.nom, candidat__prenom=candidat.prenom)
         if len(test) > 0:    
-            print "Ce dossier a déjà été importé : %s" % test[0]
+            return True, u"Ce dossier a déjà été importé : %s" % test[0]
             return
 
 
@@ -128,10 +134,16 @@ class Importeur(object):
                 print k
                 print type(v)
                 print v
+        return True, None
 
     def run(self):
         self.preprocess()
         status, errors = self.validate()
         if not status:
             return errors
-        self.dbwrite()
+        status, data = self.dbwrite()
+        if not status:
+            return data
+        else:
+            return data
+           

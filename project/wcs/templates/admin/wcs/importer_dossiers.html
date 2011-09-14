@@ -22,36 +22,19 @@
     {% block object-tools %}{% endblock %}
 
     <h1>Importer les dossiers du formulaire : {{ appel }}</h1>
-    
-    {% if statut %}
 
-        <h2>Champs traités</h2>
-        <ul>
-        {% for champs in champs_traites %}
-            <li>{{ champs }}</li>
-        {% endfor %}
-        </ul>
-
-        <h2>Champs non traités</h2>
-        <ul>
-        {% for champs in champs_non_traites %}
-            <li>{{ champs }}</li>
-        {% endfor %}
-        </ul>
-
-        <h2>Rapport de test</h2>
-        <ul>
-        {% for msg in output %}
-            <li>{{ msg }}</li>
-        {% endfor %}
-        </ul>
-
+    {% if derniere_preparation %}
+        <h2>Rapport</h2>
+        {{ derniere_preparation.log|linebreaks }}
+        <h2>Les champs suivants de cet appel seront copiés dans SIGMA<h2>
+        <ul>{% for c in derniere_preparation.diff_champs.champs_traites %}<li>{{ c }}</li>{% endfor %}</ul>
+        <h2>Les champs suivants de cet appel seront ignorés dans SIGMA (Ils seront toutefois copiés)<h2>
+        <ul>{% for c in derniere_preparation.diff_champs.champs_non_traites %}<li>{{ c }}</li>{% endfor %}</ul>
     {% endif %}
 
-
-
     <div class="submit-row">
-        <input type="submit" name="_save" class="default" value="Importer">
+        <a href="?action=preparer">Préparer</a>
+        <a href="?action=importer">Importer</a>
     </div>
 
     </form>

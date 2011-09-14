@@ -16,7 +16,8 @@ class Appel:
     messages = []
     wcs = WCSAppel()
 
-    def out(self, s):
+    def out(self, obj):
+        s = unicode(obj)
         self.messages.append(s)
         print s
 
@@ -179,9 +180,9 @@ class Appel:
         
         if mode=='dryrun':
             transaction.rollback()
-            self.out("Importation testée")
+            self.out(u"Fin du test de l'importation")
         else:
             transaction.commit()
-            self.out("Importation réussie")
+            self.out(u"Importation réussie")
 
         #self.unset_transaction_support()
