@@ -26,10 +26,13 @@
     {% if derniere_preparation %}
         <h2>Rapport</h2>
         {{ derniere_preparation.log|linebreaks }}
+    {% endif %}
+
+    {% if diff_champs %}
         <h2>Les champs suivants de cet appel seront copiés dans SIGMA<h2>
-        <ul>{% for c in derniere_preparation.diff_champs.champs_traites %}<li>{{ c }}</li>{% endfor %}</ul>
+        <ul>{% for c in diff_champs.champs_traites %}<li>{{ c }}</li>{% endfor %}</ul>
         <h2>Les champs suivants de cet appel seront ignorés dans SIGMA (Ils seront toutefois copiés)<h2>
-        <ul>{% for c in derniere_preparation.diff_champs.champs_non_traites %}<li>{{ c }}</li>{% endfor %}</ul>
+        <ul>{% for c in diff_champs.champs_non_traites %}<li>{{ c }}</li>{% endfor %}</ul>
     {% endif %}
 
     <div class="submit-row">

@@ -17,6 +17,8 @@ def importer_dossiers(request, appel_wcs):
 
     derniere_preparation = None
     started = False
+    diff_champs = None
+
     for spool in  appel.spools.all().order_by('-id'):
         if spool.requesting:
             started = True
@@ -24,6 +26,7 @@ def importer_dossiers(request, appel_wcs):
              spool.date_requesting_debut is not None and \
              spool.date_requesting_fin is not None:
              derniere_preparation = spool
+             diff_champs = derniere_preparation.diff_champs()
 
     # Lancer la récupération des données distantes et tester l'import
     if request.GET.get('action', '') == 'preparer':
@@ -51,6 +54,7 @@ def importer_dossiers(request, appel_wcs):
         'appel' : appel,
         'derniere_preparation' : derniere_preparation,
         'spools' : appel.spools.all(),
+        'diff_champs' : diff_champs,
     }
     return render_to_response("admin/wcs/importer_dossiers.html", \
                                Context(c), \
