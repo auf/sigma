@@ -33,7 +33,7 @@ class Spool(models.Model):
             self.save()
 
     def demander(self):
-        if self.appel and self.appel.formulaire_wcs:
+        if self.appel and self.appel.formulaire_wcs and self.date_requesting_fin is not None:
             self.processing = True
             self.save()
 

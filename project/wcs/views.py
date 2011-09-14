@@ -16,21 +16,26 @@ def importer_dossiers(request, appel_wcs):
 
 
     derniere_preparation = None
-    started = False
+    requesting = False
+    processing = False
     diff_champs = None
 
-    for spool in  appel.spools.all().order_by('-id'):
+    spools = appel.spools.all().order_by('-id')
+
+    if len(spools) > 0:
+        spool = spools[0]
         if spool.requesting:
-            started = True
-        if derniere_preparation is None and \
-             spool.date_requesting_debut is not None and \
+            requesting = True
+        if spool.processing:
+            processing = True
+        if spool.date_requesting_debut is not None and \
              spool.date_requesting_fin is not None:
              derniere_preparation = spool
-             diff_champs = derniere_preparation.diff_champs()
+             diff_champs = spool.diff_champs()
 
     # Lancer la récupération des données distantes et tester l'import
     if request.GET.get('action', '') == 'preparer':
-        if started:
+        if requesting:
             messages.add_message(request, messages.INFO, 'Une préparation est déjà en cours.')
         else:
             messages.add_message(request, messages.INFO, 'La préparation a bien été demandée.')
@@ -40,20 +45,23 @@ def importer_dossiers(request, appel_wcs):
      
     # Lancer la récupération des données distantes et effectuer l'import
     if request.GET.get('action', '') == 'importer':
-        if derniere_preparation is None:
+        if derniere_preparation is None or derniere_preparation.date_requesting_fin is None:
             messages.add_message(request, messages.ERROR, "Aucune importation n'est préparée.")
-        elif derniere_preparation.processing:
+        if derniere_preparation.processing:
             messages.add_message(request, messages.INFO, "L'importation est en cours.")
-        else:  
+        if derniere_preparation is not None and derniere_preparation.date_requesting_fin is not None:
             messages.add_message(request, messages.INFO, "L'importation a bien été demandée.")
             derniere_preparation.demander()
+
         return redirect('importer_dossiers', appel_wcs)
        
 
     c = {
         'appel' : appel,
+        'requesting' : requesting,
+        'processing' : processing,
         'derniere_preparation' : derniere_preparation,
-        'spools' : appel.spools.all(),
+        'spools' : spools,
         'diff_champs' : diff_champs,
     }
     return render_to_response("admin/wcs/importer_dossiers.html", \

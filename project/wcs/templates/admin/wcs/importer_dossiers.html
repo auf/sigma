@@ -5,7 +5,10 @@
 {% url admin:jsi18n as jsi18nurl %}
 <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 {{ media }}
-{{ form.media }}
+<script type="text/javascript" src="{% admin_media_prefix %}js/core.js"></script>
+<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.min.js"></script>
+<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.init.js"></script>
+<script type="text/javascript" src="{% admin_media_prefix %}js/collapse.min.js"></script>
 {% endblock %}
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
@@ -23,17 +26,54 @@
 
     <h1>Importer les dossiers du formulaire : {{ appel }}</h1>
 
+    {% if requesting %}
+        <p>Il y a un import en préaparation.</p>
+    {% endif %}
+
+    {% if processing %}
+        <p>Il y a un import en cours.</p>
+    {% endif %}
+
     {% if derniere_preparation %}
-        <h2>Rapport</h2>
+        <fieldset class="module collapse">
+        <h2>Rapport du {{ derniere_preparation.date_requesting_debut }}</h2>
         {{ derniere_preparation.log|linebreaks }}
+        </fieldset>
     {% endif %}
 
     {% if diff_champs %}
-        <h2>Les champs suivants de cet appel seront copiés dans SIGMA<h2>
+        <fieldset class="module collapse">
+        <h2>Couplage des données formulaires.auf.org // SIGMA</h2>
+        <h3>Les champs suivants de cet appel seront copiés dans SIGMA</h3>
         <ul>{% for c in diff_champs.champs_traites %}<li>{{ c }}</li>{% endfor %}</ul>
-        <h2>Les champs suivants de cet appel seront ignorés dans SIGMA (Ils seront toutefois copiés)<h2>
+        <h3>Les champs suivants de cet appel seront ignorés dans SIGMA (Ils seront toutefois copiés)</h3>
         <ul>{% for c in diff_champs.champs_non_traites %}<li>{{ c }}</li>{% endfor %}</ul>
+        </fieldset>
     {% endif %}
+
+    <fieldset class="module collapse">
+    <h2>Info Spools (pour ARI)</h2>
+    <table>
+        <tr>
+            <th>Requesting?</th>
+            <th>Date début</th>
+            <th>Date fin</th>
+            <th>Processing?</th>
+            <th>Date début</th>
+            <th>Date fin</th>
+        </tr>
+        {% for spool in spools %}
+            <tr>
+                <td>{{ spool.requesting }}</td>
+                <td>{{ spool.date_requesting_debut }}</td>
+                <td>{{ spool.date_requesting_fin }}</td>
+                <td>{{ spool.processing }}</td>
+                <td>{{ spool.date_processing_debut }}</td>
+                <td>{{ spool.date_processing_fin }}</td>
+            <tr>
+        {% endfor %}
+        </table>
+    </fieldset>
 
     <div class="submit-row">
         <a href="?action=preparer">Préparer</a>

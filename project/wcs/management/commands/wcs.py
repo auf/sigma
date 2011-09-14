@@ -42,7 +42,11 @@ class Command(BaseCommand):
             spool.date_processing_debut = datetime.datetime.now()
             spool.save()
             spool.run()
-        
+
+        for spool in Spool.objects.filter(processing=True):
+            if spool.date_processing_fin is not None:
+                spool.delete()
+
     def handle(self, *args, **options):
         """
         Dispatcher de commandes
