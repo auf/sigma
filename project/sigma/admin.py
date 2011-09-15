@@ -175,7 +175,7 @@ def affecter_dossiers_expert(modeladmin, request, queryset):
 class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, MappageCodaInline, PieceInline)
-    list_display = ('id', 'appel', '_region', 'etat', 'moyenne_votes', 'discipline', '_evaluer', '_suivi' )
+    list_display = ('id', '_nom', '_prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_suivi' )
     list_filter = ('etat', 'appel', 'discipline', )
     search_fields = ('appel__nom',
                      'candidat__nom', 'candidat__prenom',
@@ -200,6 +200,22 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     
     actions = [affecter_dossiers_expert]
 
+    def _nom(self, obj):
+        return obj.candidat.nom.upper()
+    _nom.short_description = "Nom"
+    
+    def _prenom(self, obj):
+        return obj.candidat.prenom
+    _prenom.short_description = "Prénom"
+    
+    def _naissance_date(self, obj):
+        return obj.candidat.naissance_date
+    _naissance_date.short_description = "Date de naissance"
+    
+    def _nationalite(self, obj):
+        return obj.candidat.nationalite
+    _nationalite.short_description = "Nationalité"
+    
     def _evaluer(self, obj):
         return "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
     _evaluer.allow_tags = True
