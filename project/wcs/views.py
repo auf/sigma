@@ -47,7 +47,7 @@ def importer_dossiers(request, appel_wcs):
     if request.GET.get('action', '') == 'importer':
         if derniere_preparation is None or derniere_preparation.date_requesting_fin is None:
             messages.add_message(request, messages.ERROR, "Aucune importation n'est préparée.")
-        if derniere_preparation.processing:
+        if derniere_preparation is not None and derniere_preparation.processing:
             messages.add_message(request, messages.INFO, "L'importation est en cours.")
         if derniere_preparation is not None and derniere_preparation.date_requesting_fin is not None:
             messages.add_message(request, messages.INFO, "L'importation a bien été demandée.")

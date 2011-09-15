@@ -11,7 +11,14 @@
 <script type="text/javascript" src="{% admin_media_prefix %}js/collapse.min.js"></script>
 {% endblock %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+    <style>
+        a.button { border: #CCCCCC 1px solid; padding: 4px; font-size: 16px; margin-top: 10px; font-weight: bold;}
+    </style>
+
+{% endblock %}
 
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
@@ -27,7 +34,7 @@
     <h1>Importer les dossiers du formulaire : {{ appel }}</h1>
 
     {% if requesting %}
-        <p>Il y a un import en préaparation.</p>
+        <p>Il y a un import en préparation.</p>
     {% endif %}
 
     {% if processing %}
@@ -75,9 +82,10 @@
         </table>
     </fieldset>
 
-    <div class="submit-row">
-        <a href="?action=preparer">Préparer</a>
-        <a href="?action=importer">Importer</a>
+    <br />
+    <div>
+        <a class="button" href="?action=preparer">1. Préparer</a>
+        <a class="button" href="?action=importer">2. Importer</a>
     </div>
 
     </form>
