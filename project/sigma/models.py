@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django import forms
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from dynamo import dynamo_registry
@@ -103,8 +104,12 @@ class AppelManager(models.Manager):
         fkeys = ('region', )
         return super(AppelManager, self).get_query_set().select_related(*fkeys).all()
 
-wcs = WCSAppel()
-APPEL_WCS_CHOICES = [(appel, appel) for appel in wcs.liste()]
+if hasattr(settings, 'WCS_SIGMA_URL'):
+    wcs = WCSAppel()
+    APPEL_WCS_CHOICES = [(appel, appel) for appel in wcs.liste()]
+else:
+    APPEL_WCS_CHOICES = None
+
 
 class Appel(AppelWorkflow, MetaModel, models.Model):
     """
