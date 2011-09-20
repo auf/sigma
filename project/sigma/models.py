@@ -404,97 +404,97 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
-    etablissement = models.ForeignKey(Etablissement, 
-                        verbose_name=u"Établissement", 
+    etablissement = models.ForeignKey(Etablissement,
+                        verbose_name=u"Établissement",
                         blank=True, null=True)
 
     # Autre établissement
-    autre_etablissement_nom = models.CharField(max_length=255, 
-                        verbose_name=u"Autre établissement", 
+    autre_etablissement_nom = models.CharField(max_length=255,
+                        verbose_name=u"Autre établissement",
                         blank=True, null=True)
-    autre_etablissement_pays = models.ForeignKey(Pays, 
+    autre_etablissement_pays = models.ForeignKey(Pays,
                         verbose_name=u"Pays", blank=True, null=True)
-    autre_etablissement_adresse = models.CharField(max_length=255, 
+    autre_etablissement_adresse = models.CharField(max_length=255,
                         verbose_name=u"Adresse", blank=True, null=True)
-    autre_etablissement_code_postal = models.CharField(max_length=255, 
+    autre_etablissement_code_postal = models.CharField(max_length=255,
                         verbose_name=u"Code poste", blank=True, null=True)
-    autre_etablissement_ville = models.CharField(max_length=255, 
+    autre_etablissement_ville = models.CharField(max_length=255,
                         verbose_name=u"Ville", blank=True, null=True)
-    autre_etablissement_region = models.CharField(max_length=255, 
+    autre_etablissement_region = models.CharField(max_length=255,
                         verbose_name=u"Région", blank=True, null=True)
 
     # responsable institutionnel (Directeur de thèse)
-    resp_inst_civilite = models.CharField(max_length=2, 
-                        verbose_name=u"Civilité responsable institutionnel", 
+    resp_inst_civilite = models.CharField(max_length=2,
+                        verbose_name=u"Civilité",
                         choices=CIVILITE, blank=True, null=True)
-    resp_inst_nom = models.CharField(max_length=255, 
-                        verbose_name=u"Nom du responsable institutionnel", 
+    resp_inst_nom = models.CharField(max_length=255,
+                        verbose_name=u"Nom",
                         blank=True, null=True)
-    resp_inst_prenom = models.CharField(max_length=255, 
-                        verbose_name=u"Prénom du responsable institutionnel", 
+    resp_inst_prenom = models.CharField(max_length=255,
+                        verbose_name=u"Prénom",
                         blank=True, null=True)
-    resp_inst_fonction = models.CharField(max_length=255, 
-                        verbose_name=u"Fonction du responsable institutionnel", 
+    resp_inst_fonction = models.CharField(max_length=255,
+                        verbose_name=u"Fonction",
                         blank=True, null=True)
-    resp_inst_courriel = models.CharField(max_length=255, 
-                        verbose_name=u"Courriel du responsable institutionnel", 
+    resp_inst_courriel = models.CharField(max_length=255,
+                        verbose_name=u"Courriel",
                         blank=True, null=True)
-    resp_inst_telephone = models.CharField(max_length=255, 
-                        verbose_name=u"Téléphone du responsable institutionnel", 
+    resp_inst_telephone = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone",
                         blank=True, null=True)
-    resp_inst_fax = models.CharField(max_length=255, 
-                        verbose_name=u"FAX du responsable institutionnel", 
+    resp_inst_fax = models.CharField(max_length=255,
+                        verbose_name=u"Télécopieur",
                         blank=True, null=True)
 
     # responsable scientifique (Accord scientifique)
-    resp_sc_civilite = models.CharField(max_length=2, 
-                        verbose_name=u"Civilité responsable scientifique", 
+    resp_sc_civilite = models.CharField(max_length=2,
+                        verbose_name=u"Civilité",
                         choices=CIVILITE, blank=True, null=True)
-    resp_sc_nom = models.CharField(max_length=255, 
-                        verbose_name=u"Nom du responsable scientifique", 
+    resp_sc_nom = models.CharField(max_length=255,
+                        verbose_name=u"Nom",
                         blank=True, null=True)
-    resp_sc_prenom = models.CharField(max_length=255, 
-                        verbose_name=u"Prénom du responsable scientifique", 
+    resp_sc_prenom = models.CharField(max_length=255,
+                        verbose_name=u"Prénom",
                         blank=True, null=True)
-    resp_sc_fonction = models.CharField(max_length=255, 
-                        verbose_name=u"Fonction du responsable scientifique", 
+    resp_sc_fonction = models.CharField(max_length=255,
+                        verbose_name=u"Fonction",
                         blank=True, null=True)
-    resp_sc_courriel = models.CharField(max_length=255, 
-                        verbose_name=u"Courriel du responsable scientifique", 
+    resp_sc_courriel = models.CharField(max_length=255,
+                        verbose_name=u"Courriel",
                         blank=True, null=True)
-    resp_sc_telephone = models.CharField(max_length=255, 
-                        verbose_name=u"Téléphone du responsable scientifique", 
+    resp_sc_telephone = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone",
                         blank=True, null=True)
-    resp_sc_fax = models.CharField(max_length=255, 
-                        verbose_name=u"FAX du responsable scientifique", 
+    resp_sc_fax = models.CharField(max_length=255,
+                        verbose_name=u"Télécopieur",
                         blank=True, null=True)
 
     # faculté, département ou labo (Accord scientifique)
-    faculte_url = models.CharField(max_length=255, 
-                        verbose_name=u"URL de la faculté", 
+    faculte_url = models.CharField(max_length=255,
+                        verbose_name=u"URL",
                         blank=True, null=True)
-    faculte_nom = models.CharField(max_length=255, 
-                        verbose_name=u"Nom de la faculté", 
+    faculte_nom = models.CharField(max_length=255,
+                        verbose_name=u"Nom",
                         blank=True, null=True)
-    faculte_adresse = models.CharField(max_length=255, 
-                        verbose_name=u"Adresse de la faculté", 
+    faculte_adresse = models.CharField(max_length=255,
+                        verbose_name=u"Adresse",
                         blank=True, null=True)
-    faculte_code_postal = models.CharField(max_length=255, 
-                        verbose_name=u"Code postal de la faculté", 
+    faculte_code_postal = models.CharField(max_length=255,
+                        verbose_name=u"Code postal",
                         blank=True, null=True)
-    faculte_ville = models.CharField(max_length=255, 
-                        verbose_name=u"Ville de la faculté", 
+    faculte_ville = models.CharField(max_length=255,
+                        verbose_name=u"Ville",
                         blank=True, null=True)
-    faculte_courriel = models.CharField(max_length=255, 
-                        verbose_name=u"Courriel de la faculté", 
+    faculte_courriel = models.CharField(max_length=255,
+                        verbose_name=u"Courriel",
                         blank=True, null=True)
-    faculte_telephone = models.CharField(max_length=255, 
-                        verbose_name=u"Téléphone de la faculté", 
+    faculte_telephone = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone",
                         blank=True, null=True)
-    faculte_fax = models.CharField(max_length=255, 
-                        verbose_name=u"FAX de la faculté", 
+    faculte_fax = models.CharField(max_length=255,
+                        verbose_name=u"Télécopieur",
                         blank=True, null=True)
-    
+
     class Meta:
         abstract = True
 

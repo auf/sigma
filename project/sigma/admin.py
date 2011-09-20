@@ -126,17 +126,45 @@ class CandidatAdmin(admin.ModelAdmin):
         }),
     )
 
-class DossierOrigineInline(admin.StackedInline):
+class BaseDossierFaculteInline(admin.StackedInline):
+    max_num = 1
+    template = "admin/sigma/edit_inline/stacked.html"
+    fieldsets = (
+        (None, {'fields': ('etablissement',)}),
+        ('Autre établissement', {
+            'classes': ['collapse'],
+            'fields': (('autre_etablissement_nom', 'autre_etablissement_adresse'),
+                       ('autre_etablissement_ville', 'autre_etablissement_code_postal'),
+                       ('autre_etablissement_region', 'autre_etablissement_pays'))
+        }),
+        ('Responsable institutionnel', {
+            'fields': (('resp_inst_civilite', 'resp_inst_nom', 'resp_inst_prenom'),
+                       ('resp_inst_courriel', 'resp_inst_fonction'),
+                       ('resp_inst_telephone', 'resp_inst_fax'))
+        }),
+        ('Responsable scientifique', {
+            'fields': (('resp_sc_civilite', 'resp_sc_nom', 'resp_sc_prenom'),
+                       ('resp_sc_courriel', 'resp_sc_fonction'),
+                       ('resp_sc_telephone', 'resp_sc_fax'))
+        }),
+        ('Faculté', {
+            'fields': ('faculte_nom',
+                       ('faculte_url', 'faculte_courriel'),
+                       ('faculte_adresse', 'faculte_ville', 'faculte_code_postal'),
+                       ('faculte_telephone', 'faculte_fax'))
+        }),
+    )
+
+
+class DossierOrigineInline(BaseDossierFaculteInline):
     model = DossierOrigine
-    max_num = 1
-    template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Origine"
-    
-class DossierAccueilInline(admin.StackedInline):
+
+
+class DossierAccueilInline(BaseDossierFaculteInline):
     model = DossierAccueil
-    max_num = 1
-    template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Accueil"
+
 
 class DossierMobiliteInline(admin.StackedInline):
     model = DossierMobilite
