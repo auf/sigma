@@ -53,7 +53,7 @@ class TypeConformiteInline(admin.TabularInline):
 class AppelAdmin(WorkflowAdmin):
     inlines = (TypeConformiteInline, )
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
-    list_filter = ('region', )
+    list_filter = ('region', 'etat')
     fields = ('nom',
         'region',
         'code_budgetaire',
@@ -177,7 +177,7 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, MappageCodaInline, PieceInline)
     list_display = ('id', '_nom', '_prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_suivi' )
-    list_filter = ('etat', 'appel', 'discipline', )
+    list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
     search_fields = ('appel__nom',
                      'candidat__nom', 'candidat__prenom',
                      'discipline__code', 'discipline__nom_court', 'discipline__nom_long',
@@ -246,7 +246,7 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
 
 class ExpertAdmin(admin.ModelAdmin):
     list_display = ('id', 'nom', 'prenom', '_region', )
-    list_filter = ('region', )
+    list_filter = ('region', 'disciplines')
 
     def queryset(self, request):
         return Expert.objects.region(request.user)
