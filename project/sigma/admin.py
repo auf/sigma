@@ -145,7 +145,49 @@ class DossierMobiliteInline(admin.StackedInline):
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Mobilité"
-    
+
+    fieldsets = (
+        ('Période de mobilité', {
+            'fields': (('date_debut', 'date_fin'),
+                       'duree')
+        }),
+        ('Dossier scientifique', {
+            'fields': ('intitule_projet', 'mots_clefs')
+        }),
+        ('Formation en cours', {
+            'fields': (('formation_en_cours_diplome', 'formation_en_cours_niveau'),)
+        }),
+        ('Programme de mission', {
+            'fields': ('type_intervention', 'public_vise', 'autres_publics')
+        }),
+        ('Disciplines', {
+            'fields': (('discipline', 'sous_discipline'),)
+        }),
+        ('Alternance', {
+            'fields': (('alternance_nb_mois_origine',
+                       'alternance_nb_mois_accueil',
+                       'alternance_accueil_puis_origine'),)
+        }),
+        ('Diplôme demandé', {
+            'fields': ('diplome_demande_nom', 'diplome_demande_niveau')
+        }),
+        ('Thèse', {
+            'fields': ('these_date_inscription',
+                       'these_date_obtention_prevue',
+                       'these_soutenance_pays',
+                       'these_soutenance_date',
+                       'these_type',
+                       'these_type_autre')
+        }),
+        ('Directeur thèse accueil', {
+            'fields': (('dir_acc_civilite', 'dir_acc_nom', 'dir_acc_prenom'),)
+        }),
+        ('Directeur thèse origin', {
+            'fields': (('dir_ori_civilite', 'dir_ori_nom', 'dir_ori_prenom'),)
+        })
+    )
+
+
 class DossierCandidatInline(admin.StackedInline):
     formset = RequiredInlineFormSet
     model = Candidat
@@ -298,3 +340,5 @@ admin.site.register(Expert, ExpertAdmin)
 admin.site.register(GroupeRegional, GroupeRegionalAdmin)
 admin.site.register(TypeConformite, TypeConformiteAdmin)
 admin.site.register(NiveauEtude)
+admin.site.register(Intervention)
+admin.site.register(Public)
