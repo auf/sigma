@@ -394,6 +394,14 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
         super(Dossier, self).save(*args, **kwargs)
 
+    def nom(self):
+        return self.candidat.nom.upper()
+    nom.short_description = "Nom"
+
+    def prenom(self):
+        return self.candidat.prenom
+    prenom.short_description = "Prénom"
+
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
     etablissement = models.ForeignKey(Etablissement, 
