@@ -11,7 +11,6 @@ urlpatterns = patterns(
     '',
     (r'^$', 'project.views.index'),
     (r'^', include('sigma.urls')),
-    (r'^', include('wcs.urls')),
     (r'^', include('suivi.urls')),
     url(r'^admin_tools/', include('admin_tools.urls')),
     (r'^admin/', include(admin.site.urls)),
@@ -23,6 +22,8 @@ urlpatterns = patterns(
     (r'^media_prive/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_PRIVE_ROOT}),
 
 )
+if hasattr(settings, 'WCS_SIGMA_URL'):
+    urlpatterns += patterns('', (r'^', include('wcs.urls')),)
 
 if settings.DEBUG:
     urlpatterns += patterns('',

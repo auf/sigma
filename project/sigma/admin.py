@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib import admin
 from reversion.admin import VersionAdmin
@@ -78,7 +79,7 @@ class AppelAdmin(WorkflowAdmin):
 
     def _actions(self, obj):
         dossiers_url = "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
-        if obj.formulaire_wcs is not None:
+        if hasattr(settings, 'WCS_SIGMA_URL') and obj.formulaire_wcs is not None:
             importer_url = "<a href='%s'>Importer</a>" % (reverse('importer_dossiers', args=(obj.formulaire_wcs, )))
             return " | ".join((dossiers_url, importer_url))
         else:
