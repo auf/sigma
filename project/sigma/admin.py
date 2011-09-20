@@ -99,32 +99,6 @@ class AppelAdmin(WorkflowAdmin):
     def queryset(self, request):
         return Appel.objects.region(request.user)
 
-class CandidatAdmin(admin.ModelAdmin):
-    fieldsets = (
-        (None, {
-            'fields': ('nom', 'prenom', 'nom_jeune_fille', 'sexe', 'civilite', )
-        }),
-        ('Identification', {
-            'classes': ('collapse',),
-            'fields': ('nationalite', 'naissance_ville', 'naissance_date', 'naissance_pays', )
-        }),
-        ('Coordonnées', {
-            'classes': ('collapse',),
-            'fields': (
-                'pays',
-                'adresse',
-                'code_postal',
-                'ville',
-                'region',
-                'telephone_perso',
-                'fax_perso',
-                'courriel_perso',
-                'telephone_pro',
-                'fax_pro',
-                'courriel_pro',
-                )
-        }),
-    )
 
 class BaseDossierFaculteInline(admin.StackedInline):
     max_num = 1
@@ -178,6 +152,23 @@ class DossierCandidatInline(admin.StackedInline):
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Informations sur le candidat"
+
+    fieldsets = (
+        (None, {
+            'fields': ('civilite', 'nom', 'prenom', 'nom_jeune_fille',)
+        }),
+        ('Identification', {
+            'fields': ('nationalite', 'naissance_ville', 'naissance_date',)
+        }),
+        ('Coordonnées', {
+            'fields': (
+                'adresse',
+                ('ville', 'code_postal'),
+                ('region', 'pays'),
+                ('telephone_perso', 'courriel_perso'),
+                ('telephone_pro', 'courriel_pro'))
+        }),
+    )
 
 class DiplomeInline(admin.StackedInline):
     model = Diplome
