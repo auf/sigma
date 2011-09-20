@@ -7,9 +7,10 @@ from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
 from auf.django.export.admin import ExportAdmin
 from datamaster_modeles.models import Region
-from models import *
-from forms import *
-from suivi.models import BoursierCoda
+
+from sigma.models import *
+from sigma.forms import *
+from sigma.workflow import DOSSIER_ETAT_BOURSIER
 
 class DossierConformiteAdmin(admin.TabularInline):
     """
@@ -156,11 +157,6 @@ class DiplomeInline(admin.StackedInline):
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Diplômes"
     
-class MappageCodaInline(admin.StackedInline):
-    model = BoursierCoda
-    extra = 0
-    verbose_name = verbose_name_plural = "Mappage Coda"
-
 class PieceInline(admin.TabularInline):
     model = Piece
     extra = 0
@@ -174,8 +170,8 @@ def affecter_dossiers_expert(modeladmin, request, queryset):
     
 class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, MappageCodaInline, PieceInline)
-    list_display = ('id', '_nom', '_prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_suivi' )
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, PieceInline)
+    list_display = ('id', '_nom', '_prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_fiche_boursier' )
     list_filter = ('etat', 'appel', 'discipline', )
     search_fields = ('appel__nom',
                      'candidat__nom', 'candidat__prenom',
@@ -221,10 +217,15 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     _evaluer.allow_tags = True
     _evaluer.short_description = 'Évaluation'
     
-    def _suivi(self, obj):
-        return "<a href='%s'>Suivi</a>" % reverse('suivi', args=(obj.id, ))
-    _suivi.allow_tags = True
-    _suivi.short_description = 'Suivi administratif'
+    def _fiche_boursier(self, obj):
+		if obj.etat == DOSSIER_ETAT_BOURSIER:
+			return "<a href='%s'>Fiche boursier</a>" % reverse(
+				'admin:suivi_boursier_change', args=(obj.id,)
+			)
+		else:
+			return ''
+    _fiche_boursier.allow_tags = True
+    _fiche_boursier.short_description = ''
 
     def _region(self, obj):
         return obj.appel.region
