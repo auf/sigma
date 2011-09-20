@@ -1,46 +1,39 @@
 # -*- encoding: utf-8 -*-
 
 from django.db import models
+from django.db.models.signals import post_save
 
-# Create your models here.
 from sigma.models import Dossier
+from sigma.workflow import DOSSIER_ETAT_BOURSIER
 
-class BoursierCoda(models.Model):
-    """
-    Une personne attribue une note à un dossier de candidature.
-    """
-    boursier = models.ForeignKey(Dossier, verbose_name=u"Boursier", related_name="elements2")
-    element2 = models.CharField(max_length=255,
-                        verbose_name=u"Élément 2")
-                        
 
-class EcritureBoursier(models.Model):
-    pcg = models.CharField(max_length=30)
-    nom_pcg = models.CharField(max_length=150)
-    code = models.CharField(max_length=30)
-    elmlevel = models.IntegerField()
-    name = models.CharField(max_length=300)
-    sname = models.CharField(max_length=300)
-    montanteur = models.DecimalField(max_digits=12, decimal_places=2)
-    montantdoc = models.DecimalField(max_digits=12, decimal_places=2)
-    devise = models.CharField(max_length=30)
-    descr_ligne = models.CharField(max_length=300)
-    doccode = models.CharField(max_length=60)
-    descr_entete = models.CharField(max_length=300)
-    date_doc = models.DateTimeField(null=True, blank=True)
-    docnum = models.CharField(max_length=60)
-    user = models.CharField(max_length=60)
-    yr = models.IntegerField()
-    period = models.IntegerField()
-    paydate = models.DateTimeField()
-    n_facture = models.CharField(max_length=60)
-    n_avoir = models.CharField(max_length=60)
-    imp_payeur = models.CharField(max_length=150)
-    salarie = models.CharField(max_length=150)
-    no_cheque = models.CharField(max_length=60)
-    dc = models.CharField(max_length=60)
-    statut_paiement = models.CharField(max_length=60)
-    
+class Boursier(models.Model):
+    """La fiche de suivi d'un boursier."""
+    dossier = models.OneToOneField(Dossier, verbose_name='Dossier de candidature', 
+                                   related_name='boursier', primary_key=True,
+                                   editable=False)
+
     class Meta:
-        db_table = u'ecriture_boursier'
-        managed = False	 
+        verbose_name = 'boursier'
+        verbose_name_plural = 'boursiers'
+
+    def __unicode__(self):
+        return self.nom_complet()
+
+    @property
+    def prenom(self):
+        return self.dossier.candidat.prenom
+
+    @property
+    def nom(self):
+        return self.dossier.candidat.nom
+
+    def nom_complet(self):
+        return self.prenom + ' ' + self.nom
+    nom_complet.short_description = 'Nom'
+
+
+def dossier_post_save(sender, instance=None, **kwargs):
+    if instance and instance.etat == DOSSIER_ETAT_BOURSIER:
+        Boursier.objects.get_or_create(dossier=instance)
+post_save.connect(dossier_post_save, sender=Dossier)
