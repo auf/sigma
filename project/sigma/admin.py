@@ -217,6 +217,17 @@ class DiplomeInline(admin.StackedInline):
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Diplômes"
+
+    fieldsets = (
+        (None, {
+            'fields': ('nom', 'date', 'niveau', 'etablissement')
+        }),
+        ('Autre établissement', {
+            'classes': ['collapse'],
+            'fields': ('autre_etablissement_nom', 'autre_etablissement_pays')
+        }),
+
+    )
     
 class MappageCodaInline(admin.StackedInline):
     model = BoursierCoda

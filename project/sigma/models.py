@@ -631,12 +631,19 @@ class Diplome(models.Model):
     niveau = models.ForeignKey(NiveauEtude, related_name="niveau", 
                         verbose_name=u"Niveau d'étude", 
                         blank=True, null=True)
-    etablissement_nom = models.CharField(max_length=255, 
-                        verbose_name=u"Nom de l'établissement", 
+
+    # Etablissement connu de l'AUF
+    etablissement = models.ForeignKey(Etablissement,
+                        verbose_name=u"Établissement",
                         blank=True, null=True)
-    etablissement_pays = models.ForeignKey(Pays, 
-                        related_name="etablissement_pays", 
-                        verbose_name=u"Pays de l'établissement", 
+
+    # Autre établissement
+    autre_etablissement_nom = models.CharField(max_length=255,
+                        verbose_name=u"Autre établissement",
+                        blank=True, null=True)
+    autre_etablissement_pays = models.ForeignKey(Pays,
+                        related_name="etablissement_pays",
+                        verbose_name=u"Pays de l'établissement",
                         blank=True, null=True)
 
 class TypePiece(models.Model):
