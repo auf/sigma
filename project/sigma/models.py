@@ -203,26 +203,29 @@ class Candidat(models.Model):
                         blank=True, null=True)
 
     # coordonnées
-    pays = models.ForeignKey(Pays, related_name="pays", 
-                        verbose_name=u"Pays de résidence", 
+    pays = models.ForeignKey(Pays, related_name="pays",
+                        verbose_name=u"Pays de résidence",
                         blank=True, null=True)
-    adresse = models.CharField(max_length=255, verbose_name=u"Adresse", 
+    adresse = models.CharField(max_length=255, verbose_name=u"Adresse",
                         blank=True, null=True)
-    code_postal = models.CharField(max_length=255, verbose_name=u"Code postal", 
+    ville = models.CharField(max_length=255, verbose_name=u"Ville",
                         blank=True, null=True)
-    ville = models.CharField(max_length=255, verbose_name=u"Ville", 
+    region = models.CharField(max_length=255, verbose_name=u"Région",
                         blank=True, null=True)
-    region = models.CharField(max_length=255, verbose_name=u"Région", 
+    code_postal = models.CharField(max_length=255, verbose_name=u"Code postal",
                         blank=True, null=True)
-    telephone_perso = models.CharField(max_length=255, 
-                        verbose_name=u"Téléphone personnel", 
+    telephone_perso = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone personnel",
                         blank=True, null=True, help_text=u"(+ code régional)")
-    courriel_perso = models.CharField(max_length=255, 
-                        verbose_name=u"Courrier électronique", 
+    courriel_perso = models.EmailField(max_length=255,
+                        verbose_name=u"Courriel personnel",
                         blank=True, null=True)
-    telephone_pro = models.CharField(max_length=255, 
-                        verbose_name=u"Téléphone professionnel", 
+    telephone_pro = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone professionnel",
                         blank=True, null=True, help_text=u"(+ code régional)")
+    courriel_pro = models.EmailField(max_length=255,
+                        verbose_name=u"Courriel professionnel",
+                        blank=True, null=True)
 
     def __unicode__(self):
         return u"%s %s" % (self.nom.upper(), self.prenom)
