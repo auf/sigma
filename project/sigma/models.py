@@ -422,12 +422,6 @@ class DossierFaculte(models.Model):
                         verbose_name=u"Ville", blank=True, null=True)
     autre_etablissement_region = models.CharField(max_length=255, 
                         verbose_name=u"Région", blank=True, null=True)
-    autre_etablissement_valide = models.NullBooleanField(
-                        verbose_name=u"Erreur recevabilité établissement", 
-                        blank=True, null=True)
-    autre_etablissement_erreur = models.CharField(max_length=255, 
-                        verbose_name=u"Commentaire sur la recevabilité", 
-                        blank=True, null=True)
 
     # responsable institutionnel (Directeur de thèse)
     resp_inst_civilite = models.CharField(max_length=2, 
