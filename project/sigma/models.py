@@ -663,6 +663,9 @@ class Piece(models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom", blank=True, null=True)
     fichier = models.FileField(verbose_name=u"Fichier", upload_to="pieces", blank=True, null=True)
 
+    presente = models.BooleanField(verbose_name=u"Pièce présente", default=False)
+    conforme = models.BooleanField(verbose_name=u"Pièce conforme", default=False)
+
     def __unicode__(self):
         return u"%s" % self.nom
 
