@@ -51,8 +51,17 @@ class TypeConformiteInline(admin.TabularInline):
     verbose_name = u"Type de conformités"
     verbose_name_plural = u"Conformités demandées pour cet appel"
 
+class TypePieceInline(admin.TabularInline):
+    """
+    Association des types de pièce à un appel.
+    """
+    model = Appel.types_piece.through
+    extra = 0
+    verbose_name = u"Type de pièce"
+    verbose_name_plural = u"Type de pièce demandées pour cet appel"
+
 class AppelAdmin(WorkflowAdmin):
-    inlines = (TypeConformiteInline, )
+    inlines = (TypeConformiteInline, TypePieceInline)
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
     list_filter = ('region', 'etat')
     fields = ('nom',

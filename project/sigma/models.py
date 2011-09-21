@@ -166,6 +166,8 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
                         blank=True, null=True)    
     conformites = models.ManyToManyField("TypeConformite", verbose_name="Confirmités à demander",
                                          blank=True, null=True)
+    types_piece = models.ManyToManyField("TypePiece", verbose_name="Types de pièce à demander",
+                                          blank=True, null=True)
 
     def __unicode__(self):
         return "#%s : %s" %(self.id, self.nom)
