@@ -264,6 +264,7 @@ class PieceInline(admin.TabularInline):
 def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
     return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
+affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s)'
     
 class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"
