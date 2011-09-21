@@ -141,7 +141,22 @@ class DossierAccueilInline(BaseDossierFaculteInline):
     verbose_name = verbose_name_plural = "Accueil"
 
 
+class DossierMobiliteForm(forms.ModelForm):
+    class Meta:
+        model = DossierMobilite
+
+    def clean_date_fin(self):
+        date_debut = self.cleaned_data['date_debut']
+        date_fin = self.cleaned_data['date_fin']
+
+        if date_fin < date_debut:
+            raise forms.ValidationError("La date de fin doit être après la date de début")
+
+        return date_fin
+
+
 class DossierMobiliteInline(admin.StackedInline):
+    form = DossierMobiliteForm
     model = DossierMobilite
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"
