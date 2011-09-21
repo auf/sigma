@@ -51,8 +51,17 @@ class TypeConformiteInline(admin.TabularInline):
     verbose_name = u"Type de conformités"
     verbose_name_plural = u"Conformités demandées pour cet appel"
 
+class TypePieceInline(admin.TabularInline):
+    """
+    Association des types de pièce à un appel.
+    """
+    model = Appel.types_piece.through
+    extra = 0
+    verbose_name = u"Type de pièce"
+    verbose_name_plural = u"Type de pièce demandées pour cet appel"
+
 class AppelAdmin(WorkflowAdmin):
-    inlines = (TypeConformiteInline, )
+    inlines = (TypeConformiteInline, TypePieceInline)
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
     list_filter = ('region', 'etat')
     fields = ('nom',
@@ -141,7 +150,22 @@ class DossierAccueilInline(BaseDossierFaculteInline):
     verbose_name = verbose_name_plural = "Accueil"
 
 
+class DossierMobiliteForm(forms.ModelForm):
+    class Meta:
+        model = DossierMobilite
+
+    def clean_date_fin(self):
+        date_debut = self.cleaned_data['date_debut']
+        date_fin = self.cleaned_data['date_fin']
+
+        if date_fin < date_debut:
+            raise forms.ValidationError("La date de fin doit être après la date de début")
+
+        return date_fin
+
+
 class DossierMobiliteInline(admin.StackedInline):
+    form = DossierMobiliteForm
     model = DossierMobilite
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"
@@ -240,6 +264,7 @@ class PieceInline(admin.TabularInline):
 def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
     return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
+affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s)'
     
 class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"

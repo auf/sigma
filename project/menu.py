@@ -44,7 +44,8 @@ class CustomMenu(Menu):
         Menu.__init__(self, **kwargs)
         self.children += [
             items.MenuItem(_('Dashboard'), reverse('admin:index')),
-            MonCompteMenuItem(),
+            # Désativer Mes Disciplines pour les experts
+            #MonCompteMenuItem(),
             items.Bookmarks(),
             items.AppList(
                 _('Applications'),

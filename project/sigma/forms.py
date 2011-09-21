@@ -67,7 +67,8 @@ class EvaluationForm(BetterModelForm):
         model = Dossier
         
 class ExpertForm(forms.Form):
-    experts = forms.ModelMultipleChoiceField(queryset=Expert.objects.all())
+    experts = forms.ModelMultipleChoiceField(queryset=Expert.objects.all(),
+                help_text="Maintenez appuyé « Ctrl », ou « Commande (touche pomme) » sur un Mac, pour en sélectionner plusieurs.")
 
     def __init__(self, *args, **kwargs):
         self.dossiers = kwargs.pop('dossiers')

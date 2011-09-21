@@ -166,6 +166,8 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
                         blank=True, null=True)    
     conformites = models.ManyToManyField("TypeConformite", verbose_name="Confirmités à demander",
                                          blank=True, null=True)
+    types_piece = models.ManyToManyField("TypePiece", verbose_name="Types de pièce à demander",
+                                          blank=True, null=True)
 
     def __unicode__(self):
         return "#%s : %s" %(self.id, self.nom)
@@ -660,6 +662,9 @@ class Piece(models.Model):
     dossier = models.ForeignKey(Dossier, related_name="pieces")
     nom = models.CharField(max_length=255, verbose_name=u"Nom", blank=True, null=True)
     fichier = models.FileField(verbose_name=u"Fichier", upload_to="pieces", blank=True, null=True)
+
+    presente = models.BooleanField(verbose_name=u"Pièce présente", default=False)
+    conforme = models.BooleanField(verbose_name=u"Pièce conforme", default=False)
 
     def __unicode__(self):
         return u"%s" % self.nom
