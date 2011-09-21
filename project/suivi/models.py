@@ -13,7 +13,7 @@ class Boursier(models.Model):
                                    related_name='boursier', primary_key=True,
                                    editable=False)
     code_operation = models.CharField(max_length=11, verbose_name="Code d'opération CODA",
-                                      default='')
+                                      blank=True, default='')
 
     class Meta:
         verbose_name = 'boursier'

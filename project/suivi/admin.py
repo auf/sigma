@@ -15,14 +15,16 @@ class BoursierAdminForm(ModelForm):
         model = Boursier
 
     def clean_code_operation(self):
-        code_budgetaire = self.instance.dossier.appel.code_budgetaire if self.instance else ''
         code_operation = self.cleaned_data['code_operation']
-        if not code_operation.startswith(code_budgetaire) or \
-           not code_operation.endswith('L'):
-            raise ValidationError(
-                u"Code d'opération invalide: il devrait avoir la forme %sXXXL" % 
-                code_budgetaire
-            )
+        boursier = self.instance
+        if boursier and code_operation:
+            code_budgetaire = boursier.dossier.appel.code_budgetaire
+            if not code_operation.startswith(code_budgetaire) or \
+               not code_operation.endswith('L'):
+                raise ValidationError(
+                    u"Code d'opération invalide: il devrait avoir la forme %sXXXL" % 
+                    code_budgetaire
+                )
         return code_operation
 
 
