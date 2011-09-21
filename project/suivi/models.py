@@ -12,6 +12,8 @@ class Boursier(models.Model):
     dossier = models.OneToOneField(Dossier, verbose_name='Dossier de candidature', 
                                    related_name='boursier', primary_key=True,
                                    editable=False)
+    code_operation = models.CharField(max_length=11, verbose_name="Code d'opération CODA",
+                                      default='')
 
     class Meta:
         verbose_name = 'boursier'

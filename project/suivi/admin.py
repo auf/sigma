@@ -2,10 +2,29 @@
 
 from django.contrib import admin
 from django.core.urlresolvers import reverse
+from django.forms import ModelForm, ValidationError
 from django.utils.html import conditional_escape
 
 from sigma.workflow import DOSSIER_ETAT_BOURSIER
 from suivi.models import Boursier
+
+
+class BoursierAdminForm(ModelForm):
+
+    class Meta:
+        model = Boursier
+
+    def clean_code_operation(self):
+        code_budgetaire = self.instance.dossier.appel.code_budgetaire if self.instance else ''
+        code_operation = self.cleaned_data['code_operation']
+        if not code_operation.startswith(code_budgetaire) or \
+           not code_operation.endswith('L'):
+            raise ValidationError(
+                u"Code d'opération invalide: il devrait avoir la forme %sXXXL" % 
+                code_budgetaire
+            )
+        return code_operation
+
 
 class BoursierAdmin(admin.ModelAdmin):
 
@@ -24,7 +43,9 @@ class BoursierAdmin(admin.ModelAdmin):
     # XXX: La seule façon de faire référence à la méthode 'dossier_link' dans
     # l'objet admin ici est de passer la méthode elle-même. C'est pour ça que
     # sa définition est placée plus haut. Bug Django?
+    form = BoursierAdminForm
     readonly_fields = ['nom_complet', dossier_link]
+    fields = ['nom_complet', dossier_link, 'code_operation']
 
     # Queryset
 
