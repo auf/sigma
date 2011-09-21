@@ -45,9 +45,10 @@ class BoursierAdmin(admin.ModelAdmin):
     # XXX: La seule façon de faire référence à la méthode 'dossier_link' dans
     # l'objet admin ici est de passer la méthode elle-même. C'est pour ça que
     # sa définition est placée plus haut. Bug Django?
+    readonly_fields = ('nom_complet', dossier_link)
+    fields = ('nom_complet', dossier_link, 'code_operation')
     form = BoursierAdminForm
-    readonly_fields = ['nom_complet', dossier_link]
-    fields = ['nom_complet', dossier_link, 'code_operation']
+    list_display = ('nom_complet', 'code_operation')
 
     # Queryset
 
