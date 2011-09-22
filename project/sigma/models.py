@@ -48,9 +48,7 @@ BAREME = (
 )
 
 NOTE_MIN = 1
-NOTE_RANGE = 1
-NOTE_MAX = 5
-NOTES = [(i, i) for i in range(NOTE_MIN, NOTE_MAX, NOTE_RANGE)]
+NOTE_MAX = 100
 
 class ExpertManager(models.Manager):
 
@@ -255,7 +253,7 @@ class Note(models.Model):
     dossier = models.ForeignKey("Dossier", related_name="notes")
     expert = models.ForeignKey(Expert)
     date = models.DateField(auto_now_add=True)
-    note = models.IntegerField(choices=NOTES, blank=True, null=True)
+    note = models.IntegerField(blank=True, null=True)
 
 class Commentaire(models.Model):
     """

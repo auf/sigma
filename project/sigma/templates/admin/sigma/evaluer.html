@@ -34,6 +34,7 @@
     <h2>Notations (moyenne = {{ dossier.moyenne_votes|floatformat }})</h2>
     </div>
 
+	<p>* Les notes doivent être entre 1 et 100.</p>
         {% for f in noteForm.management_form %}
             {{ f }}
         {% endfor %}
