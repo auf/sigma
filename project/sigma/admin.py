@@ -360,6 +360,7 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
 class ExpertAdmin(admin.ModelAdmin):
     list_display = ('id', 'nom', 'prenom', '_region', )
     list_filter = ('region', 'disciplines')
+    exclude = ('dossiers',)
 
     def queryset(self, request):
         return Expert.objects.region(request.user)
