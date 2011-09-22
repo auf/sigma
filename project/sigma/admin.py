@@ -63,6 +63,7 @@ class AppelAdmin(WorkflowAdmin):
     inlines = (TypeConformiteInline, TypePieceInline)
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
     list_filter = ('region', 'etat')
+    search_fields = ('nom', 'code_budgetaire')
     fieldsets = (
         (None, {'fields': ('nom',
         'region',
@@ -288,8 +289,11 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
     search_fields = ('appel__nom',
-                     'candidat__nom', 'candidat__prenom',
+                     'candidat__nom', 'candidat__prenom', 'candidat__nom_jeune_fille',
                      'discipline__code', 'discipline__nom_court', 'discipline__nom_long',
+                     'origine__resp_inst_nom', 'origine__resp_inst_prenom', 'origine__resp_inst_courriel', 'origine__resp_sc_nom', 'origine__resp_sc_prenom', 'origine__resp_sc_courriel', 'origine__faculte_nom', 'origine__faculte_courriel',
+                     'accueil__resp_inst_nom', 'accueil__resp_inst_prenom', 'accueil__resp_inst_courriel', 'accueil__resp_sc_nom', 'accueil__resp_sc_prenom', 'accueil__resp_sc_courriel', 'accueil__faculte_nom', 'accueil__faculte_courriel',
+                     'mobilite__intitule_projet', 'mobilite__mots_clefs', 'mobilite__diplome_demande_nom', 'mobilite__dir_acc_nom', 'mobilite__dir_acc_prenom', 'mobilite__dir_ori_nom', 'mobilite__dir_ori_prenom',
     )
     fieldsets = (
         (None, {
@@ -354,6 +358,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
 class ExpertAdmin(admin.ModelAdmin):
     list_display = ('id', 'nom', 'prenom', '_region', '_disciplines')
     list_filter = ('region', 'disciplines')
+    search_fields = ('nom', 'prenom', 'courriel')
     exclude = ('dossiers',)
 
     def queryset(self, request):
