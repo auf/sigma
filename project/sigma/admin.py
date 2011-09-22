@@ -352,7 +352,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
         return form
 
 class ExpertAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nom', 'prenom', '_region', )
+    list_display = ('id', 'nom', 'prenom', '_region', '_disciplines')
     list_filter = ('region', 'disciplines')
     exclude = ('dossiers',)
 
@@ -373,7 +373,10 @@ class ExpertAdmin(admin.ModelAdmin):
     def _region(self, obj):
         return obj.region
     _region.short_description = "Région"
-    
+
+    def _disciplines(self, obj):
+        return ', '.join([d.nom for d in obj.disciplines.all()])
+    _disciplines.short_description = "Disciplines"
 
 class GroupeRegionalAdmin(admin.ModelAdmin):
     form = GroupeRegionalAdminForm
