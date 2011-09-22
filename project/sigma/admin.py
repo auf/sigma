@@ -260,6 +260,27 @@ class PieceInline(admin.TabularInline):
     verbose_name = u"Pièce jointe"
     verbose_name_plural = u"Pièces jointes"
     
+class ProxyExpert(Expert.dossiers.through):
+    """
+    Ce proxy sert uniquement dans l'admin à disposer d'un libellé
+    plus ergonomique.
+    """
+
+    class Meta:
+        proxy=True
+        verbose_name = u"Expert"
+        verbose_name_plural = u"Experts"
+
+    def __unicode__(self):
+        return u""
+
+class ExpertInline(admin.TabularInline):
+    model = ProxyExpert
+    extra = 0
+    max_num = 0
+    verbose_name = u"Expert"
+    verbose_name_plural = u"Experts"
+
 
 def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
@@ -268,7 +289,7 @@ affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s
     
 class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, PieceInline)
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, PieceInline, ExpertInline)
     list_display = ('id', 'nom', 'prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_fiche_boursier' )
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
