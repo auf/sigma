@@ -63,27 +63,23 @@ class AppelAdmin(WorkflowAdmin):
     inlines = (TypeConformiteInline, TypePieceInline)
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
     list_filter = ('region', 'etat')
-    fields = ('nom',
+    fieldsets = (
+        (None, {'fields': ('nom',
         'region',
         'code_budgetaire',
         'formulaire_wcs',
-        'date_debut_appel',
-        'date_fin_appel',
-        'date_debut_mobilite',
-        'date_fin_mobilite',
+        ('date_debut_appel', 'date_fin_appel'),
+        ('date_debut_mobilite', 'date_fin_mobilite'),
         'periode',
         'bareme',
-        'montant_mensuel_origine_sud',
-        'montant_mensuel_origine_nord',
-        'montant_mensuel_accueil_sud',
-        'montant_mensuel_accueil_nord',
+        ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
+        ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
         'montant_prime_installation',
-        'montant_perdiem_sud',
-        'montant_perdiem_nord',
+        ('montant_perdiem_sud', 'montant_perdiem_nord'),
         'montant_allocation_unique',
         'appel_en_ligne',
         'etat',
-        )
+        )}),)
 
     def _actions(self, obj):
         dossiers_url = "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
@@ -216,7 +212,6 @@ class DossierCandidatInline(admin.StackedInline):
     formset = RequiredInlineFormSet
     model = Candidat
     max_num = 1
-    template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Informations sur le candidat"
 
     fieldsets = (
