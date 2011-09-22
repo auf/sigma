@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="{% url admin:suivi_boursier_changelist %}">Boursiers</a> &rsaquo;
+     <a href="{% url admin:suivi_boursier_change boursier.pk %}">{{ boursier }}</a> &rsaquo;
+     Suivi
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    {% block object-tools %}{% endblock %}
+
+    <h1>Suivi de {{ boursier }}</h1>
+    <h2>Dépenses réelles (CODA)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>No</th>
+                <th>Ex/Pér.</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Mont. €</th>
+                <th>D/C</th>
+                <th>Impl.</th>
+                <th>Employé</th>
+                <th>Paiement</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ecriture in ecritures %}
+            {% ifchanged ecriture.pcg %}
+            <tr>
+                <th colspan="0">PCG {{ ecriture.pcg }}: {{ ecriture.nom_pcg }}</th>
+            </tr>
+            {% endifchanged %}
+            <tr>
+                <td>{{ ecriture.code }}</td>
+                <td>{{ ecriture.numero }}</td>
+                <td>{{ ecriture.annee }}/{{ ecriture.periode }}</td>
+                <td><nobr>{{ ecriture.date|date:"j N Y" }}</nobr></td>
+                <td>{{ ecriture.description }}</td>
+                <td>{{ ecriture.montant_eur }}</td>
+                <td>{{ ecriture.debit_credit }}</td>
+                <td>{{ ecriture.implantation }}</td>
+                <td>{{ ecriture.employe }}</td>
+                <td>{{ ecriture.paiement }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+
