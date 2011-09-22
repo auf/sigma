@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib import admin
-from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
 from auf.django.export.admin import ExportAdmin
 from datamaster_modeles.models import Region
@@ -287,7 +286,7 @@ def affecter_dossiers_expert(modeladmin, request, queryset):
     return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
 affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s)'
     
-class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
+class DossierAdmin(WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, PieceInline, ExpertInline)
     list_display = ('id', 'nom', 'prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_fiche_boursier' )
