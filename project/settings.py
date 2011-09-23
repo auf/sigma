@@ -103,3 +103,4 @@ ADMIN_TOOLS_MENU = 'project.menu.CustomMenu'
 ADMIN_TOOLS_INDEX_DASHBOARD = 'project.dashboard.CustomIndexDashboard'
 
 DATE_INPUT_FORMATS = ["%d-%m-%Y"]
+HELP_TEXT_DATE = "format: jj-mm-aaaa"

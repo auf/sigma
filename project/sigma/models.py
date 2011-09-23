@@ -126,12 +126,16 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
                         verbose_name=u"Nom du formulaire WCS", 
                         blank=True, null=True)
     date_debut_appel = models.DateField(verbose_name=u"Début de l'appel", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     date_fin_appel = models.DateField(verbose_name=u"Fin de l'appel", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     date_debut_mobilite = models.DateField(verbose_name=u"Début de la mobilité", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     date_fin_mobilite = models.DateField(verbose_name=u"Fin de la mobilité", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     appel_en_ligne = models.BooleanField(verbose_name=u"Appel d’offres en ligne")
     periode = models.CharField(max_length=32, verbose_name=u"Période de mobilité", 
@@ -177,8 +181,10 @@ class Candidat(models.Model):
     dossier = models.OneToOneField('Dossier', verbose_name=u"Dossier", related_name="candidat")
     # meta
     date_creation = models.DateField(auto_now_add=True, 
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de création")
     date_modification = models.DateField(auto_now=True, 
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de modification")
 
     # identification personne
@@ -200,6 +206,7 @@ class Candidat(models.Model):
                         blank=True, null=True)
     naissance_date = models.DateField(max_length=255, 
                         verbose_name=u"Date de naissance", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
 
     # coordonnées
@@ -528,8 +535,10 @@ class DossierMobilite(models.Model):
 
     # Période de mobilité
     date_debut = models.DateField(verbose_name=u"Date de début souhaitée", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     date_fin = models.DateField(verbose_name=u"Date de fin souhaitée", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     duree = models.CharField(max_length=255, 
                         verbose_name=u"Durée totale mobilité souhaitée (mois)", 
@@ -584,9 +593,11 @@ class DossierMobilite(models.Model):
     
     # Thèse
     these_date_inscription = models.DateField(
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date d'inscription", 
                         blank=True, null=True)
     these_date_obtention_prevue = models.DateField(
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date d'obtention prévue", 
                         blank=True, null=True)
     these_soutenance_pays = models.ForeignKey(Pays, 
@@ -594,6 +605,7 @@ class DossierMobilite(models.Model):
                         verbose_name=u"Pays de soutenance", 
                         blank=True, null=True)
     these_soutenance_date = models.DateField(
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de soutenance", 
                         blank=True, null=True)
     these_type = models.CharField(max_length=2, 
@@ -627,6 +639,7 @@ class Diplome(models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom", 
                         blank=True, null=True)
     date = models.DateField(max_length=255, verbose_name=u"Date", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     niveau = models.ForeignKey(NiveauEtude, related_name="niveau", 
                         verbose_name=u"Niveau d'étude", 
