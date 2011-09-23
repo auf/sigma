@@ -52,6 +52,16 @@ class NoteForm(BetterModelForm):
         exclude = ('expert', )
         model = Note
 
+    def clean_note(self):
+        note = self.cleaned_data['note']
+
+        from models import NOTE_MIN, NOTE_MAX
+
+        if note < NOTE_MIN or note > NOTE_MAX:
+            raise forms.ValidationError("Vous devez spécifier une note entre 1 et 100")
+
+        return note
+
 class NoteExpertForm(inlineformset_factory(Dossier, Note,  extra=0, form=NoteForm)):
     pass
 

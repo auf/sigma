@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib import admin
-from reversion.admin import VersionAdmin
 from auf.django.workflow.admin import WorkflowAdmin
 from auf.django.export.admin import ExportAdmin
 from datamaster_modeles.models import Region
@@ -64,27 +63,24 @@ class AppelAdmin(WorkflowAdmin):
     inlines = (TypeConformiteInline, TypePieceInline)
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
     list_filter = ('region', 'etat')
-    fields = ('nom',
+    search_fields = ('nom', 'code_budgetaire')
+    fieldsets = (
+        (None, {'fields': ('nom',
         'region',
         'code_budgetaire',
         'formulaire_wcs',
-        'date_debut_appel',
-        'date_fin_appel',
-        'date_debut_mobilite',
-        'date_fin_mobilite',
+        ('date_debut_appel', 'date_fin_appel'),
+        ('date_debut_mobilite', 'date_fin_mobilite'),
         'periode',
         'bareme',
-        'montant_mensuel_origine_sud',
-        'montant_mensuel_origine_nord',
-        'montant_mensuel_accueil_sud',
-        'montant_mensuel_accueil_nord',
+        ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
+        ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
         'montant_prime_installation',
-        'montant_perdiem_sud',
-        'montant_perdiem_nord',
+        ('montant_perdiem_sud', 'montant_perdiem_nord'),
         'montant_allocation_unique',
         'appel_en_ligne',
         'etat',
-        )
+        )}),)
 
     def _actions(self, obj):
         dossiers_url = "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
@@ -217,7 +213,6 @@ class DossierCandidatInline(admin.StackedInline):
     formset = RequiredInlineFormSet
     model = Candidat
     max_num = 1
-    template = "admin/sigma/edit_inline/stacked.html"
     verbose_name = verbose_name_plural = "Informations sur le candidat"
 
     fieldsets = (
@@ -260,21 +255,45 @@ class PieceInline(admin.TabularInline):
     verbose_name = u"Pièce jointe"
     verbose_name_plural = u"Pièces jointes"
     
+class ProxyExpert(Expert.dossiers.through):
+    """
+    Ce proxy sert uniquement dans l'admin à disposer d'un libellé
+    plus ergonomique.
+    """
+
+    class Meta:
+        proxy=True
+        verbose_name = u"Expert"
+        verbose_name_plural = u"Experts"
+
+    def __unicode__(self):
+        return u""
+
+class ExpertInline(admin.TabularInline):
+    model = ProxyExpert
+    extra = 0
+    max_num = 0
+    verbose_name = u"Expert"
+    verbose_name_plural = u"Experts"
+
 
 def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
     return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
 affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s)'
     
-class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
+class DossierAdmin(WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, PieceInline)
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, PieceInline, ExpertInline)
     list_display = ('id', 'nom', 'prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_fiche_boursier' )
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
     search_fields = ('appel__nom',
-                     'candidat__nom', 'candidat__prenom',
+                     'candidat__nom', 'candidat__prenom', 'candidat__nom_jeune_fille',
                      'discipline__code', 'discipline__nom_court', 'discipline__nom_long',
+                     'origine__resp_inst_nom', 'origine__resp_inst_prenom', 'origine__resp_inst_courriel', 'origine__resp_sc_nom', 'origine__resp_sc_prenom', 'origine__resp_sc_courriel', 'origine__faculte_nom', 'origine__faculte_courriel',
+                     'accueil__resp_inst_nom', 'accueil__resp_inst_prenom', 'accueil__resp_inst_courriel', 'accueil__resp_sc_nom', 'accueil__resp_sc_prenom', 'accueil__resp_sc_courriel', 'accueil__faculte_nom', 'accueil__faculte_courriel',
+                     'mobilite__intitule_projet', 'mobilite__mots_clefs', 'mobilite__diplome_demande_nom', 'mobilite__dir_acc_nom', 'mobilite__dir_acc_prenom', 'mobilite__dir_ori_nom', 'mobilite__dir_ori_prenom',
     )
     fieldsets = (
         (None, {
@@ -337,8 +356,10 @@ class DossierAdmin(WorkflowAdmin, VersionAdmin, ExportAdmin, ):
         return form
 
 class ExpertAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nom', 'prenom', '_region', )
+    list_display = ('id', 'nom', 'prenom', '_region', '_disciplines')
     list_filter = ('region', 'disciplines')
+    search_fields = ('nom', 'prenom', 'courriel')
+    exclude = ('dossiers',)
 
     def queryset(self, request):
         return Expert.objects.region(request.user)
@@ -357,7 +378,10 @@ class ExpertAdmin(admin.ModelAdmin):
     def _region(self, obj):
         return obj.region
     _region.short_description = "Région"
-    
+
+    def _disciplines(self, obj):
+        return ', '.join([d.nom for d in obj.disciplines.all()])
+    _disciplines.short_description = "Disciplines"
 
 class GroupeRegionalAdmin(admin.ModelAdmin):
     form = GroupeRegionalAdminForm
