@@ -102,6 +102,12 @@ class AppelAdmin(WorkflowAdmin):
         region_field.queryset = Region.objects.filter(id__in=region_ids)
         return form
 
+    def has_add_permission(self, request):
+        if not request.user.groupes_regionaux.all():
+            return False
+
+        return super(AppelAdmin, self).has_add_permission(request)
+
     def queryset(self, request):
         return Appel.objects.region(request.user)
 
