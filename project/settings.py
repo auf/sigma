@@ -62,7 +62,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'south',
-    'reversion',
     'auf.django.admingroup',
     'auf.django.workflow',
     'form_utils',
