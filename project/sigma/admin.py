@@ -221,7 +221,7 @@ class DossierCandidatInline(admin.StackedInline):
     formset = RequiredInlineFormSet
     model = Candidat
     max_num = 1
-    verbose_name = verbose_name_plural = "Informations sur le candidat"
+    verbose_name = verbose_name_plural = "Identification"
 
     fieldsets = (
         (None, {
