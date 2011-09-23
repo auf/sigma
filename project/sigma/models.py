@@ -193,7 +193,7 @@ class Candidat(models.Model):
     civilite = models.CharField(max_length=2, verbose_name=u"Civilité", 
                         choices=CIVILITE,
                         blank=True, null=True)
-    nom = models.CharField(max_length=255, verbose_name=u"Nom de famille", 
+    nom = models.CharField(max_length=255, verbose_name=u"Nom",
                             help_text=u"EN MAJUSCULE")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     nom_jeune_fille = models.CharField(max_length=255, 

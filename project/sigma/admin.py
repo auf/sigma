@@ -225,10 +225,8 @@ class DossierCandidatInline(admin.StackedInline):
 
     fieldsets = (
         (None, {
-            'fields': ('civilite', 'nom', 'prenom', 'nom_jeune_fille',)
-        }),
-        ('Identification', {
-            'fields': ('nationalite', 'naissance_ville', 'naissance_date',)
+            'fields': (('civilite', 'nom', 'prenom'), 'nom_jeune_fille',
+                       'nationalite', 'naissance_ville', 'naissance_date',)
         }),
         ('Coordonnées', {
             'fields': (
