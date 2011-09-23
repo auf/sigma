@@ -36,4 +36,22 @@ class RegionFilterSpec(FilterSpec):
                    'query_string': cl.get_query_string({self.field.name: val}),
                    'display': smart_unicode(inst)}
 
+class AppelRegionFilterSpec(RegionFilterSpec):
+    def __init__(self, f, request, params, model, model_admin):
+        super(AppelRegionFilterSpec, self).__init__(f, request, params, model, model_admin)
+        self.lookup_val = request.GET.get(f.name, None)
+        if isinstance(f, models.ManyToManyField):
+            self.lookup_title = f.rel.to._meta.verbose_name
+        else:
+            self.lookup_title = f.verbose_name
+
+        # Queryset
+        qs = f.rel.to._default_manager.all()
+
+        region_ids = [g.region.id for g in request.user.groupes_regionaux.all()]
+        qs = qs.filter(region__in=region_ids)
+
+        self.lookup_choices = qs.all()
+
 FilterSpec.filter_specs.insert(0, (lambda f: bool(f.rel and hasattr(f, 'region_filter_spec')), RegionFilterSpec))
+FilterSpec.filter_specs.insert(0, (lambda f: bool(f.rel and hasattr(f, 'appelregion_filter_spec')), AppelRegionFilterSpec))

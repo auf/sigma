@@ -11,7 +11,7 @@ from datamaster_modeles.models import Region
 from sigma.models import *
 from sigma.forms import *
 from sigma.workflow import DOSSIER_ETAT_BOURSIER
-from sigma.customfilterspec import RegionFilterSpec # Ne pas enlever!
+from sigma.customfilterspec import AppelRegionFilterSpec, RegionFilterSpec # Ne pas enlever!
 
 
 class DossierConformiteAdmin(admin.TabularInline):

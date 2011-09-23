@@ -120,6 +120,7 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
 
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     region = models.ForeignKey(Region)
+    region.region_filter_spec = True
     code_budgetaire = models.CharField(max_length=255, 
                         verbose_name=u"Code budgétaire")
     formulaire_wcs = models.CharField(max_length=255,
@@ -288,9 +289,9 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
     objects = DossierManager()
 
-    appel = models.ForeignKey(Appel, related_name="appel",
-                        verbose_name=u"Appel")
+    appel = models.ForeignKey(Appel, related_name="appel", verbose_name=u"Appel")
     appel.admin_filter_select = True
+    appel.appelregion_filter_spec = True
 
     candidat_statut = models.CharField(max_length=255,
                         verbose_name=u"Statut du candidat",  
