@@ -9,6 +9,8 @@ from dynamo.models import *
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline, Region
 from project.wcs.wrappers import WCSAppel
+from smart_selects.db_fields import GroupedForeignKey
+
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -413,7 +415,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
-    etablissement = models.ForeignKey(Etablissement,
+    etablissement = GroupedForeignKey(Etablissement, "pays",
                         verbose_name=u"Établissement",
                         blank=True, null=True)
 

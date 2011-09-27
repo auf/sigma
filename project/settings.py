@@ -69,6 +69,7 @@ INSTALLED_APPS = (
     'suivi',
     'auf.django.export',
     'wcs',
+    'smart_selects',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
