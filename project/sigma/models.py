@@ -9,7 +9,7 @@ from dynamo.models import *
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline, Region
 from project.wcs.wrappers import WCSAppel
-from smart_selects.db_fields import GroupedForeignKey
+from smart_selects.db_fields import ChainedForeignKey
 
 
 CIVILITE = (
@@ -415,7 +415,11 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
-    etablissement = GroupedForeignKey(Etablissement, "pays",
+    etablissement = ChainedForeignKey(Etablissement,
+                        chained_field="pays",
+                        chained_model_field="pays",
+                        show_all=False,
+                        auto_choose=True,
                         verbose_name=u"Établissement",
                         blank=True, null=True)
 
@@ -515,11 +519,19 @@ class DossierOrigine(DossierFaculte):
     """
     dossier = models.OneToOneField(Dossier, verbose_name=u"Dossier", related_name="origine")
 
+    # Pour le champ de sélection Etablissement
+    pays = models.ForeignKey(Pays, to_field="code", related_name="origine_pays",
+                        verbose_name=u"Pays", blank=True, null=True)
+
 class DossierAccueil(DossierFaculte):
     """
     Informations sur le contexte d'accueil du candidat.
     """
     dossier = models.OneToOneField(Dossier, verbose_name=u"Dossier", related_name="accueil")
+
+    # Pour le champ de sélection Etablissement
+    pays = models.ForeignKey(Pays, to_field="code", related_name="accueil_pays",
+                        verbose_name=u"Pays", blank=True, null=True)
 
 
 class Public(models.Model):

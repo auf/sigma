@@ -8,17 +8,29 @@ class Migration(SchemaMigration):
     
     def forwards(self, orm):
         
+        # Adding field 'DossierOrigine.pays'
+        db.add_column('sigma_dossierorigine', 'pays', self.gf('django.db.models.fields.related.ForeignKey')(related_name='origine_pays', to_field='code', blank=True, null=True, to=orm['datamaster_modeles.Pays']), keep_default=False)
+
         # Changing field 'DossierOrigine.etablissement'
-        db.alter_column('sigma_dossierorigine', 'etablissement_id', self.gf('smart_selects.db_fields.GroupedForeignKey')(to=orm['datamaster_modeles.Etablissement'], group_field='pays', null=True, blank=True))
+        db.alter_column('sigma_dossierorigine', 'etablissement_id', self.gf('smart_selects.db_fields.ChainedForeignKey')(to=orm['datamaster_modeles.Etablissement'], null=True, blank=True))
+
+        # Adding field 'DossierAccueil.pays'
+        db.add_column('sigma_dossieraccueil', 'pays', self.gf('django.db.models.fields.related.ForeignKey')(related_name='accueil_pays', to_field='code', blank=True, null=True, to=orm['datamaster_modeles.Pays']), keep_default=False)
 
         # Changing field 'DossierAccueil.etablissement'
-        db.alter_column('sigma_dossieraccueil', 'etablissement_id', self.gf('smart_selects.db_fields.GroupedForeignKey')(to=orm['datamaster_modeles.Etablissement'], group_field='pays', null=True, blank=True))
+        db.alter_column('sigma_dossieraccueil', 'etablissement_id', self.gf('smart_selects.db_fields.ChainedForeignKey')(to=orm['datamaster_modeles.Etablissement'], null=True, blank=True))
     
     
     def backwards(self, orm):
         
+        # Deleting field 'DossierOrigine.pays'
+        db.delete_column('sigma_dossierorigine', 'pays_id')
+
         # Changing field 'DossierOrigine.etablissement'
         db.alter_column('sigma_dossierorigine', 'etablissement_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Etablissement'], null=True, blank=True))
+
+        # Deleting field 'DossierAccueil.pays'
+        db.delete_column('sigma_dossieraccueil', 'pays_id')
 
         # Changing field 'DossierAccueil.etablissement'
         db.alter_column('sigma_dossieraccueil', 'etablissement_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['datamaster_modeles.Etablissement'], null=True, blank=True))
@@ -292,7 +304,7 @@ class Migration(SchemaMigration):
             'autre_etablissement_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'autre_etablissement_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'accueil'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
-            'etablissement': ('smart_selects.db_fields.GroupedForeignKey', [], {'to': "orm['datamaster_modeles.Etablissement']", 'group_field': "'pays'", 'null': 'True', 'blank': 'True'}),
+            'etablissement': ('smart_selects.db_fields.ChainedForeignKey', [], {'to': "orm['datamaster_modeles.Etablissement']", 'null': 'True', 'blank': 'True'}),
             'faculte_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'faculte_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'faculte_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -302,6 +314,7 @@ class Migration(SchemaMigration):
             'faculte_url': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'faculte_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'pays': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'accueil_pays'", 'to_field': "'code'", 'blank': 'True', 'null': 'True', 'to': "orm['datamaster_modeles.Pays']"}),
             'resp_inst_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
             'resp_inst_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'resp_inst_fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -360,7 +373,7 @@ class Migration(SchemaMigration):
             'autre_etablissement_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'autre_etablissement_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'origine'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
-            'etablissement': ('smart_selects.db_fields.GroupedForeignKey', [], {'to': "orm['datamaster_modeles.Etablissement']", 'group_field': "'pays'", 'null': 'True', 'blank': 'True'}),
+            'etablissement': ('smart_selects.db_fields.ChainedForeignKey', [], {'to': "orm['datamaster_modeles.Etablissement']", 'null': 'True', 'blank': 'True'}),
             'faculte_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'faculte_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'faculte_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -370,6 +383,7 @@ class Migration(SchemaMigration):
             'faculte_url': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'faculte_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'pays': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'origine_pays'", 'to_field': "'code'", 'blank': 'True', 'null': 'True', 'to': "orm['datamaster_modeles.Pays']"}),
             'resp_inst_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
             'resp_inst_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'resp_inst_fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),

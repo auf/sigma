@@ -118,7 +118,7 @@ class BaseDossierFaculteInline(admin.StackedInline):
     max_num = 1
     template = "admin/sigma/edit_inline/stacked.html"
     fieldsets = (
-        (None, {'fields': ('etablissement',)}),
+        (None, {'fields': ('pays', 'etablissement',)}),
         ('Autre établissement', {
             'classes': ['collapse'],
             'fields': (('autre_etablissement_nom', 'autre_etablissement_adresse'),
