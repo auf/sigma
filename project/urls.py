@@ -16,6 +16,8 @@ urlpatterns = patterns(
     (r'^connexion/$', 'django.contrib.auth.views.login'),
     (r'^deconnexion/$', 'django.contrib.auth.views.logout'),
 
+    (r'^chaining/', include('smart_selects.urls')),
+
     # Les pièces sont stockées dans un endroit différent de media
     # car l'accès doit être controlé
     (r'^media_prive/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_PRIVE_ROOT}),

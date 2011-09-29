@@ -9,6 +9,8 @@ from dynamo.models import *
 from workflow import AppelWorkflow, DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline, Region
 from project.wcs.wrappers import WCSAppel
+from smart_selects.db_fields import ChainedForeignKey
+
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -48,9 +50,7 @@ BAREME = (
 )
 
 NOTE_MIN = 1
-NOTE_RANGE = 1
-NOTE_MAX = 5
-NOTES = [(i, i) for i in range(NOTE_MIN, NOTE_MAX, NOTE_RANGE)]
+NOTE_MAX = 100
 
 class ExpertManager(models.Manager):
 
@@ -70,6 +70,7 @@ class Expert(models.Model):
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     courriel =  models.EmailField(max_length=75, null=True, blank=True)
     region = models.ForeignKey(Region, verbose_name=u"Région")
+    region.region_filter_spec = True
     etablissement = models.ForeignKey(Etablissement, 
                         verbose_name=u"Établissement", 
                         blank=True, null=True)
@@ -121,6 +122,7 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
 
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     region = models.ForeignKey(Region)
+    region.region_filter_spec = True
     code_budgetaire = models.CharField(max_length=255, 
                         verbose_name=u"Code budgétaire")
     formulaire_wcs = models.CharField(max_length=255,
@@ -128,12 +130,16 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
                         verbose_name=u"Nom du formulaire WCS", 
                         blank=True, null=True)
     date_debut_appel = models.DateField(verbose_name=u"Début de l'appel", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     date_fin_appel = models.DateField(verbose_name=u"Fin de l'appel", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     date_debut_mobilite = models.DateField(verbose_name=u"Début de la mobilité", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     date_fin_mobilite = models.DateField(verbose_name=u"Fin de la mobilité", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     appel_en_ligne = models.BooleanField(verbose_name=u"Appel d’offres en ligne")
     periode = models.CharField(max_length=32, verbose_name=u"Période de mobilité", 
@@ -179,15 +185,17 @@ class Candidat(models.Model):
     dossier = models.OneToOneField('Dossier', verbose_name=u"Dossier", related_name="candidat")
     # meta
     date_creation = models.DateField(auto_now_add=True, 
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de création")
     date_modification = models.DateField(auto_now=True, 
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de modification")
 
     # identification personne
     civilite = models.CharField(max_length=2, verbose_name=u"Civilité", 
                         choices=CIVILITE,
                         blank=True, null=True)
-    nom = models.CharField(max_length=255, verbose_name=u"Nom de famille", 
+    nom = models.CharField(max_length=255, verbose_name=u"Nom",
                             help_text=u"EN MAJUSCULE")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     nom_jeune_fille = models.CharField(max_length=255, 
@@ -202,6 +210,7 @@ class Candidat(models.Model):
                         blank=True, null=True)
     naissance_date = models.DateField(max_length=255, 
                         verbose_name=u"Date de naissance", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
 
     # coordonnées
@@ -255,7 +264,7 @@ class Note(models.Model):
     dossier = models.ForeignKey("Dossier", related_name="notes")
     expert = models.ForeignKey(Expert)
     date = models.DateField(auto_now_add=True)
-    note = models.IntegerField(choices=NOTES, blank=True, null=True)
+    note = models.IntegerField(blank=True, null=True)
 
 class Commentaire(models.Model):
     """
@@ -282,9 +291,9 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
     objects = DossierManager()
 
-    appel = models.ForeignKey(Appel, related_name="appel",
-                        verbose_name=u"Appel")
+    appel = models.ForeignKey(Appel, related_name="appel", verbose_name=u"Appel")
     appel.admin_filter_select = True
+    appel.appelregion_filter_spec = True
 
     candidat_statut = models.CharField(max_length=255,
                         verbose_name=u"Statut du candidat",  
@@ -406,7 +415,11 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
-    etablissement = models.ForeignKey(Etablissement,
+    etablissement = ChainedForeignKey(Etablissement,
+                        chained_field="pays",
+                        chained_model_field="pays",
+                        show_all=False,
+                        auto_choose=True,
                         verbose_name=u"Établissement",
                         blank=True, null=True)
 
@@ -506,11 +519,19 @@ class DossierOrigine(DossierFaculte):
     """
     dossier = models.OneToOneField(Dossier, verbose_name=u"Dossier", related_name="origine")
 
+    # Pour le champ de sélection Etablissement
+    pays = models.ForeignKey(Pays, to_field="code", related_name="origine_pays",
+                        verbose_name=u"Pays", blank=True, null=True)
+
 class DossierAccueil(DossierFaculte):
     """
     Informations sur le contexte d'accueil du candidat.
     """
     dossier = models.OneToOneField(Dossier, verbose_name=u"Dossier", related_name="accueil")
+
+    # Pour le champ de sélection Etablissement
+    pays = models.ForeignKey(Pays, to_field="code", related_name="accueil_pays",
+                        verbose_name=u"Pays", blank=True, null=True)
 
 
 class Public(models.Model):
@@ -530,8 +551,10 @@ class DossierMobilite(models.Model):
 
     # Période de mobilité
     date_debut = models.DateField(verbose_name=u"Date de début souhaitée", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     date_fin = models.DateField(verbose_name=u"Date de fin souhaitée", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     duree = models.CharField(max_length=255, 
                         verbose_name=u"Durée totale mobilité souhaitée (mois)", 
@@ -586,9 +609,11 @@ class DossierMobilite(models.Model):
     
     # Thèse
     these_date_inscription = models.DateField(
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date d'inscription", 
                         blank=True, null=True)
     these_date_obtention_prevue = models.DateField(
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date d'obtention prévue", 
                         blank=True, null=True)
     these_soutenance_pays = models.ForeignKey(Pays, 
@@ -596,6 +621,7 @@ class DossierMobilite(models.Model):
                         verbose_name=u"Pays de soutenance", 
                         blank=True, null=True)
     these_soutenance_date = models.DateField(
+                        help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de soutenance", 
                         blank=True, null=True)
     these_type = models.CharField(max_length=2, 
@@ -629,6 +655,7 @@ class Diplome(models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom", 
                         blank=True, null=True)
     date = models.DateField(max_length=255, verbose_name=u"Date", 
+                        help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     niveau = models.ForeignKey(NiveauEtude, related_name="niveau", 
                         verbose_name=u"Niveau d'étude", 

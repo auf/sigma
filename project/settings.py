@@ -62,7 +62,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'south',
-    'reversion',
     'auf.django.admingroup',
     'auf.django.workflow',
     'form_utils',
@@ -70,7 +69,8 @@ INSTALLED_APPS = (
     'suivi',
     'auf.django.export',
     'wcs',
-    'datamaster.coda'
+    'datamaster.coda',
+    'smart_selects',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -104,3 +104,4 @@ ADMIN_TOOLS_MENU = 'project.menu.CustomMenu'
 ADMIN_TOOLS_INDEX_DASHBOARD = 'project.dashboard.CustomIndexDashboard'
 
 DATE_INPUT_FORMATS = ["%d-%m-%Y"]
+HELP_TEXT_DATE = "format: jj-mm-aaaa"

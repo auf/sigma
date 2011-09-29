@@ -52,6 +52,16 @@ class NoteForm(BetterModelForm):
         exclude = ('expert', )
         model = Note
 
+    def clean_note(self):
+        note = self.cleaned_data['note']
+
+        from models import NOTE_MIN, NOTE_MAX
+
+        if note < NOTE_MIN or note > NOTE_MAX:
+            raise forms.ValidationError("Vous devez spécifier une note entre 1 et 100")
+
+        return note
+
 class NoteExpertForm(inlineformset_factory(Dossier, Note,  extra=0, form=NoteForm)):
     pass
 
@@ -65,10 +75,15 @@ class EvaluationForm(BetterModelForm):
     class Meta:
         fields = ('moyenne_academique', 'opportunite_regionale', )
         model = Dossier
-        
+
+class ExpertChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        disciplines = ', '.join([d.code for d in obj.disciplines.all()])
+        return "%s, %s (%s)" % (obj.nom, obj.prenom, disciplines)
+
 class ExpertForm(forms.Form):
-    experts = forms.ModelMultipleChoiceField(queryset=Expert.objects.all(),
-                help_text="Maintenez appuyé « Ctrl », ou « Commande (touche pomme) » sur un Mac, pour en sélectionner plusieurs.")
+    experts = ExpertChoiceField(queryset=Expert.objects.all(),
+                                help_text="Maintenez appuyé « Ctrl », ou « Commande (touche pomme) » sur un Mac, pour en sélectionner plusieurs.")
 
     def __init__(self, *args, **kwargs):
         self.dossiers = kwargs.pop('dossiers')
@@ -79,7 +94,7 @@ class ExpertForm(forms.Form):
         for d in self.dossiers:
             d.experts = self.cleaned_data.get('experts', [])
             d.save()
-    
+
 
 ################################################################################
 # Groupe Régional - ADMIN
