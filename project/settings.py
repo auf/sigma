@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'suivi',
     'auf.django.export',
     'wcs',
+    'datamaster.coda'
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

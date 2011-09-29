@@ -33,27 +33,27 @@
         </thead>
         <tbody>
             {% for ecriture in ecritures %}
-            {% ifchanged ecriture.pcg %}
+            {% ifchanged ecriture.element1.code %}
             <tr>
-                <th colspan="0">PCG {{ ecriture.pcg }}: {{ ecriture.nom_pcg }}</th>
+                <th colspan="0">
+                    PCG {{ ecriture.element1.code }}: {{ ecriture.element1.name }}
+                </th>
             </tr>
             {% endifchanged %}
             <tr>
-                <td>{{ ecriture.code }}</td>
-                <td>{{ ecriture.numero }}</td>
-                <td>{{ ecriture.annee }}/{{ ecriture.periode }}</td>
-                <td><nobr>{{ ecriture.date|date:"j N Y" }}</nobr></td>
-                <td>{{ ecriture.description }}</td>
-                <td>{{ ecriture.montant_eur }}</td>
-                <td>{{ ecriture.debit_credit }}</td>
-                <td>{{ ecriture.implantation }}</td>
-                <td>{{ ecriture.employe }}</td>
-                <td>{{ ecriture.paiement }}</td>
+                <td>{{ ecriture.dochead.doccode }}</td>
+                <td>{{ ecriture.dochead.docnum }}</td>
+                <td>{{ ecriture.dochead.yr }}/{{ ecriture.dochead.period }}</td>
+                <td><nobr>{{ ecriture.dochead.docdate|date:"j N Y" }}</nobr></td>
+                <td>{{ ecriture.descr }}</td>
+                <td>{{ ecriture.valuehome }}</td>
+                <td>{{ ecriture.get_deb_cred_ind_display }}</td>
+                <td>{{ ecriture.ref3 }}</td>
+                <td>{{ ecriture.ref4 }}</td>
+                <td>{{ ecriture.get_statpay_display }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 {% endblock %}
-
-
