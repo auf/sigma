@@ -15,6 +15,8 @@ class Boursier(models.Model):
                                    editable=False)
     code_operation = models.CharField(max_length=11, verbose_name="code d'opération CODA",
                                       blank=True, unique=True, null=True, db_index=True)
+    numero_police_assurance = models.CharField(max_length=100, verbose_name="numéro de police d'assurance",
+                                               blank=True, default='')
 
     class Meta:
         verbose_name = 'boursier'
