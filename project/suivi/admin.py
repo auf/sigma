@@ -35,9 +35,6 @@ class BoursierAdminForm(ModelForm):
 
 
 class BoursierAdmin(admin.ModelAdmin):
-
-    # Configuration
-
     list_display = ('nom_complet', 'code_operation', 'field_actions')
     form = BoursierAdminForm
     readonly_fields = ('nom_complet', 'field_dossier')

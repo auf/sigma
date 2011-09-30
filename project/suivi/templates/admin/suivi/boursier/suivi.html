@@ -1,6 +1,10 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/keep-thead-visible.js"></script>
+{% endblock %}
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
      <a href="../../">{% trans "Home" %}</a> &rsaquo;
