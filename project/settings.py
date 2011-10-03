@@ -53,6 +53,7 @@ ROOT_URLCONF = 'project.urls'
 INSTALLED_APPS = (
     'auf.django.skin',
     'auf.django.auth',
+    'auf.django.coda',
     'admin_tools',
     'admin_tools.theming',
     'admin_tools.menu',
@@ -69,7 +70,6 @@ INSTALLED_APPS = (
     'suivi',
     'auf.django.export',
     'wcs',
-    'datamaster.coda',
     'smart_selects',
 )
 

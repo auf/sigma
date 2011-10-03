@@ -36,25 +36,25 @@
             </tr>
         </thead>
         <tbody>
-            {% for ecriture in ecritures %}
-            {% ifchanged ecriture.element1.code %}
+            {% for ligne in lignes_ecritures %}
+            {% ifchanged ligne.compte_comptable.code %}
             <tr>
                 <th colspan="0">
-                    PCG {{ ecriture.element1.code }}: {{ ecriture.element1.name }}
+                    PCG {{ ligne.compte_comptable.code }}: {{ ligne.compte_comptable.nom }}
                 </th>
             </tr>
             {% endifchanged %}
             <tr>
-                <td>{{ ecriture.dochead.doccode }}</td>
-                <td>{{ ecriture.dochead.docnum }}</td>
-                <td>{{ ecriture.dochead.yr }}/{{ ecriture.dochead.period }}</td>
-                <td><nobr>{{ ecriture.dochead.docdate|date:"j N Y" }}</nobr></td>
-                <td>{{ ecriture.descr }}</td>
-                <td>{{ ecriture.valuehome }}</td>
-                <td>{{ ecriture.get_deb_cred_ind_display }}</td>
-                <td>{{ ecriture.ref3 }}</td>
-                <td>{{ ecriture.ref4 }}</td>
-                <td>{{ ecriture.get_statpay_display }}</td>
+                <td>{{ ligne.ecriture.code }}</td>
+                <td>{{ ligne.ecriture.numero }}</td>
+                <td>{{ ligne.ecriture.annee }}/{{ ligne.ecriture.periode }}</td>
+                <td><nobr>{{ ligne.ecriture.date|date:"j N Y" }}</nobr></td>
+                <td>{{ ligne.description }}</td>
+                <td>{{ ligne.montant_eur }}</td>
+                <td>{{ ligne.get_debit_credit_display }}</td>
+                <td>{{ ligne.implantation }}</td>
+                <td>{{ ligne.salarie }}</td>
+                <td>{{ ligne.get_etat_paiement_display }}</td>
             </tr>
             {% endfor %}
         </tbody>

@@ -3,7 +3,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 
-from datamaster.coda.models import Docline
+from auf.django.coda.models import LigneEcriture
 from sigma.models import Dossier
 from sigma.workflow import DOSSIER_ETAT_BOURSIER
 
@@ -37,8 +37,8 @@ class Boursier(models.Model):
         return self.prenom + ' ' + self.nom
     nom_complet.short_description = 'Nom'
 
-    def ecritures_coda(self):
-        return Docline.objects.filter(element2__code=self.code_operation)
+    def lignes_ecritures_coda(self):
+        return LigneEcriture.objects.filter(tiers_operation__code=self.code_operation)
 
 
 def dossier_post_save(sender, instance=None, **kwargs):

@@ -75,10 +75,11 @@ class BoursierAdmin(admin.ModelAdmin):
 
     def view_suivi(self, request, id):
         boursier = Boursier.objects.get(pk=id)
-        ecritures = boursier.ecritures_coda().order_by('element1__code', 'dochead__docdate')
+        lignes_ecritures = boursier.lignes_ecritures_coda().order_by(
+            'compte_comptable__code', 'ecriture__date')
         return render_to_response('admin/suivi/boursier/suivi.html', {
             'boursier': boursier,
-            'ecritures': ecritures
+            'lignes_ecritures': lignes_ecritures
         }, context_instance=RequestContext(request))
 
     # Permissions
