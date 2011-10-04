@@ -274,6 +274,20 @@ class Commentaire(models.Model):
     date = models.DateField(auto_now_add=True)
     texte = models.TextField(verbose_name=u"Texte")
 
+class DossierQuerySet(models.query.QuerySet):
+    def filter(self, *args, **kwargs):
+        pays = kwargs.pop('pays', None)
+        region_accueil = kwargs.pop('regionaccueil', None)
+        region_origine = kwargs.pop('regionorigine', None)
+        qs = self
+        if pays is not None:
+            qs = qs.filter(candidat__pays__code=pays)
+        if region_accueil is not None:
+            qs = qs.filter(accueil__etablissement__region=region_accueil)
+        if region_origine is not None:
+            qs = qs.filter(origine__etablissement__region=region_origine)
+        return super(DossierQuerySet, qs).filter(*args, **kwargs)
+
 class DossierManager(models.Manager):
 
     def region(self, user):
@@ -282,7 +296,7 @@ class DossierManager(models.Manager):
 
     def get_query_set(self):
         fkeys = ('appel', 'origine', 'accueil', )
-        return super(DossierManager, self).get_query_set().select_related(*fkeys).all()
+        return DossierQuerySet(Dossier).select_related(*fkeys).all()
 
 class Dossier(DossierWorkflow, InstanceModel, models.Model):
     """
