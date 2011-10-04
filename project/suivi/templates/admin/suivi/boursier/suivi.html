@@ -28,7 +28,7 @@
                 <th>Ex/Pér.</th>
                 <th>Date</th>
                 <th>Description</th>
-                <th>Mont. €</th>
+                <th align="right">Mont. €</th>
                 <th>D/C</th>
                 <th>Impl.</th>
                 <th>Employé</th>
@@ -50,7 +50,13 @@
                 <td>{{ ligne.ecriture.annee }}/{{ ligne.ecriture.periode }}</td>
                 <td><nobr>{{ ligne.ecriture.date|date:"j N Y" }}</nobr></td>
                 <td>{{ ligne.description }}</td>
-                <td>{{ ligne.montant_eur }}</td>
+                {% if ligne.montant_eur < 0 %}
+                <td align="right" char="." style="color: red">
+                {% else %}
+                <td align="right" char=".">
+                {% endif %}
+                    {{ ligne.montant_eur }}
+                </td>
                 <td>{{ ligne.get_debit_credit_display }}</td>
                 <td>{{ ligne.implantation }}</td>
                 <td>{{ ligne.salarie }}</td>
