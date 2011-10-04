@@ -3,7 +3,7 @@
 
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}js/keep-thead-visible.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/suivi-boursier.js"></script>
 {% endblock %}
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
@@ -35,15 +35,15 @@
                 <th>Paiement</th>
             </tr>
         </thead>
+        {% regroup lignes_ecritures by compte_comptable as groups %}
+        {% for group in groups %}
         <tbody>
-            {% for ligne in lignes_ecritures %}
-            {% ifchanged ligne.compte_comptable.code %}
             <tr>
                 <th colspan="0">
-                    PCG {{ ligne.compte_comptable.code }}: {{ ligne.compte_comptable.nom }}
+                    PCG {{ group.grouper.code }}: {{ group.grouper.nom }}
                 </th>
             </tr>
-            {% endifchanged %}
+            {% for ligne in group.list %}
             <tr>
                 <td>{{ ligne.ecriture.code }}</td>
                 <td>{{ ligne.ecriture.numero }}</td>
@@ -58,6 +58,7 @@
             </tr>
             {% endfor %}
         </tbody>
+        {% endfor %}
     </table>
 </div>
 {% endblock %}
