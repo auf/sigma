@@ -349,7 +349,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     _region.short_description = "Région"
 
     def queryset(self, request):
-        return Dossier.objects.region(request.user)
+        return Dossier.objects.region(request.user).select_related('appel', 'mobilite', 'candidat')
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(DossierAdmin, self).get_form(request, obj, **kwargs)

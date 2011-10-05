@@ -11,6 +11,7 @@ from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline, R
 from project.wcs.wrappers import WCSAppel
 from smart_selects.db_fields import ChainedForeignKey
 
+import auf.django.coda.models as coda_models
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -123,8 +124,8 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     region = models.ForeignKey(Region)
     region.region_filter_spec = True
-    code_budgetaire = models.CharField(max_length=255, 
-                        verbose_name=u"Code budgétaire")
+    code_budgetaire = models.ForeignKey(coda_models.Element, verbose_name=u"Code budgétaire",
+                                        limit_choices_to = {'niveau': 3})
     formulaire_wcs = models.CharField(max_length=255,
                         choices=APPEL_WCS_CHOICES,
                         verbose_name=u"Nom du formulaire WCS", 
