@@ -35,15 +35,18 @@
                 <th>Paiement</th>
             </tr>
         </thead>
-        {% regroup lignes_ecritures by compte_comptable as groups %}
-        {% for group in groups %}
+        {% for groupe in groupes_ecritures %}
         <tbody>
             <tr>
-                <th colspan="0">
-                    PCG {{ group.grouper.code }}: {{ group.grouper.nom }}
+                <th colspan="5">
+                    PCG {{ groupe.compte_comptable.code }}: {{ groupe.compte_comptable.nom }}
                 </th>
+                <th align="right" char="." style="text-align: right">
+                  {{ groupe.sous_total }}
+                </th>
+                <th colspan="4"></th>
             </tr>
-            {% for ligne in group.list %}
+            {% for ligne in groupe.lignes %}
             <tr>
                 <td>{{ ligne.ecriture.code }}</td>
                 <td>{{ ligne.ecriture.numero }}</td>

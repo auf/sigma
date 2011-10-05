@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+from itertools import groupby
+
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
 from django.core.urlresolvers import reverse
@@ -77,9 +79,17 @@ class BoursierAdmin(admin.ModelAdmin):
         boursier = Boursier.objects.get(pk=id)
         lignes_ecritures = boursier.lignes_ecritures_coda().exclude(montant_eur=0).order_by(
             'compte_comptable__code', '-ecriture__date')
+        groupes_ecritures = []
+        for compte_comptable, lignes in groupby(lignes_ecritures, lambda x: x.compte_comptable):
+            lignes = list(lignes)
+            groupes_ecritures.append({
+                'compte_comptable': compte_comptable,
+                'lignes': lignes,
+                'sous_total': sum(l.montant_eur for l in lignes)
+            })
         return render_to_response('admin/suivi/boursier/suivi.html', {
             'boursier': boursier,
-            'lignes_ecritures': lignes_ecritures
+            'groupes_ecritures': groupes_ecritures
         }, context_instance=RequestContext(request))
 
     # Permissions
