@@ -19,6 +19,27 @@ class BoursierAdminForm(ModelForm):
     class Meta:
         model = Boursier
 
+    def __init__(self, *args, **kwargs):
+        super(BoursierAdminForm, self).__init__(*args, **kwargs)
+        if self.instance is not None:
+            code_budgetaire  = self.instance.dossier.appel.code_budgetaire
+            max_code_boursier = Boursier.objects \
+                    .filter(code_operation__startswith=code_budgetaire) \
+                    .order_by('-code_operation')[:1]
+            if len(max_code_boursier) > 0:
+                max_code = max_code_boursier[0].code_operation
+                numero = max_code[len(code_budgetaire):-1]
+            else:
+                numero = 0
+            try:
+                numero_int = int(numero)
+            except ValueError:
+                pass
+            else:
+                prochain_numero = '%03d' % (numero_int + 1)
+                prochain_code = code_budgetaire + prochain_numero + 'L'
+                self.fields['code_operation'].help_text = u"Prochain code disponible: %s" % prochain_code
+
     def clean_code_operation(self):
         code_operation = self.cleaned_data['code_operation']
         boursier = self.instance
