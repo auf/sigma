@@ -32,6 +32,15 @@ class BoursierAdminForm(ModelForm):
                     u"Code d'opération invalide: il devrait avoir la forme %sXXXL" % 
                     code_budgetaire
                 )
+
+            # Vérifier que ce code d'opération n'est pas déjà utilisé
+            conflits = Boursier.objects \
+                    .filter(code_operation=code_operation) \
+                    .exclude(pk=boursier.pk)
+            if len(conflits) > 0:
+                raise ValidationError(
+                    u"Code d'opération déjà attribué au boursier %s." % conflits[0]
+                )
             
         return code_operation
 
@@ -41,14 +50,6 @@ class BoursierAdmin(admin.ModelAdmin):
     form = BoursierAdminForm
     readonly_fields = ('nom_complet', 'field_dossier')
     fields = ('nom_complet', 'field_dossier', 'code_operation', 'numero_police_assurance')
-
-    # Queryset
-
-    def queryset(self, request):
-        # Cacher les fiches boursier dont le dossier de candidature n'indique
-        # pas qu'ils sont boursiers.
-        qs = super(BoursierAdmin, self).queryset(request)
-        return qs.filter(dossier__etat=DOSSIER_ETAT_BOURSIER)
 
     # Champs calculés
 
