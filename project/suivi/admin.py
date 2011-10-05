@@ -77,8 +77,10 @@ class BoursierAdmin(admin.ModelAdmin):
 
     def view_suivi(self, request, id):
         boursier = Boursier.objects.get(pk=id)
-        lignes_ecritures = boursier.lignes_ecritures_coda().exclude(montant_eur=0).order_by(
-            'compte_comptable__code', '-ecriture__date')
+        lignes_ecritures = boursier.lignes_ecritures_coda() \
+                .exclude(montant_eur=0) \
+                .order_by('compte_comptable__code', '-ecriture__date') \
+                .select_related('compte_comptable', 'ecriture')
         groupes_ecritures = []
         for compte_comptable, lignes in groupby(lignes_ecritures, lambda x: x.compte_comptable):
             lignes = list(lignes)
