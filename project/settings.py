@@ -5,10 +5,6 @@ import socket
 from conf import *
 
 
-DATABASE_OPTIONS = {
-   'init_command': 'SET storage_engine=INNODB;',
-}
-
 PROJET_TITRE = "SIGMA"
 
 # Rapports d'erreurs
