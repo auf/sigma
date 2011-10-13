@@ -7,16 +7,11 @@ from models import MODELES_SIGMA
 
 class Importeur(object):
 
-    appel = None
-    wcs_data = None
-    mapped_data = None
-    mapping_module = None
-    forms = {}
-
     def __init__(self, appel, wcs_data, mapping_module):
         self.mapping_module = mapping_module
         self.wcs_data = wcs_data
         self.appel = appel
+        self.forms = {}
 
 
     def map_wcs2sigma(self):
