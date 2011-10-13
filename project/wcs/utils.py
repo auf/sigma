@@ -39,6 +39,10 @@ class Importeur(object):
         """
         mapped_data = self.map_wcs2sigma()
 
+        # Cas particulier pour dossier vide
+        if 'Dossier' not in mapped_data:
+            mapped_data['Dossier'] = {}
+
         for classname, data in mapped_data.items():
             form_name = "%sForm" % classname
             klass = getattr(self.mapping_module, form_name)
