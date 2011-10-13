@@ -28,64 +28,37 @@ class TypeConformiteAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'field_type',  )
     form = TypeConformiteForm
 
-class ProxyAppelConformite(Appel.conformites.through):
-    """
-    Ce proxy sert uniquement dans l'admin à disposer d'un libellé
-    plus ergonomique.
-    """
-
-    class Meta:
-        proxy=True
-        verbose_name = u"Type de conformité"
-        verbose_name_plural = u"Conformités demandées pour cet appel"
-
-    def __unicode__(self,):
-        return u"code conformité #%s" % self.id
-
-class TypeConformiteInline(admin.TabularInline):
-    """
-    Association des types de conformité à un appel.
-    """
-    fields = ('typeconformite', )
-    model = ProxyAppelConformite
-    extra = 0
-    verbose_name = u"Type de conformités"
-    verbose_name_plural = u"Conformités demandées pour cet appel"
-
-class TypePieceInline(admin.TabularInline):
-    """
-    Association des types de pièce à un appel.
-    """
-    model = Appel.types_piece.through
-    extra = 0
-    verbose_name = u"Type de pièce"
-    verbose_name_plural = u"Type de pièce demandées pour cet appel"
-
 class AppelAdmin(WorkflowAdmin):
-    inlines = (TypeConformiteInline, TypePieceInline)
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
     list_filter = ('region', 'etat')
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = (
-        (None, {'fields': ('nom',
-        'region',
-        'code_budgetaire',
-        'formulaire_wcs',
-        ('date_debut_appel', 'date_fin_appel'),
-        ('date_debut_mobilite', 'date_fin_mobilite'),
-        'periode',
-        'bareme',
-        ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
-        ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
-        'montant_prime_installation',
-        ('montant_perdiem_sud', 'montant_perdiem_nord'),
-        'montant_allocation_unique',
-        'appel_en_ligne',
-        'etat',
-        )}),)
+        (None, {
+            'fields': (
+                'nom',
+                'region',
+                'code_budgetaire',
+                'formulaire_wcs',
+                ('date_debut_appel', 'date_fin_appel'),
+                ('date_debut_mobilite', 'date_fin_mobilite'),
+                'periode',
+                'bareme',
+                ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
+                ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
+                'montant_prime_installation',
+                ('montant_perdiem_sud', 'montant_perdiem_nord'),
+                'montant_allocation_unique',
+                'appel_en_ligne',
+                'etat',
+                'conformites',
+                'types_piece',
+            )
+        }),
+    )
+    filter_horizontal = ['conformites', 'types_piece']
 
     def _actions(self, obj):
-        dossiers_url = "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
+        dossiers_url = "<a href='%s?appel=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
         if hasattr(settings, 'WCS_SIGMA_URL') and obj.formulaire_wcs is not None:
             importer_url = "<a href='%s'>Importer</a>" % (reverse('importer_dossiers', args=(obj.formulaire_wcs, )))
             return " | ".join((dossiers_url, importer_url))

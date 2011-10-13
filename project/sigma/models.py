@@ -171,9 +171,9 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     montant_allocation_unique = models.IntegerField(
                         verbose_name=u"Montant allocation unique", 
                         blank=True, null=True)    
-    conformites = models.ManyToManyField("TypeConformite", verbose_name="Confirmités à demander",
+    conformites = models.ManyToManyField("TypeConformite", verbose_name=u"Confirmités à demander",
                                          blank=True, null=True)
-    types_piece = models.ManyToManyField("TypePiece", verbose_name="Types de pièce à demander",
+    types_piece = models.ManyToManyField("TypePiece", verbose_name=u"Types de pièces à demander",
                                           blank=True, null=True)
 
     def __unicode__(self):
@@ -197,11 +197,11 @@ class Candidat(models.Model):
                         choices=CIVILITE,
                         blank=True, null=True)
     nom = models.CharField(max_length=255, verbose_name=u"Nom",
-                            help_text=u"EN MAJUSCULE")
+                            help_text=u"EN MAJUSCULES")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     nom_jeune_fille = models.CharField(max_length=255, 
                         verbose_name=u"Nom de jeune fille", 
-                        blank=True, null=True, help_text=u"EN MAJUSCULE")
+                        blank=True, null=True, help_text=u"EN MAJUSCULES")
 
     # identification avancée personne
     nationalite = models.ForeignKey(Pays, verbose_name=u"Nationalité", 
@@ -693,10 +693,14 @@ class Diplome(models.Model):
 class TypePiece(models.Model):
     """
     """
-    nom = models.CharField(max_length=255, verbose_name=u"Nom système",)
+    nom = models.CharField(max_length=255, verbose_name=u"Nom système")
 
     def __unicode__(self):
-        return u"%s" % self.nom
+        return unicode(self.nom)
+
+    class Meta:
+        verbose_name = 'type de pièce'
+        verbose_name_plural = 'types de pièces'
 
 class Piece(models.Model):
     """
@@ -704,12 +708,11 @@ class Piece(models.Model):
     dossier = models.ForeignKey(Dossier, related_name="pieces")
     nom = models.CharField(max_length=255, verbose_name=u"Nom", blank=True, null=True)
     fichier = models.FileField(verbose_name=u"Fichier", upload_to="pieces", blank=True, null=True)
-
     presente = models.BooleanField(verbose_name=u"Pièce présente", default=False)
     conforme = models.BooleanField(verbose_name=u"Pièce conforme", default=False)
 
     def __unicode__(self):
-        return u"%s" % self.nom
+        return unicode(self.nom)
 
 class AttributWCS(models.Model):
     """
@@ -744,8 +747,8 @@ class TypeConformite(TypeProperty, models.Model):
     Lié à l'appel
     """
     class Meta:
-        verbose_name = u"Type de conformité"
-        verbose_name_plural = u"Types de conformité"
+        verbose_name = u"type de conformité"
+        verbose_name_plural = u"types de conformités"
 
 class Conformite(ValueProperty, models.Model):
     """
