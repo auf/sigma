@@ -63,10 +63,10 @@ class Boursier(models.Model):
     def lignes_ecritures_coda(self):
         return LigneEcriture.objects.filter(tiers_operation__code=self.code_operation)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         # Assurons-nous que les codes opération sont uniques
         Boursier.inactifs.filter(code_operation=self.code_operation).update(code_operation='')
-        super(Boursier, self).save()
+        super(Boursier, self).save(*args, **kwargs)
 
 
 def dossier_post_save(sender, instance=None, **kwargs):
