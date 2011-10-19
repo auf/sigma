@@ -127,11 +127,15 @@ class BaseDossierFaculteInline(admin.StackedInline):
 class DossierOrigineInline(BaseDossierFaculteInline):
     model = DossierOrigine
     verbose_name = verbose_name_plural = "Origine"
+    template = "admin/sigma/edit_inline/single-stack.html"
+    can_delete = False
 
 
 class DossierAccueilInline(BaseDossierFaculteInline):
     model = DossierAccueil
     verbose_name = verbose_name_plural = "Accueil"
+    template = "admin/sigma/edit_inline/single-stack.html"
+    can_delete = False
 
 
 class DossierMobiliteForm(forms.ModelForm):
@@ -152,7 +156,8 @@ class DossierMobiliteInline(admin.StackedInline):
     form = DossierMobiliteForm
     model = DossierMobilite
     max_num = 1
-    template = "admin/sigma/edit_inline/stacked.html"
+    template = "admin/sigma/edit_inline/single-stack.html"
+    can_delete = False
     verbose_name = verbose_name_plural = "Mobilité"
 
     fieldsets = (
@@ -202,10 +207,12 @@ class DossierCandidatInline(admin.StackedInline):
     model = Candidat
     max_num = 1
     verbose_name = verbose_name_plural = "Identification"
+    can_delete = False
+    template = "admin/sigma/edit_inline/single-stack.html"
 
     fieldsets = (
         (None, {
-            'fields': (('civilite', 'nom', 'prenom'), 'nom_jeune_fille',
+            'fields': ('civilite', ('nom', 'prenom'), 'nom_jeune_fille',
                        'nationalite', 'naissance_ville', 'naissance_date',)
         }),
         ('Coordonnées', {
@@ -222,8 +229,9 @@ class DossierCandidatInline(admin.StackedInline):
 class DiplomeInline(admin.StackedInline):
     model = Diplome
     max_num = 1
-    template = "admin/sigma/edit_inline/stacked.html"
-    verbose_name = verbose_name_plural = "Diplômes"
+    template = "admin/sigma/edit_inline/single-stack.html"
+    verbose_name = verbose_name_plural = "Diplôme"
+    can_delete = False
 
     fieldsets = (
         (None, {
@@ -284,11 +292,9 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
             'fields': ('etat', ),
         }),
         ('Situation universitaire', {
-            'classes': ('collapse',),
             'fields': ('candidat_statut', 'candidat_fonction', ),
         }),
         ('Lien avec l\'AUF', {
-            'classes': ('collapse',),
             'fields': ('dernier_projet_description', 'dernier_projet_annee', 'derniere_bourse_categorie', 'derniere_bourse_annee',),
         }),
     )
