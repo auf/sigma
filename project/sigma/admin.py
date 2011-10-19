@@ -274,7 +274,7 @@ affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s
 class DossierAdmin(WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, ExpertInline)
-    list_display = ('id', 'nom', 'prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_fiche_boursier' )
+    list_display = ('appel', 'nom', 'prenom', 'etat', 'moyenne_votes', 'action_column')
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
     search_fields = ('appel__nom',
@@ -310,21 +310,16 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
         return obj.candidat.nationalite
     _nationalite.short_description = "Nationalité"
     
-    def _evaluer(self, obj):
-        return "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
-    _evaluer.allow_tags = True
-    _evaluer.short_description = 'Évaluation'
+    def action_column(self, obj):
+        actions = []
+        actions.append("<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, )))
+        if obj.etat == DOSSIER_ETAT_BOURSIER:
+            actions.append("<nobr><a href='%s'>Fiche boursier</a></nobr>" % 
+                           reverse('admin:suivi_boursier_change', args=(obj.id,)))
+        return '<br />\n'.join(actions)
+    action_column.allow_tags = True
+    action_column.short_description = ''
     
-    def _fiche_boursier(self, obj):
-		if obj.etat == DOSSIER_ETAT_BOURSIER:
-			return "<a href='%s'>Fiche boursier</a>" % reverse(
-				'admin:suivi_boursier_change', args=(obj.id,)
-			)
-		else:
-			return ''
-    _fiche_boursier.allow_tags = True
-    _fiche_boursier.short_description = ''
-
     def _region(self, obj):
         return obj.appel.region
     _region.short_description = "Région"
