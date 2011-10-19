@@ -6,6 +6,9 @@
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
     <li><a href="{% url admin:sigma_dossier_pieces object_id %}">Pièces jointes</a></li>
+    {% if original.etat == "BOURSIER" %}
+    <li><a href="{% url admin:suivi_boursier_suivi object_id %}">Fiche boursier</a></li>
+    {% endif %}
   </ul>
 {% endif %}{% endif %}
 {% endblock %}
