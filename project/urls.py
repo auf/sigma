@@ -17,11 +17,6 @@ urlpatterns = patterns(
     (r'^deconnexion/$', 'django.contrib.auth.views.logout'),
 
     (r'^chaining/', include('smart_selects.urls')),
-
-    # Les pièces sont stockées dans un endroit différent de media
-    # car l'accès doit être controlé
-    (r'^media_prive/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_PRIVE_ROOT}),
-
 )
 if hasattr(settings, 'WCS_SIGMA_URL'):
     urlpatterns += patterns('', (r'^', include('wcs.urls')),)

@@ -1,9 +1,16 @@
 # -*- encoding: utf-8 -*-
 
-from django.core.urlresolvers import reverse
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
+from django.core.urlresolvers import reverse
+from django.forms import ModelForm
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render_to_response, redirect, get_object_or_404
+from django.template import RequestContext
+
+from sendfile import sendfile
+
 from auf.django.workflow.admin import WorkflowAdmin
 from auf.django.export.admin import ExportAdmin
 from datamaster_modeles.models import Region
@@ -211,6 +218,7 @@ class DossierCandidatInline(admin.StackedInline):
         }),
     )
 
+
 class DiplomeInline(admin.StackedInline):
     model = Diplome
     max_num = 1
@@ -227,12 +235,6 @@ class DiplomeInline(admin.StackedInline):
         }),
 
     )
-    
-class PieceInline(admin.TabularInline):
-    model = Piece
-    extra = 0
-    verbose_name = u"Pièce jointe"
-    verbose_name_plural = u"Pièces jointes"
     
 class ProxyExpert(Expert.dossiers.through):
     """
@@ -263,7 +265,7 @@ affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s
     
 class DossierAdmin(WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, PieceInline, ExpertInline)
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, ExpertInline)
     list_display = ('id', 'nom', 'prenom', '_naissance_date', '_nationalite', 'discipline', 'etat', 'appel', 'moyenne_votes', '_evaluer', '_fiche_boursier' )
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
@@ -333,6 +335,88 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
 
         appel_field.queryset = Appel.objects.region(request.user)
         return form
+
+    def get_urls(self):
+        admin_urls = super(DossierAdmin, self).get_urls()
+        additional_urls = patterns(
+            '',
+            url(r'^(\d+)/pieces/$', 
+                self.admin_site.admin_view(self.view_pieces),
+                name='sigma_dossier_pieces'),
+            url(r'^(\d+)/pieces/add/$', 
+                self.admin_site.admin_view(self.view_pieces_add),
+                name='sigma_dossier_pieces_add'),
+            url(r'^pieces/(\d+)/$', 
+                self.admin_site.admin_view(self.view_pieces_change),
+                name='sigma_dossier_pieces_change'),
+            url(r'^pieces/(\d+)/delete/$', 
+                self.admin_site.admin_view(self.view_pieces_delete),
+                name='sigma_dossier_pieces_delete'),
+            url(r'^pieces/(\d+)/download/$', 
+                self.admin_site.admin_view(self.view_pieces_download),
+                name='sigma_dossier_pieces_download'),
+        )
+        return additional_urls + admin_urls
+
+    def view_pieces(self, request, id):
+        dossier = Dossier.objects.get(pk=id)
+        pieces_attendues = dict((x.nom, []) for x in dossier.appel.types_piece.all())
+        pieces_supplementaires = []
+        for piece in dossier.pieces.all():
+            if piece.nom in pieces_attendues:
+                pieces_attendues[piece.nom].append(piece)
+            else:
+                pieces_supplementaires.append(piece)
+        return render_to_response('admin/sigma/dossier/pieces.html', {
+            'dossier': dossier,
+            'pieces_attendues': sorted(pieces_attendues.items()),
+            'pieces_supplementaires': pieces_supplementaires,
+        }, context_instance=RequestContext(request))
+
+    def view_pieces_add(self, request, dossier_id):
+        dossier = get_object_or_404(Dossier, pk=dossier_id)
+        if request.method == 'POST':
+            form = PieceForm(request.POST, request.FILES, 
+                             instance=Piece(dossier_id=dossier_id))
+            if form.is_valid():
+                form.save()
+                return redirect('admin:sigma_dossier_pieces', dossier_id)
+        else:
+            form = PieceForm(initial={'nom': request.GET.get('piece', '')})
+        return render_to_response('admin/sigma/dossier/piece_form.html', {
+            'dossier': dossier,
+            'form': form
+        }, context_instance=RequestContext(request))
+
+    def view_pieces_change(self, request, piece_id):
+        piece = get_object_or_404(Piece, pk=piece_id)
+        if request.method == 'POST':
+            form = PieceForm(request.POST, request.FILES, instance=piece)
+            if form.is_valid():
+                form.save()
+                return redirect('admin:sigma_dossier_pieces', piece.dossier.pk)
+        else:
+            form = PieceForm(instance=piece)
+        return render_to_response('admin/sigma/dossier/piece_form.html', {
+            'dossier': piece.dossier,
+            'form': form
+        }, context_instance=RequestContext(request))
+
+    def view_pieces_delete(self, request, piece_id):
+        piece = get_object_or_404(Piece, pk=piece_id)
+        dossier = piece.dossier
+        piece.delete()
+        return redirect('admin:sigma_dossier_pieces', dossier.pk)
+
+    def view_pieces_download(self, request, piece_id):
+        piece = get_object_or_404(Piece, pk=piece_id)
+        if piece.fichier:
+            return sendfile(request, 
+                            os.path.join(settings.UPLOADS_ROOT, piece.fichier.name),
+                            attachment=True)
+        else:
+            raise Http404
+
 
 class ExpertAdmin(admin.ModelAdmin):
     list_display = ('id', 'nom', 'prenom', '_region', '_disciplines')

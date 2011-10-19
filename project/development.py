@@ -11,3 +11,7 @@ INSTALLED_APPS += ('django_extensions',)
 #MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 AUTH_PASSWORD_REQUIRED = False
+
+# django-sendfile
+
+SENDFILE_BACKEND = 'sendfile.backends.development'

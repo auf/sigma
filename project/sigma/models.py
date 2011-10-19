@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
 from dynamo import dynamo_registry
 from dynamo.models import *
 from workflow import AppelWorkflow, DossierWorkflow
@@ -707,9 +708,10 @@ class Piece(models.Model):
     """
     dossier = models.ForeignKey(Dossier, related_name="pieces")
     nom = models.CharField(max_length=255, verbose_name=u"Nom", blank=True, null=True)
-    fichier = models.FileField(verbose_name=u"Fichier", upload_to="pieces", blank=True, null=True)
-    presente = models.BooleanField(verbose_name=u"Pièce présente", default=False)
-    conforme = models.BooleanField(verbose_name=u"Pièce conforme", default=False)
+    fichier = models.FileField(verbose_name=u"Fichier", upload_to="pieces", 
+                               storage=FileSystemStorage(location=settings.UPLOADS_ROOT),
+                               blank=True, null=True)
+    conforme = models.NullBooleanField(verbose_name=u"Pièce conforme")
 
     def __unicode__(self):
         return unicode(self.nom)

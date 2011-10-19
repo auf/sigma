@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from form_utils.forms import BetterModelForm
-from django.forms import ModelForm
+from django.forms import ModelForm, ValidationError
 from dynamo.forms import PropertyForm
 from dynamo.fields import TEXT
 from datamaster_modeles.models import Discipline
@@ -42,6 +42,17 @@ class DisciplineForm(BetterModelForm):
     class Meta:
         exclude = ('user', )
         model = UserProfile
+
+################################################################################
+# DOSSIER - PIÈCES JOINTES
+################################################################################
+
+class PieceForm(ModelForm):
+
+    class Meta:
+        model = Piece
+        fields = ('nom', 'fichier', 'conforme')
+        
 
 ################################################################################
 # DOSSIER - EVALUATION
