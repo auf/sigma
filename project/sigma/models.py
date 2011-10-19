@@ -178,7 +178,7 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
                                           blank=True, null=True)
 
     def __unicode__(self):
-        return "#%s : %s" %(self.id, self.nom)
+        return self.nom
 
 class Candidat(models.Model):
     """
