@@ -5,42 +5,84 @@ from django.forms.util import ErrorList
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
 from django.forms.formsets import TOTAL_FORM_COUNT, INITIAL_FORM_COUNT, MAX_NUM_FORM_COUNT
-from project.sigma import models as sigma
-from formats import *
 
-class CleanFormMixin(forms.ModelForm):
-    """
-    Mixin form pour cabler une fonction de preparation des données
-    """
+import sigma.models as sigma
+import datamaster_modeles.models as ref
 
-    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
-                 initial=None, error_class=ErrorList, label_suffix=':',
-                 empty_permitted=False):
-        return super(CleanFormMixin, self).__init__(data, files, auto_id, prefix,
-                                                    initial, error_class, label_suffix,
-                                                    empty_permitted)
 
-    def _clean_fields(self):
-        for name, field in self.fields.items():
-            value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
-            if hasattr(self, 'prepare_%s' % name):
-                    value = getattr(self, 'prepare_%s' % name)(value)
-                    self.data[name] = value
+# Fields
 
-        return super(CleanFormMixin, self)._clean_fields()
+class ChoiceLabelField(forms.Field):
 
-class _PieceForm(CleanFormMixin):
-    
-    class Meta:
-        model = sigma.Piece
-        exclude = ('dossier', )
+    def __init__(self, choices):
+        self.map = dict((label, code) for (code, label) in choices)
 
+    def to_python(self, value):
+        return self.map.get(value)
+
+
+class DisciplineField(forms.Field):
+
+    def to_python(self, value):
+        try:
+            return ref.Discipline.objects.get(nom=value)
+        except ref.Discipline.DoesNotExist:
+            return None
+
+
+class PaysField(forms.Field):
+
+    def to_python(self, value):
+        try:
+            return ref.Pays.objects.get(nom=value)
+        except ref.Pays.DoesNotExist:
+            return None
+
+
+class NiveauEtudesField(forms.Field):
+
+    def to_python(self, value):
+        try:
+            return sigma.NiveauEtude.objects.get(nom=value)
+        except sigma.NiveauEtude.DoesNotExist:
+            return None
+
+
+class EtablissementField(forms.Field):
+
+    def to_python(self, value):
+        pays, sep, etablissement = value.partition(' - ')
+        try:
+            return ref.Etablissement.objects.get(pays__nom=pays, nom=etablissement)
+        except Etablissement.DoesNotExist:
+            return None
+
+
+class InterventionField(forms.Field):
+
+    def to_python(self, value):
+        try:
+            return sigma.Intervention.objects.get(nom=value)
+        except simga.Intervention.DoesNotExist:
+            return None
+
+
+class PublicField(forms.Field):
+
+    def to_python(self, value):
+        try:
+            return sigma.Public.objects.get(nom=value)
+        except sigma.Public.DoesNotExist:
+            return None
+
+
+# Forms
 
 class PieceForm(modelformset_factory(sigma.Piece, exclude=('dossier', ))):
 
     def __init__(self, *args, **kwargs):
         """
-        Surchage le formset pour manipuler les data afin de les formatter comme si
+        Surcharge le formset pour manipuler les data afin de les formatter comme si
         elles avaient été postées.
         """
         _prefix = 'form-'

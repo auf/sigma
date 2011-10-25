@@ -21,8 +21,8 @@ CIVILITE = (
 )
 
 TYPE_THESE = (
-    ('CT', "Co-Tutelle"),
-    ('CD', "Co-Direction"),
+    ('CT', "Co-tutelle"),
+    ('CD', "Co-direction"),
     ('AU', "Autre"),
 )
     
@@ -31,7 +31,7 @@ CANDIDAT_STATUT = (
     ('2', 'Chercheur'),
     ('3', 'Enseignant'),
     ('4', 'Enseignant-chercheur'),
-    ('5', 'Post-Doc'),
+    ('5', 'Post-doc'),
 )
 
 REPONSE = (
@@ -172,7 +172,7 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     montant_allocation_unique = models.IntegerField(
                         verbose_name=u"Montant allocation unique", 
                         blank=True, null=True)    
-    conformites = models.ManyToManyField("TypeConformite", verbose_name=u"Confirmités à demander",
+    conformites = models.ManyToManyField("TypeConformite", verbose_name=u"Conformités à demander",
                                          blank=True, null=True)
     types_piece = models.ManyToManyField("TypePiece", verbose_name=u"Types de pièces à demander",
                                           blank=True, null=True)
@@ -255,9 +255,16 @@ class NiveauEtude(models.Model):
     """
     Nombre d'années universitaires.
     """
+    nom = models.CharField(max_length=255, verbose_name=u"nom",)
     annees = models.CharField(max_length=2, 
                         verbose_name=u"Nombre d'années universitaires", )
-    nom = models.CharField(max_length=255, verbose_name=u"nom",)
+
+    class Meta:
+        verbose_name = "niveau d'études"
+        verbose_name_plural = "niveaux d'études"
+
+    def __unicode__(self):
+        return self.nom
 
 class Note(models.Model):
     """
@@ -448,7 +455,7 @@ class DossierFaculte(models.Model):
     autre_etablissement_adresse = models.CharField(max_length=255,
                         verbose_name=u"Adresse", blank=True, null=True)
     autre_etablissement_code_postal = models.CharField(max_length=255,
-                        verbose_name=u"Code poste", blank=True, null=True)
+                        verbose_name=u"Code postal", blank=True, null=True)
     autre_etablissement_ville = models.CharField(max_length=255,
                         verbose_name=u"Ville", blank=True, null=True)
     autre_etablissement_region = models.CharField(max_length=255,
@@ -555,6 +562,14 @@ class Public(models.Model):
     """
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
 
+    class Meta:
+        verbose_name = "public visé"
+        verbose_name_plural = "publics visés"
+
+    def __unicode__(self):
+        return self.nom
+
+
 class Intervention(models.Model):
     """
     """
@@ -589,7 +604,7 @@ class DossierMobilite(models.Model):
                         blank=True, null=True)
     formation_en_cours_niveau = models.ForeignKey(NiveauEtude, 
                         related_name="formation_en_cours_niveau", 
-                        verbose_name=u"Niveau d'étude", blank=True, null=True)
+                        verbose_name=u"Niveau d'études", blank=True, null=True)
 
     # Programme de mission
     type_intervention = models.ForeignKey(Intervention, 
@@ -621,7 +636,7 @@ class DossierMobilite(models.Model):
                         verbose_name=u"Diplôme demandé", blank=True, null=True)
     diplome_demande_niveau = models.ForeignKey(NiveauEtude, 
                         related_name="diplome_demande_niveau", 
-                        verbose_name=u"Niveau d'étude", blank=True, null=True)
+                        verbose_name=u"Niveau d'études", blank=True, null=True)
     
     # Thèse
     these_date_inscription = models.DateField(
@@ -674,7 +689,7 @@ class Diplome(models.Model):
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     niveau = models.ForeignKey(NiveauEtude, related_name="niveau", 
-                        verbose_name=u"Niveau d'étude", 
+                        verbose_name=u"Niveau d'études", 
                         blank=True, null=True)
 
     # Etablissement connu de l'AUF
@@ -731,12 +746,12 @@ class AttributWCS(models.Model):
         return u"%s" % self.attribut
 
 class GroupeRegional(models.Model):
-    region = models.ForeignKey(Region)
-    users = models.ManyToManyField('auth.User', related_name="groupes_regionaux", verbose_name=u"Membres", blank=True, null=True)
+    region = models.ForeignKey(Region, verbose_name="région")
+    users = models.ManyToManyField('auth.User', related_name="groupes_regionaux", verbose_name=u"membres", blank=True, null=True)
     
     class Meta:
-        verbose_name = u"Groupe régional"
-        verbose_name_plural = "Groupes régionaux"
+        verbose_name = u"groupe régional"
+        verbose_name_plural = "groupes régionaux"
 
     def __unicode__(self):
         return self.region.nom

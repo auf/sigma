@@ -193,12 +193,14 @@ class DossierMobiliteInline(admin.StackedInline):
                        'these_type',
                        'these_type_autre')
         }),
-        ('Directeur thèse accueil', {
-            'fields': (('dir_acc_civilite', 'dir_acc_nom', 'dir_acc_prenom'),)
+        ("Directeur de thèse à l'origine", {
+            'fields': ('dir_ori_civilite', 
+                       ('dir_ori_nom', 'dir_ori_prenom'))
         }),
-        ('Directeur thèse origin', {
-            'fields': (('dir_ori_civilite', 'dir_ori_nom', 'dir_ori_prenom'),)
-        })
+        ("Directeur de thèse à l'accueil", {
+            'fields': ('dir_acc_civilite', 
+                       ('dir_acc_nom', 'dir_acc_prenom'))
+        }),
     )
 
 
