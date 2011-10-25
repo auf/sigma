@@ -1,9 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-from django.utils.safestring import SafeUnicode
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from project.sigma import models as sigma
-from models import MODELES_SIGMA
 
 class Importeur(object):
 
@@ -12,7 +10,6 @@ class Importeur(object):
         self.wcs_data = wcs_data
         self.appel = appel
         self.forms = {}
-
 
     def map_wcs2sigma(self):
         """
@@ -27,18 +24,14 @@ class Importeur(object):
                 mapped_data[classname][attribut] = v
         return mapped_data
     
-
     def preprocess(self):
         """
         Construction des forms à partir des data.
         """
         mapped_data = self.map_wcs2sigma()
-
-        # Cas particulier pour dossier vide
-        if 'Dossier' not in mapped_data:
-            mapped_data['Dossier'] = {}
-
-        for classname, data in mapped_data.items():
+        for classname in ['Dossier', 'Candidat', 'Diplome', 'DossierOrigine',
+                          'DossierAccueil', 'DossierMobilite', 'Piece']:
+            data = mapped_data.get(classname, {})
             form_name = "%sForm" % classname
             klass = getattr(self.mapping_module, form_name)
             files = {}
@@ -59,29 +52,24 @@ class Importeur(object):
                 errors[classname] = f.errors
         return status, errors
     
-    def dbwrite(self,):
+    def dbwrite(self):
         """
         Écriture des objets en BD si l'objet n'existe pas.
         Établissement des liens entre les objets.
         """
-        if 'Dossier' not in self.forms.keys():
-            return False, {u'Dossier' : u'Aucun mapping'}
-
-        if 'Candidat' not in self.forms.keys():
-            return False, {u'Candidat' : u'Aucun mapping'}
-
-        dossierForm = self.forms['Dossier']
-        candidatForm = self.forms['Candidat']
-        
+        dossierForm = self.forms.pop('Dossier')
+        candidatForm = self.forms.pop('Candidat')
         dossier = dossierForm.save(commit=False)
         candidat = candidatForm.save(commit=False)
 
         # Test la présence d'un dossier similaire
-        test = sigma.Dossier.objects.filter(appel=self.appel, candidat__nom=candidat.nom, candidat__prenom=candidat.prenom)
-        if len(test) > 0:    
+        test = sigma.Dossier.objects.filter(
+            appel=self.appel, 
+            candidat__nom=candidat.nom, 
+            candidat__prenom=candidat.prenom
+        )
+        if len(test) > 0:
             return True, u"Ce dossier a déjà été importé : %s" % test[0]
-            return
-
 
         # Création des objets et de leurs relations
         dossier.appel = self.appel
@@ -91,34 +79,19 @@ class Importeur(object):
         candidat.save()
 
         if self.forms.has_key('Piece'):
-            pieceForm = self.forms['Piece']
+            pieceForm = self.forms.pop('Piece')
             instances = pieceForm.save(commit=False)
             for instance in instances:
                 instance.dossier = dossier
                 instance.save()
 
-        # OneToOneFields, si ces objets ne sont pas en BD, la suppression dans l'admin est brisée
-        try:
-            dossier.origine
-        except:
-            origine = sigma.DossierOrigine()
-            origine.dossier = dossier
-            origine.save()
+        for key, form in self.forms.iteritems():
+            instance = form.save(commit=False)
+            instance.dossier = dossier
+            if key in ['DossierOrigine', 'DossierAccueil'] and instance.etablissement:
+                instance.pays = instance.etablissement.pays
+            instance.save()
 
-        try:
-            dossier.accueil
-        except:
-            accueil = sigma.DossierAccueil()
-            accueil.dossier = dossier
-            accueil.save()
-    
-        try:
-            dossier.mobilite
-        except:
-            mobilite = sigma.DossierMobilite()
-            mobilite.dossier = dossier
-            mobilite.save()
-            
         # Copie des données WCS
         for k, v in self.wcs_data.items():
             data = sigma.AttributWCS()
