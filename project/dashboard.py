@@ -26,17 +26,23 @@ class CustomIndexDashboard(Dashboard):
     def init_with_context(self, context):
         site_name = get_admin_site_name(context)
 
-        # append an app list module for "Applications"
-        self.children.append(modules.AppList(
-            _('Applications'),
-            exclude=('django.contrib.*',),
-        ))
-
-        # append an app list module for "Administration"
-        self.children.append(modules.AppList(
-            _('Administration'),
-            models=('django.contrib.*',),
-        ))
+        self.children.append(modules.ModelList('SIGMA', [
+            'sigma.models.Appel',
+            'sigma.models.Dossier',
+            'suivi.models.Boursier'
+        ]))
+        self.children.append(modules.ModelList('Configuration', [
+            'sigma.models.NiveauEtude',
+            'sigma.models.Public',
+            'sigma.models.TypeConformite',
+            'sigma.models.TypePiece'
+        ]))
+        self.children.append(modules.ModelList('Utilisateurs', [
+            'django.contrib.auth.models.User',
+            'django.contrib.auth.models.Group',
+            'sigma.models.GroupeRegional',
+            'sigma.models.Expert'
+        ]))
 
         # append a recent actions module
         self.children.append(modules.RecentActions(_('Recent Actions'), 5))
