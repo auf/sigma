@@ -312,6 +312,11 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     def queryset(self, request):
         return Dossier.objects.region(request.user).select_related('appel', 'mobilite', 'candidat')
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'experts':
+            kwargs['queryset'] = Expert.objects.region(request.user)
+        return super(DossierAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        
     def get_form(self, request, obj=None, **kwargs):
         form = super(DossierAdmin, self).get_form(request, obj, **kwargs)
         if form.declared_fields.has_key('appel'):
