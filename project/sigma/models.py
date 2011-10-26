@@ -177,6 +177,9 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     types_piece = models.ManyToManyField("TypePiece", verbose_name=u"Types de pièces à demander",
                                           blank=True, null=True)
 
+    class Meta:
+        ordering = ['nom']
+
     def __unicode__(self):
         return self.nom
 
@@ -261,6 +264,7 @@ class NiveauEtude(models.Model):
     class Meta:
         verbose_name = "niveau d'études"
         verbose_name_plural = "niveaux d'études"
+        ordering = ['nom']
 
     def __unicode__(self):
         return self.nom
@@ -374,6 +378,9 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     # ce champs est système, il est saisi dans la partie mobilité mais il est copié ici pour pouvoir être filtré
     discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline", blank=True, null=True)
     
+    class Meta:
+        ordering = ['appel__nom', 'candidat__nom', 'candidat__prenom']
+
     def __unicode__(self, ):
         try:
             candidat = u"%s pour l'" % self.candidat
@@ -564,6 +571,7 @@ class Public(models.Model):
     class Meta:
         verbose_name = "public visé"
         verbose_name_plural = "publics visés"
+        ordering = ['nom']
 
     def __unicode__(self):
         return self.nom
@@ -716,6 +724,7 @@ class TypePiece(models.Model):
     class Meta:
         verbose_name = 'type de pièce'
         verbose_name_plural = 'types de pièces'
+        ordering = ['nom']
 
 class Piece(models.Model):
     """
@@ -751,6 +760,7 @@ class GroupeRegional(models.Model):
     class Meta:
         verbose_name = u"groupe régional"
         verbose_name_plural = "groupes régionaux"
+        ordering = ['region__nom']
 
     def __unicode__(self):
         return self.region.nom
