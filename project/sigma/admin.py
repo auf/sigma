@@ -51,9 +51,9 @@ class AppelAdmin(WorkflowAdmin):
                 'bareme',
                 ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
                 ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
-                'montant_prime_installation',
                 ('montant_perdiem_sud', 'montant_perdiem_nord'),
                 'montant_allocation_unique',
+                'montant_prime_installation',
                 'appel_en_ligne',
                 'etat',
                 'conformites',
@@ -62,6 +62,9 @@ class AppelAdmin(WorkflowAdmin):
         }),
     )
     filter_horizontal = ['conformites', 'types_piece']
+
+    class Media:
+        js = ("js/appel.js",)
 
     def _actions(self, obj):
         dossiers_url = "<a href='%s?appel=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
