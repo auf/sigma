@@ -86,7 +86,7 @@ class Expert(models.Model):
         ordering = ['nom', 'prenom']
 
     def __unicode__(self):
-        return "%s, %s (%d)" %(self.nom, self.prenom, self.id)
+        return "%s %s" %(self.prenom, self.nom)
 
 class UserProfile(models.Model):
     user = models.ForeignKey("auth.User", unique=True)
