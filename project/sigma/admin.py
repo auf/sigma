@@ -32,7 +32,6 @@ class DossierConformiteAdmin(admin.TabularInline):
     can_delete = False
 
 class TypeConformiteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'field_type',  )
     form = TypeConformiteForm
 
 class AppelAdmin(WorkflowAdmin):
