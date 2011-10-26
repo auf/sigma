@@ -37,8 +37,8 @@ class TypeConformiteAdmin(admin.ModelAdmin):
 
 
 class AppelAdmin(WorkflowAdmin):
-    list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
-    list_filter = ('region', 'etat')
+    list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', '_actions', )
+    list_filter = ('region', )
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = (
         (None, {
@@ -57,9 +57,9 @@ class AppelAdmin(WorkflowAdmin):
                 'montant_allocation_unique',
                 'montant_prime_installation',
                 'appel_en_ligne',
-                'etat',
                 'conformites',
                 'types_piece',
+                'etat',
             )
         }),
     )
@@ -249,29 +249,6 @@ class DiplomeInline(admin.StackedInline):
         }),
 
     )
-    
-
-class ProxyExpert(Expert.dossiers.through):
-    """
-    Ce proxy sert uniquement dans l'admin à disposer d'un libellé
-    plus ergonomique.
-    """
-
-    class Meta:
-        proxy=True
-        verbose_name = u"Expert"
-        verbose_name_plural = u"Experts"
-
-    def __unicode__(self):
-        return u""
-
-
-class ExpertInline(admin.TabularInline):
-    model = ProxyExpert
-    extra = 0
-    max_num = 0
-    verbose_name = u"Expert"
-    verbose_name_plural = u"Experts"
 
 
 def affecter_dossiers_expert(modeladmin, request, queryset):
@@ -281,7 +258,7 @@ affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s
     
 class DossierAdmin(WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, ExpertInline)
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin)
     list_display = ('appel', 'nom', 'prenom', 'etat', 'moyenne_votes', 'action_column')
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
@@ -297,7 +274,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
             'fields': ('appel', ),
         }),
         ('État du dossier', {
-            'fields': ('etat', ),
+            'fields': ('etat', 'experts'),
         }),
         ('Situation universitaire', {
             'fields': ('candidat_statut', 'candidat_fonction', ),
@@ -306,8 +283,8 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
             'fields': ('dernier_projet_description', 'dernier_projet_annee', 'derniere_bourse_categorie', 'derniere_bourse_annee',),
         }),
     )
-    
     actions = [affecter_dossiers_expert]
+    filter_horizontal = ['experts']
 
     
     def _naissance_date(self, obj):
@@ -432,7 +409,6 @@ class ExpertAdmin(admin.ModelAdmin):
     list_display_links = ('nom', 'prenom')
     list_filter = ('region', 'disciplines')
     search_fields = ('nom', 'prenom', 'courriel')
-    exclude = ('dossiers',)
     fieldsets = (
         (None, {
             'fields': (

@@ -77,14 +77,10 @@ class Expert(models.Model):
                         verbose_name=u"Établissement", 
                         blank=True, null=True)
     commentaire = models.TextField(null=True, blank=True)
-    actif = models.BooleanField()
+    actif = models.BooleanField(default=True)
     disciplines = models.ManyToManyField(Discipline, 
                         verbose_name=u"Disciplines", 
                         blank=True, null=True)
-    dossiers = models.ManyToManyField('Dossier',
-                                      verbose_name='Dossiers', 
-                                      related_name="experts",
-                                      blank=True, null=True)
     
     class Meta:
         ordering = ['nom', 'prenom']
@@ -380,6 +376,8 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
     # ce champs est système, il est saisi dans la partie mobilité mais il est copié ici pour pouvoir être filtré
     discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline", blank=True, null=True)
+    experts = models.ManyToManyField(Expert, verbose_name=u'Experts', 
+                                     related_name="dossiers", blank=True)
     
     class Meta:
         ordering = ['appel__nom', 'candidat__nom', 'candidat__prenom']
