@@ -197,12 +197,11 @@ class Candidat(models.Model):
     civilite = models.CharField(max_length=2, verbose_name=u"Civilité", 
                         choices=CIVILITE,
                         blank=True, null=True)
-    nom = models.CharField(max_length=255, verbose_name=u"Nom",
-                            help_text=u"EN MAJUSCULES")
+    nom = models.CharField(max_length=255, verbose_name=u"Nom")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     nom_jeune_fille = models.CharField(max_length=255, 
                         verbose_name=u"Nom de jeune fille", 
-                        blank=True, null=True, help_text=u"EN MAJUSCULES")
+                        blank=True, null=True)
 
     # identification avancée personne
     nationalite = models.ForeignKey(Pays, verbose_name=u"Nationalité", 

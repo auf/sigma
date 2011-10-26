@@ -31,8 +31,10 @@ class DossierConformiteAdmin(admin.TabularInline):
     max_num = 0
     can_delete = False
 
+
 class TypeConformiteAdmin(admin.ModelAdmin):
     form = TypeConformiteForm
+
 
 class AppelAdmin(WorkflowAdmin):
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
@@ -248,6 +250,7 @@ class DiplomeInline(admin.StackedInline):
 
     )
     
+
 class ProxyExpert(Expert.dossiers.through):
     """
     Ce proxy sert uniquement dans l'admin à disposer d'un libellé
@@ -261,6 +264,7 @@ class ProxyExpert(Expert.dossiers.through):
 
     def __unicode__(self):
         return u""
+
 
 class ExpertInline(admin.TabularInline):
     model = ProxyExpert
@@ -424,10 +428,24 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
 
 
 class ExpertAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nom', 'prenom', '_region', '_disciplines')
+    list_display = ('nom', 'prenom', '_region', '_disciplines')
+    list_display_links = ('nom', 'prenom')
     list_filter = ('region', 'disciplines')
     search_fields = ('nom', 'prenom', 'courriel')
     exclude = ('dossiers',)
+    fieldsets = (
+        (None, {
+            'fields': (
+                ('prenom', 'nom'),
+                'courriel',
+                'region',
+                'etablissement',
+                'disciplines',
+                'commentaire',
+            )
+        }),
+    )
+    filter_horizontal = ['disciplines']
 
     def queryset(self, request):
         return Expert.objects.region(request.user)
@@ -451,8 +469,10 @@ class ExpertAdmin(admin.ModelAdmin):
         return ', '.join([d.nom for d in obj.disciplines.all()])
     _disciplines.short_description = "Disciplines"
 
+
 class GroupeRegionalAdmin(admin.ModelAdmin):
     form = GroupeRegionalAdminForm
+
 
 class AttributWCSAdmin(admin.ModelAdmin):
     search_fields = ('dossier__id', )
@@ -461,6 +481,7 @@ class AttributWCSAdmin(admin.ModelAdmin):
     def _dossier(self, obj):
         return obj.dossier.id
     
+
 admin.site.register(TypePiece)
 admin.site.register(AttributWCS, AttributWCSAdmin)
 admin.site.register(Appel, AppelAdmin)
