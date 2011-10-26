@@ -86,6 +86,9 @@ class Expert(models.Model):
                                       related_name="experts",
                                       blank=True, null=True)
     
+    class Meta:
+        ordering = ['nom', 'prenom']
+
     def __unicode__(self):
         return "%s, %s (%d)" %(self.nom, self.prenom, self.id)
 
