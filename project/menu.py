@@ -50,7 +50,8 @@ class CustomMenu(Menu):
             items.MenuItem('Sigma', children=[
                 items.MenuItem('Appels', reverse('admin:sigma_appel_changelist')),
                 items.MenuItem('Dossiers', reverse('admin:sigma_dossier_changelist')),
-                items.MenuItem('Boursiers', reverse('admin:suivi_boursier_changelist'))
+                items.MenuItem('Boursiers', reverse('admin:suivi_boursier_changelist')),
+                items.MenuItem('Experts', reverse('admin:sigma_expert_changelist'))
             ])
         ]
 

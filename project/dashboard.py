@@ -29,7 +29,8 @@ class CustomIndexDashboard(Dashboard):
         self.children.append(modules.ModelList('SIGMA', [
             'sigma.models.Appel',
             'sigma.models.Dossier',
-            'suivi.models.Boursier'
+            'suivi.models.Boursier',
+            'sigma.models.Expert'
         ]))
         self.children.append(modules.ModelList('Configuration', [
             'sigma.models.NiveauEtude',
@@ -41,7 +42,6 @@ class CustomIndexDashboard(Dashboard):
             'django.contrib.auth.models.User',
             'django.contrib.auth.models.Group',
             'sigma.models.GroupeRegional',
-            'sigma.models.Expert'
         ]))
 
         # append a recent actions module
