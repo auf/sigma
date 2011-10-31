@@ -14,7 +14,7 @@ def mes_disciplines(request, ):
         form = DisciplineForm(data=request.POST, instance=request.user.profile)
         if form.is_valid():
             form.save()
-            request.user.message_set.create(message="Les disciplines ont été enregistrées.")
+            messages.success(request, "Les disciplines ont été enregistrées.")
             return redirect(reverse('admin:index'))
     else:
         form = DisciplineForm(instance=request.user.profile)
@@ -33,8 +33,7 @@ def evaluer(request, dossier_id):
 
         if noteForm.is_valid():
             noteForm.save()
-            message = "Les notes ont été enregistrées."
-            request.user.message_set.create(message=message)
+            messages.success(request, "Les notes ont été enregistrées.")
 
         if commentaireForm.is_valid():
             commentaire = commentaireForm.save(commit=False)
@@ -43,13 +42,11 @@ def evaluer(request, dossier_id):
             commentaire.save()
             dossier.annotations.add(commentaire)
             dossier.save()
-            message = "Le commentaire a été ajouté."
-            request.user.message_set.create(message=message)
+            messages.success(request, "Le commentaire a été ajouté.")
 
         if  evaluationForm.is_valid():
             evaluationForm.save()
-            message = "Les évaluations ont été enregistrées."
-            request.user.message_set.create(message=message)
+            messages.success(request, "Les évaluations ont été enregistrées.")
 
         return redirect(reverse('evaluer', args=[dossier.id]))
     else:
@@ -74,7 +71,7 @@ def supprimer_mon_commentaire(request, note_id):
     dossier_url = reverse('evaluer', args=[dossier.id])
     if request.user == commentaire.user:
         commentaire.delete()
-        request.user.message_set.create(message="Votre commentaire a été supprimé.")
+        messages.success(request, "Votre commentaire a été supprimé.")
     return redirect(dossier_url)
     
 @login_required 
@@ -86,7 +83,7 @@ def affecter_experts_dossiers(request):
         form = ExpertForm(request.POST, dossiers=dossiers)
         if form.is_valid():
             form.save()
-            messages.add_message(request, messages.SUCCESS, "Les experts ont été affectés aux dossiers.")
+            messages.success(request, "Les experts ont été affectés aux dossiers.")
             return redirect("admin:sigma_dossier_changelist")
     else:
         form = ExpertForm(dossiers=dossiers)
