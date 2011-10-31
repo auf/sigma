@@ -44,17 +44,15 @@ class CustomMenu(Menu):
         Menu.__init__(self, **kwargs)
         self.children += [
             items.MenuItem(_('Dashboard'), reverse('admin:index')),
-            # Désativer Mes Disciplines pour les experts
+            # Désactiver Mes Disciplines pour les experts
             #MonCompteMenuItem(),
             items.Bookmarks(),
-            items.AppList(
-                _('Applications'),
-                exclude=('django.contrib.*',)
-            ),
-            items.AppList(
-                _('Administration'),
-                models=('django.contrib.*',)
-            )
+            items.MenuItem('Sigma', children=[
+                items.MenuItem('Appels', reverse('admin:sigma_appel_changelist')),
+                items.MenuItem('Dossiers', reverse('admin:sigma_dossier_changelist')),
+                items.MenuItem('Boursiers', reverse('admin:suivi_boursier_changelist')),
+                items.MenuItem('Experts', reverse('admin:sigma_expert_changelist'))
+            ])
         ]
 
     def init_with_context(self, context):

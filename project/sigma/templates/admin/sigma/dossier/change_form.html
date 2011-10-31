@@ -32,7 +32,6 @@
 {% comment %}Mobilité{% endcomment %}{% with inline_admin_formsets.4 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
 {% comment %}Lien avec l'AUF{% endcomment %}{% for fieldset in adminform %}{% if forloop.counter == 4 %}{% include "admin/includes/fieldset.html" %}{% endif %}{% endfor %}
 {% comment %}Conformité{% endcomment %}{% with inline_admin_formsets.5 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
-{% comment %}Experts{% endcomment %}{% with inline_admin_formsets.6 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
 {% comment %}État du dossier{% endcomment %}{% for fieldset in adminform %}{% if forloop.counter == 2 %}{% include "admin/includes/fieldset.html" %}{% endif %}{% endfor %}
 
 {% submit_row %}

@@ -22,7 +22,7 @@ class BoursierAdminForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BoursierAdminForm, self).__init__(*args, **kwargs)
         if self.instance is not None:
-            code_budgetaire  = self.instance.dossier.appel.code_budgetaire
+            code_budgetaire  = self.instance.dossier.appel.code_budgetaire.code
             max_code_boursier = Boursier.objects \
                     .filter(code_operation__startswith=code_budgetaire) \
                     .order_by('-code_operation')[:1]
@@ -44,7 +44,7 @@ class BoursierAdminForm(ModelForm):
         code_operation = self.cleaned_data['code_operation']
         boursier = self.instance
         if boursier and code_operation:
-            code_budgetaire = boursier.dossier.appel.code_budgetaire
+            code_budgetaire = boursier.dossier.appel.code_budgetaire.code
 
             # Vérifier le format du code opération
             if not code_operation.startswith(code_budgetaire) or \

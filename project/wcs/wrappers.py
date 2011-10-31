@@ -117,7 +117,7 @@ class WCSAppel(WCS):
         dossier_json = self._retrieve(url)
         dossier_data = json.loads(dossier_json)
         for k, v in dossier_data.items():
-            if isinstance(v, str) and v.startswith(d):
+            if isinstance(v, basestring) and v.startswith(d):
                 fic_url = "%s/data/%s" % (appel_nom, v)
                 raw_file = self._retrieve(fic_url)
                 f = StringIO.StringIO(raw_file)

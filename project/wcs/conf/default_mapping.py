@@ -5,153 +5,167 @@ from project.sigma import models as sigma
 
 MAPPING = {
 
-    # Module : Dossier
-    'sigma|Dossier|moyenne_votes' : ('Dossier', 'moyenne_votes') ,
-    'sigma|Dossier|id' : ('Dossier', 'id') ,
-    'sigma|Dossier|discipline' : ('Dossier', 'discipline') ,
-    'sigma|Dossier|derniere_bourse_annee' : ('Dossier', 'derniere_bourse_annee') ,
-    'sigma|Dossier|opportunite_regionale' : ('Dossier', 'opportunite_regionale') ,
-    'sigma|Dossier|etat' : ('Dossier', 'etat') ,
-    'sigma|Dossier|dernier_projet_description' : ('Dossier', 'dernier_projet_description') ,
-    'sigma|Dossier|appel' : ('Dossier', 'appel') ,
-    'sigma|Dossier|bureau_rattachement' : ('Dossier', 'bureau_rattachement') ,
-    'sigma|Dossier|dernier_projet_annee' : ('Dossier', 'dernier_projet_annee') ,
-    'sigma|Dossier|derniere_bourse_categorie' : ('Dossier', 'derniere_bourse_categorie') ,
-    'sigma|Dossier|candidat_statut' : ('Dossier', 'candidat_statut') ,
-    'sigma|Dossier|moyenne_academique' : ('Dossier', 'moyenne_academique') ,
-    'sigma|Dossier|candidat_fonction' : ('Dossier', 'candidat_fonction') ,
-    
+    # Identification
+    'sigma_civilite': ('Candidat', 'civilite'),
+    'sigma_prenom': ('Candidat', 'prenom'),
+    'sigma_nom': ('Candidat', 'nom'),
+    'sigma_nom_jeune_fille': ('Candidat', 'nom_jeune_fille'),
+    'sigma_nationalite': ('Candidat', 'nationalite'),
+    'sigma_ville_naissance': ('Candidat', 'naissance_ville'),
+    'sigma_date_naissance': ('Candidat', 'naissance_date'),
 
-    # Module : DossierAccueil
-    'sigma|DossierAccueil|autre_etablissement_adresse' : ('DossierAccueil', 'autre_etablissement_adresse') ,
-    'sigma|DossierAccueil|resp_inst_telephone' : ('DossierAccueil', 'resp_inst_telephone') ,
-    'sigma|DossierAccueil|autre_etablissement_code_postal' : ('DossierAccueil', 'autre_etablissement_code_postal') ,
-    'sigma|DossierAccueil|autre_etablissement_nom' : ('DossierAccueil', 'autre_etablissement_nom') ,
-    'sigma|DossierAccueil|etablissement' : ('DossierAccueil', 'etablissement') ,
-    'sigma|DossierAccueil|faculte_telephone' : ('DossierAccueil', 'faculte_telephone') ,
-    'sigma|DossierAccueil|resp_sc_fonction' : ('DossierAccueil', 'resp_sc_fonction') ,
-    'sigma|DossierAccueil|autre_etablissement_erreur' : ('DossierAccueil', 'autre_etablissement_erreur') ,
-    'sigma|DossierAccueil|resp_sc_nom' : ('DossierAccueil', 'resp_sc_nom') ,
-    'sigma|DossierAccueil|faculte_url' : ('DossierAccueil', 'faculte_url') ,
-    'sigma|DossierAccueil|resp_sc_civilite' : ('DossierAccueil', 'resp_sc_civilite') ,
-    'sigma|DossierAccueil|resp_sc_telephone' : ('DossierAccueil', 'resp_sc_telephone') ,
-    'sigma|DossierAccueil|faculte_adresse' : ('DossierAccueil', 'faculte_adresse') ,
-    'sigma|DossierAccueil|resp_inst_fax' : ('DossierAccueil', 'resp_inst_fax') ,
-    'sigma|DossierAccueil|dossier' : ('DossierAccueil', 'dossier') ,
-    'sigma|DossierAccueil|faculte_fax' : ('DossierAccueil', 'faculte_fax') ,
-    'sigma|DossierAccueil|resp_inst_fonction' : ('DossierAccueil', 'resp_inst_fonction') ,
-    'sigma|DossierAccueil|faculte_code_postal' : ('DossierAccueil', 'faculte_code_postal') ,
-    'sigma|DossierAccueil|resp_inst_nom' : ('DossierAccueil', 'resp_inst_nom') ,
-    'sigma|DossierAccueil|resp_inst_prenom' : ('DossierAccueil', 'resp_inst_prenom') ,
-    'sigma|DossierAccueil|faculte_nom' : ('DossierAccueil', 'faculte_nom') ,
-    'sigma|DossierAccueil|resp_inst_civilite' : ('DossierAccueil', 'resp_inst_civilite') ,
-    'sigma|DossierAccueil|autre_etablissement_pays' : ('DossierAccueil', 'autre_etablissement_pays') ,
-    'sigma|DossierAccueil|resp_sc_fax' : ('DossierAccueil', 'resp_sc_fax') ,
-    'sigma|DossierAccueil|id' : ('DossierAccueil', 'id') ,
-    'sigma|DossierAccueil|faculte_courriel' : ('DossierAccueil', 'faculte_courriel') ,
-    'sigma|DossierAccueil|resp_inst_courriel' : ('DossierAccueil', 'resp_inst_courriel') ,
-    'sigma|DossierAccueil|resp_sc_prenom' : ('DossierAccueil', 'resp_sc_prenom') ,
-    'sigma|DossierAccueil|resp_sc_courriel' : ('DossierAccueil', 'resp_sc_courriel') ,
-    'sigma|DossierAccueil|autre_etablissement_ville' : ('DossierAccueil', 'autre_etablissement_ville') ,
-    'sigma|DossierAccueil|autre_etablissement_valide' : ('DossierAccueil', 'autre_etablissement_valide') ,
-    'sigma|DossierAccueil|autre_etablissement_region' : ('DossierAccueil', 'autre_etablissement_region') ,
-    'sigma|DossierAccueil|faculte_ville' : ('DossierAccueil', 'faculte_ville') ,
+    # Coordonnées
+    'sigma_adresse': ('Candidat', 'adresse'),
+    'sigma_ville': ('Candidat', 'ville'),
+    'sigma_code_postal': ('Candidat', 'code_postal'),
+    'sigma_region': ('Candidat', 'region'),
+    'sigma_pays': ('Candidat', 'pays'),
+    'sigma_telephone_perso': ('Candidat', 'telephone_perso'),
+    'sigma_telephone_pro': ('Candidat', 'telephone_pro'),
+    'sigma_courriel_perso': ('Candidat', 'courriel_perso'),
+    'sigma_courriel_pro': ('Candidat', 'courriel_pro'),
     
+    # Situation universitaire
+    'sigma_statut_candidat': ('Dossier', 'candidat_statut'),
+    'sigma_fonction': ('Dossier', 'candidat_fonction'),
 
-    # Module : DossierOrigine
-    'sigma|DossierOrigine|autre_etablissement_ville' : ('DossierOrigine', 'autre_etablissement_ville') ,
-    'sigma|DossierOrigine|id' : ('DossierOrigine', 'id') ,
-    'sigma|DossierOrigine|autre_etablissement_code_postal' : ('DossierOrigine', 'autre_etablissement_code_postal') ,
-    'sigma|DossierOrigine|resp_inst_civilite' : ('DossierOrigine', 'resp_inst_civilite') ,
-    'sigma|DossierOrigine|faculte_courriel' : ('DossierOrigine', 'faculte_courriel') ,
-    'sigma|DossierOrigine|resp_sc_telephone' : ('DossierOrigine', 'resp_sc_telephone') ,
-    'sigma|DossierOrigine|autre_etablissement_pays' : ('DossierOrigine', 'autre_etablissement_pays') ,
-    'sigma|DossierOrigine|resp_sc_fonction' : ('DossierOrigine', 'resp_sc_fonction') ,
-    'sigma|DossierOrigine|resp_inst_prenom' : ('DossierOrigine', 'resp_inst_prenom') ,
-    'sigma|DossierOrigine|resp_sc_fax' : ('DossierOrigine', 'resp_sc_fax') ,
-    'sigma|DossierOrigine|autre_etablissement_adresse' : ('DossierOrigine', 'autre_etablissement_adresse') ,
-    'sigma|DossierOrigine|resp_inst_telephone' : ('DossierOrigine', 'resp_inst_telephone') ,
-    'sigma|DossierOrigine|dossier' : ('DossierOrigine', 'dossier') ,
-    'sigma|DossierOrigine|faculte_nom' : ('DossierOrigine', 'faculte_nom') ,
-    'sigma|DossierOrigine|resp_sc_prenom' : ('DossierOrigine', 'resp_sc_prenom') ,
-    'sigma|DossierOrigine|resp_sc_civilite' : ('DossierOrigine', 'resp_sc_civilite') ,
-    'sigma|DossierOrigine|resp_inst_fonction' : ('DossierOrigine', 'resp_inst_fonction') ,
-    'sigma|DossierOrigine|etablissement' : ('DossierOrigine', 'etablissement') ,
-    'sigma|DossierOrigine|autre_etablissement_erreur' : ('DossierOrigine', 'autre_etablissement_erreur') ,
-    'sigma|DossierOrigine|resp_inst_courriel' : ('DossierOrigine', 'resp_inst_courriel') ,
-    'sigma|DossierOrigine|autre_etablissement_nom' : ('DossierOrigine', 'autre_etablissement_nom') ,
-    'sigma|DossierOrigine|autre_etablissement_region' : ('DossierOrigine', 'autre_etablissement_region') ,
-    'sigma|DossierOrigine|resp_sc_nom' : ('DossierOrigine', 'resp_sc_nom') ,
-    'sigma|DossierOrigine|faculte_adresse' : ('DossierOrigine', 'faculte_adresse') ,
-    'sigma|DossierOrigine|faculte_telephone' : ('DossierOrigine', 'faculte_telephone') ,
-    'sigma|DossierOrigine|resp_inst_nom' : ('DossierOrigine', 'resp_inst_nom') ,
-    'sigma|DossierOrigine|faculte_fax' : ('DossierOrigine', 'faculte_fax') ,
-    'sigma|DossierOrigine|faculte_url' : ('DossierOrigine', 'faculte_url') ,
-    'sigma|DossierOrigine|resp_sc_courriel' : ('DossierOrigine', 'resp_sc_courriel') ,
-    'sigma|DossierOrigine|faculte_ville' : ('DossierOrigine', 'faculte_ville') ,
-    'sigma|DossierOrigine|autre_etablissement_valide' : ('DossierOrigine', 'autre_etablissement_valide') ,
-    'sigma|DossierOrigine|faculte_code_postal' : ('DossierOrigine', 'faculte_code_postal') ,
-    'sigma|DossierOrigine|resp_inst_fax' : ('DossierOrigine', 'resp_inst_fax') ,
-    
+    # Diplôme
+    'sigma_diplome': ('Diplome', 'nom'),
+    'sigma_diplome_date': ('Diplome', 'date'),
+    'sigma_diplome_niveau': ('Diplome', 'niveau'),
+    'sigma_diplome_etablissement': ('Diplome', 'etablissement'),
+    'sigma_diplome_autre_etablissement': ('Diplome', 'autre_etablissement_nom'),
+    'sigma_diplome_autre_etablissement_pays': ('Diplome', 'autre_etablissement_pays'),
 
-    # Module : Candidat
-    'sigma|Candidat|telephone_pro' : ('Candidat', 'telephone_pro') ,
-    'sigma|Candidat|naissance_date' : ('Candidat', 'naissance_date') ,
-    'sigma|Candidat|telephone_perso' : ('Candidat', 'telephone_perso') ,
-    'sigma|Candidat|dossier' : ('Candidat', 'dossier') ,
-    'sigma|Candidat|pays' : ('Candidat', 'pays') ,
-    'sigma|Candidat|region' : ('Candidat', 'region') ,
-    'sigma|Candidat|courriel_perso' : ('Candidat', 'courriel_perso') ,
-    'sigma|Candidat|adresse' : ('Candidat', 'adresse') ,
-    'sigma|Candidat|naissance_ville' : ('Candidat', 'naissance_ville') ,
-    'sigma|Candidat|nom_jeune_fille' : ('Candidat', 'nom_jeune_fille') ,
-    'sigma|Candidat|prenom' : ('Candidat', 'prenom') ,
-    'sigma|Candidat|code_postal' : ('Candidat', 'code_postal') ,
-    'sigma|Candidat|id' : ('Candidat', 'id') ,
-    'sigma|Candidat|nom' : ('Candidat', 'nom') ,
-    'sigma|Candidat|civilite' : ('Candidat', 'civilite') ,
-    'sigma|Candidat|ville' : ('Candidat', 'ville') ,
-    'sigma|Candidat|date_creation' : ('Candidat', 'date_creation') ,
-    'sigma|Candidat|date_modification' : ('Candidat', 'date_modification') ,
-    'sigma|Candidat|nationalite' : ('Candidat', 'nationalite') ,
-    
+    # Origine
+    'sigma_origine_etablissement': ('DossierOrigine', 'etablissement'),
+    'sigma_origine_autre_etablissement_adresse': ('DossierOrigine', 'autre_etablissement_adresse'),
+    'sigma_origine_autre_etablissement_ville': ('DossierOrigine', 'autre_etablissement_ville'),
+    'sigma_origine_autre_etablissement_code_postal': ('DossierOrigine', 'autre_etablissement_code_postal'),
+    'sigma_origine_autre_etablissement_region': ('DossierOrigine', 'autre_etablissement_region'),
+    'sigma_origine_autre_etablissement_pays': ('DossierOrigine', 'autre_etablissement_pays'),
 
-    # Module : DossierMobilite
-    'sigma|DossierMobilite|these_date_inscription' : ('DossierMobilite', 'these_date_inscription') ,
-    'sigma|DossierMobilite|these_type_autre' : ('DossierMobilite', 'these_type_autre') ,
-    'sigma|DossierMobilite|alternance_nb_mois_origine' : ('DossierMobilite', 'alternance_nb_mois_origine') ,
-    'sigma|DossierMobilite|diplome_demande_nom' : ('DossierMobilite', 'diplome_demande_nom') ,
-    'sigma|DossierMobilite|id' : ('DossierMobilite', 'id') ,
-    'sigma|DossierMobilite|formation_en_cours_niveau' : ('DossierMobilite', 'formation_en_cours_niveau') ,
-    'sigma|DossierMobilite|autres_publics' : ('DossierMobilite', 'autres_publics') ,
-    'sigma|DossierMobilite|diplome_demande_niveau' : ('DossierMobilite', 'diplome_demande_niveau') ,
-    'sigma|DossierMobilite|these_date_obtention_prevue' : ('DossierMobilite', 'these_date_obtention_prevue') ,
-    'sigma|DossierMobilite|dir_ori_civilite' : ('DossierMobilite', 'dir_ori_civilite') ,
-    'sigma|DossierMobilite|these_type' : ('DossierMobilite', 'these_type') ,
-    'sigma|DossierMobilite|date_debut' : ('DossierMobilite', 'date_debut') ,
-    'sigma|DossierMobilite|public_vise' : ('DossierMobilite', 'public_vise') ,
-    'sigma|DossierMobilite|formation_en_cours_diplome' : ('DossierMobilite', 'formation_en_cours_diplome') ,
-    'sigma|DossierMobilite|alternance_accueil_puis_origine' : ('DossierMobilite', 'alternance_accueil_puis_origine') ,
-    'sigma|DossierMobilite|alternance_nb_mois_accueil' : ('DossierMobilite', 'alternance_nb_mois_accueil') ,
-    'sigma|DossierMobilite|duree' : ('DossierMobilite', 'duree') ,
-    'sigma|DossierMobilite|date_fin' : ('DossierMobilite', 'date_fin') ,
-    'sigma|DossierMobilite|intitule_projet' : ('DossierMobilite', 'intitule_projet') ,
-    'sigma|DossierMobilite|type_intervention' : ('DossierMobilite', 'type_intervention') ,
-    'sigma|DossierMobilite|these_soutenance_date' : ('DossierMobilite', 'these_soutenance_date') ,
-    'sigma|DossierMobilite|dir_ori_prenom' : ('DossierMobilite', 'dir_ori_prenom') ,
-    'sigma|DossierMobilite|dir_acc_prenom' : ('DossierMobilite', 'dir_acc_prenom') ,
-    'sigma|DossierMobilite|dossier' : ('DossierMobilite', 'dossier') ,
-    'sigma|DossierMobilite|mots_clefs' : ('DossierMobilite', 'mots_clefs') ,
-    'sigma|DossierMobilite|dir_acc_civilite' : ('DossierMobilite', 'dir_acc_civilite') ,
-    'sigma|DossierMobilite|dir_ori_nom' : ('DossierMobilite', 'dir_ori_nom') ,
-    'sigma|DossierMobilite|dir_acc_nom' : ('DossierMobilite', 'dir_acc_nom') ,
-    'sigma|DossierMobilite|discipline' : ('DossierMobilite', 'discipline') ,
-    'sigma|DossierMobilite|these_soutenance_pays' : ('DossierMobilite', 'these_soutenance_pays') ,
-    'sigma|DossierMobilite|sous_discipline' : ('DossierMobilite', 'sous_discipline') ,
+    # Origine - Responsable insitutionnel
+    'sigma_origine_responsable_institutionnel_civilite': ('DossierOrigine', 'resp_inst_civilite'),
+    'sigma_origine_responsable_institutionnel_prenom': ('DossierOrigine', 'resp_inst_prenom'),
+    'sigma_origine_responsable_institutionnel_nom': ('DossierOrigine', 'resp_inst_nom'),
+    'sigma_origine_responsable_institutionnel_courriel': ('DossierOrigine', 'resp_inst_courriel'),
+    'sigma_origine_responsable_institutionnel_fonction': ('DossierOrigine', 'resp_inst_fonction'),
+    'sigma_origine_responsable_institutionnel_telephone': ('DossierOrigine', 'resp_inst_telephone'),
+    'sigma_origine_responsable_institutionnel_fax': ('DossierOrigine', 'resp_inst_fax'),
+
+    # Origine - Responsable scientifique
+    'sigma_origine_responsable_scientifique_civilite': ('DossierOrigine', 'resp_sc_civilite'),
+    'sigma_origine_responsable_scientifique_prenom': ('DossierOrigine', 'resp_sc_prenom'),
+    'sigma_origine_responsable_scientifique_nom': ('DossierOrigine', 'resp_sc_nom'),
+    'sigma_origine_responsable_scientifique_courriel': ('DossierOrigine', 'resp_sc_courriel'),
+    'sigma_origine_responsable_scientifique_fonction': ('DossierOrigine', 'resp_sc_fonction'),
+    'sigma_origine_responsable_scientifique_telephone': ('DossierOrigine', 'resp_sc_telephone'),
+    'sigma_origine_responsable_scientifique_fax': ('DossierOrigine', 'resp_sc_fax'),
+
+    # Origine - faculté
+    'sigma_origine_faculte': ('DossierOrigine', 'faculte_nom'),
+    'sigma_origine_faculte_url': ('DossierOrigine', 'faculte_url'),
+    'sigma_origine_faculte_courriel': ('DossierOrigine', 'faculte_courriel'),
+    'sigma_origine_faculte_adresse': ('DossierOrigine', 'faculte_adresse'),
+    'sigma_origine_faculte_ville': ('DossierOrigine', 'faculte_ville'),
+    'sigma_origine_faculte_code_postal': ('DossierOrigine', 'faculte_code_postal'),
+    'sigma_origine_faculte_telephone': ('DossierOrigine', 'faculte_telephone'),
+    'sigma_origine_faculte_fax': ('DossierOrigine', 'faculte_fax'),
+
+    # Accueil
+    'sigma_accueil_etablissement': ('DossierAccueil', 'etablissement'),
+    'sigma_accueil_autre_etablissement_adresse': ('DossierAccueil', 'autre_etablissement_adresse'),
+    'sigma_accueil_autre_etablissement_ville': ('DossierAccueil', 'autre_etablissement_ville'),
+    'sigma_accueil_autre_etablissement_code_postal': ('DossierAccueil', 'autre_etablissement_code_postal'),
+    'sigma_accueil_autre_etablissement_region': ('DossierAccueil', 'autre_etablissement_region'),
+    'sigma_accueil_autre_etablissement_pays': ('DossierAccueil', 'autre_etablissement_pays'),
+
+    # Accueil - responsable institutionnel
+    'sigma_accueil_responsable_institutionnel_civilite': ('DossierAccueil', 'resp_inst_civilite'),
+    'sigma_accueil_responsable_institutionnel_prenom': ('DossierAccueil', 'resp_inst_prenom'),
+    'sigma_accueil_responsable_institutionnel_nom': ('DossierAccueil', 'resp_inst_nom'),
+    'sigma_accueil_responsable_institutionnel_courriel': ('DossierAccueil', 'resp_inst_courriel'),
+    'sigma_accueil_responsable_institutionnel_fonction': ('DossierAccueil', 'resp_inst_fonction'),
+    'sigma_accueil_responsable_institutionnel_telephone': ('DossierAccueil', 'resp_inst_telephone'),
+    'sigma_accueil_responsable_institutionnel_fax': ('DossierAccueil', 'resp_inst_fax'),
+
+    # Accueil - responsable scientifique
+    'sigma_accueil_responsable_scientifique_civilite': ('DossierAccueil', 'resp_sc_civilite'),
+    'sigma_accueil_responsable_scientifique_prenom': ('DossierAccueil', 'resp_sc_prenom'),
+    'sigma_accueil_responsable_scientifique_nom': ('DossierAccueil', 'resp_sc_nom'),
+    'sigma_accueil_responsable_scientifique_courriel': ('DossierAccueil', 'resp_sc_courriel'),
+    'sigma_accueil_responsable_scientifique_fonction': ('DossierAccueil', 'resp_sc_fonction'),
+    'sigma_accueil_responsable_scientifique_telephone': ('DossierAccueil', 'resp_sc_telephone'),
+    'sigma_accueil_responsable_scientifique_fax': ('DossierAccueil', 'resp_sc_fax'),
+
+    # Accueil - faculté
+    'sigma_accueil_faculte': ('DossierAccueil', 'faculte_nom'),
+    'sigma_accueil_faculte_url': ('DossierAccueil', 'faculte_url'),
+    'sigma_accueil_faculte_courriel': ('DossierAccueil', 'faculte_courriel'),
+    'sigma_accueil_faculte_adresse': ('DossierAccueil', 'faculte_adresse'),
+    'sigma_accueil_faculte_ville': ('DossierAccueil', 'faculte_ville'),
+    'sigma_accueil_faculte_code_postal': ('DossierAccueil', 'faculte_code_postal'),
+    'sigma_accueil_faculte_telephone': ('DossierAccueil', 'faculte_telephone'),
+    'sigma_accueil_faculte_fax': ('DossierAccueil', 'faculte_fax'),
+
+    # Période de mobilité
+    'sigma_date_debut': ('DossierMobilite', 'date_debut'),
+    'sigma_date_fin': ('DossierMobilite', 'date_fin'),
+    'sigma_duree': ('DossierMobilite', 'duree'),
+
+    # Dossier scientifique
+    'sigma_intitule_projet': ('DossierMobilite', 'intitule_projet'),
+    'sigma_mots_clefs': ('DossierMobilite', 'mots_clefs'),
+
+    # Formation en cours
+    'sigma_formation_en_cours_diplome': ('DossierMobilite', 'formation_en_cours_diplome'),
+    'sigma_formation_en_cours_niveau': ('DossierMobilite', 'formation_en_cours_niveau'),
+
+    # Programme de mission
+    'sigma_type_intervention': ('DossierMobilite', 'type_intervention'),
+    'sigma_public_vise': ('DossierMobilite', 'public_vise'),
+    'sigma_autres_publics': ('DossierMobilite', 'autres_publics'),
+
+    # Disciplines
+    'sigma_discipline': ('DossierMobilite', 'discipline'),
+    'sigma_sous_discipline': ('DossierMobilite', 'sous_discipline'),
+
+    # Alternance
+    'sigma_nb_mois_origine': ('DossierMobilite', 'alternance_nb_mois_origine'),
+    'sigma_nb_mois_accueil': ('DossierMobilite', 'alternance_nb_mois_accueil'),
+    'sigma_debut_accueil': ('DossierMobilite', 'alternance_accueil_puis_origine'),
+ 
+    # Diplôme demandé
+    'sigma_diplome_demande': ('DossierMobilite', 'diplome_demande_nom'),
+    'sigma_diplome_demande_niveau': ('DossierMobilite', 'diplome_demande_niveau'),
+
+    # Thèse
+    'sigma_these_date_inscription': ('DossierMobilite', 'these_date_inscription'),
+    'sigma_these_date_obtention_prevue': ('DossierMobilite', 'these_date_obtention_prevue'),
+    'sigma_these_pays_soutenance': ('DossierMobilite', 'these_soutenance_pays'),
+    'sigma_these_date_soutenance': ('DossierMobilite', 'these_soutenance_date'),
+    'sigma_these_type': ('DossierMobilite', 'these_type'),
+    'sigma_these_type_autre': ('DossierMobilite', 'these_type_autre'),
+
+    # Directeur de thèse - Origine
+    'sigma_directeur_origine_civilite': ('DossierMobilite', 'dir_ori_civilite'),
+    'sigma_directeur_origine_prenom': ('DossierMobilite', 'dir_ori_prenom'),
+    'sigma_directeur_origine_nom': ('DossierMobilite', 'dir_ori_nom'),
+
+    # Directeur de thèse - Accueil
+    'sigma_directeur_accueil_civilite': ('DossierMobilite', 'dir_acc_civilite'),
+    'sigma_directeur_accueil_prenom': ('DossierMobilite', 'dir_acc_prenom'),
+    'sigma_directeur_accueil_nom': ('DossierMobilite', 'dir_acc_nom'),
     
+    # Lien avec l'AUF
+    'sigma_dernier_projet_description': ('Dossier', 'dernier_projet_description'),
+    'sigma_dernier_projet_annee': ('Dossier', 'dernier_projet_annee'),
+    # 'sigma_derniere_bourse_categorie': ('Dossier', 'derniere_bourse_categorie'),
+    'sigma_derniere_bourse_annee': ('Dossier', 'derniere_bourse_annee'),
 
 }
 
 for type_piece in sigma.TypePiece.objects.all():
-    k = "sigma|Piece|%s" % (type_piece.nom)
+    k = "sigma_piece_%s" % (type_piece.nom)
     MAPPING[k] = ('Piece', type_piece.nom)

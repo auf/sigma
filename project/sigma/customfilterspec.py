@@ -6,8 +6,10 @@ from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
 
 class RegionFilterSpec(FilterSpec):
-    def __init__(self, f, request, params, model, model_admin):
-        super(RegionFilterSpec, self).__init__(f, request, params, model, model_admin)
+    def __init__(self, f, request, params, model, model_admin, field_path=None):
+        super(RegionFilterSpec, self).__init__(f, request, params, model,
+                                               model_admin,
+                                               field_path=field_path)
         self.lookup_val = request.GET.get(f.name, None)
         if isinstance(f, models.ManyToManyField):
             self.lookup_title = f.rel.to._meta.verbose_name
@@ -37,8 +39,10 @@ class RegionFilterSpec(FilterSpec):
                    'display': smart_unicode(inst)}
 
 class AppelRegionFilterSpec(RegionFilterSpec):
-    def __init__(self, f, request, params, model, model_admin):
-        super(AppelRegionFilterSpec, self).__init__(f, request, params, model, model_admin)
+    def __init__(self, f, request, params, model, model_admin, field_path=None):
+        super(AppelRegionFilterSpec, self).__init__(f, request, params,
+                                                    model, model_admin,
+                                                    field_path=field_path)
         self.lookup_val = request.GET.get(f.name, None)
         if isinstance(f, models.ManyToManyField):
             self.lookup_title = f.rel.to._meta.verbose_name

@@ -31,13 +31,14 @@ class DossierConformiteAdmin(admin.TabularInline):
     max_num = 0
     can_delete = False
 
+
 class TypeConformiteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'field_type',  )
     form = TypeConformiteForm
 
+
 class AppelAdmin(WorkflowAdmin):
-    list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', 'etat', '_actions', )
-    list_filter = ('region', 'etat')
+    list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', '_actions', )
+    list_filter = ('region', )
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = (
         (None, {
@@ -52,17 +53,20 @@ class AppelAdmin(WorkflowAdmin):
                 'bareme',
                 ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
                 ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
-                'montant_prime_installation',
                 ('montant_perdiem_sud', 'montant_perdiem_nord'),
                 'montant_allocation_unique',
+                'montant_prime_installation',
                 'appel_en_ligne',
-                'etat',
                 'conformites',
                 'types_piece',
+                'etat',
             )
         }),
     )
     filter_horizontal = ['conformites', 'types_piece']
+
+    class Media:
+        js = ("js/appel.js",)
 
     def _actions(self, obj):
         dossiers_url = "<a href='%s?appel=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
@@ -193,12 +197,14 @@ class DossierMobiliteInline(admin.StackedInline):
                        'these_type',
                        'these_type_autre')
         }),
-        ('Directeur thèse accueil', {
-            'fields': (('dir_acc_civilite', 'dir_acc_nom', 'dir_acc_prenom'),)
+        ("Directeur de thèse à l'origine", {
+            'fields': ('dir_ori_civilite', 
+                       ('dir_ori_nom', 'dir_ori_prenom'))
         }),
-        ('Directeur thèse origin', {
-            'fields': (('dir_ori_civilite', 'dir_ori_nom', 'dir_ori_prenom'),)
-        })
+        ("Directeur de thèse à l'accueil", {
+            'fields': ('dir_acc_civilite', 
+                       ('dir_acc_nom', 'dir_acc_prenom'))
+        }),
     )
 
 
@@ -243,27 +249,6 @@ class DiplomeInline(admin.StackedInline):
         }),
 
     )
-    
-class ProxyExpert(Expert.dossiers.through):
-    """
-    Ce proxy sert uniquement dans l'admin à disposer d'un libellé
-    plus ergonomique.
-    """
-
-    class Meta:
-        proxy=True
-        verbose_name = u"Expert"
-        verbose_name_plural = u"Experts"
-
-    def __unicode__(self):
-        return u""
-
-class ExpertInline(admin.TabularInline):
-    model = ProxyExpert
-    extra = 0
-    max_num = 0
-    verbose_name = u"Expert"
-    verbose_name_plural = u"Experts"
 
 
 def affecter_dossiers_expert(modeladmin, request, queryset):
@@ -273,7 +258,7 @@ affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s
     
 class DossierAdmin(WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin, ExpertInline)
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin)
     list_display = ('appel', 'nom', 'prenom', 'etat', 'moyenne_votes', 'action_column')
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
@@ -289,7 +274,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
             'fields': ('appel', ),
         }),
         ('État du dossier', {
-            'fields': ('etat', ),
+            'fields': ('etat', 'experts'),
         }),
         ('Situation universitaire', {
             'fields': ('candidat_statut', 'candidat_fonction', ),
@@ -298,8 +283,8 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
             'fields': ('dernier_projet_description', 'dernier_projet_annee', 'derniere_bourse_categorie', 'derniere_bourse_annee',),
         }),
     )
-    
     actions = [affecter_dossiers_expert]
+    filter_horizontal = ['experts']
 
     
     def _naissance_date(self, obj):
@@ -327,6 +312,11 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     def queryset(self, request):
         return Dossier.objects.region(request.user).select_related('appel', 'mobilite', 'candidat')
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'experts':
+            kwargs['queryset'] = Expert.objects.region(request.user)
+        return super(DossierAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        
     def get_form(self, request, obj=None, **kwargs):
         form = super(DossierAdmin, self).get_form(request, obj, **kwargs)
         if form.declared_fields.has_key('appel'):
@@ -420,10 +410,23 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
 
 
 class ExpertAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nom', 'prenom', '_region', '_disciplines')
+    list_display = ('nom', 'prenom', '_region', '_disciplines')
+    list_display_links = ('nom', 'prenom')
     list_filter = ('region', 'disciplines')
     search_fields = ('nom', 'prenom', 'courriel')
-    exclude = ('dossiers',)
+    fieldsets = (
+        (None, {
+            'fields': (
+                ('prenom', 'nom'),
+                'courriel',
+                'region',
+                'etablissement',
+                'disciplines',
+                'commentaire',
+            )
+        }),
+    )
+    filter_horizontal = ['disciplines']
 
     def queryset(self, request):
         return Expert.objects.region(request.user)
@@ -447,8 +450,10 @@ class ExpertAdmin(admin.ModelAdmin):
         return ', '.join([d.nom for d in obj.disciplines.all()])
     _disciplines.short_description = "Disciplines"
 
+
 class GroupeRegionalAdmin(admin.ModelAdmin):
     form = GroupeRegionalAdminForm
+
 
 class AttributWCSAdmin(admin.ModelAdmin):
     search_fields = ('dossier__id', )
@@ -457,6 +462,7 @@ class AttributWCSAdmin(admin.ModelAdmin):
     def _dossier(self, obj):
         return obj.dossier.id
     
+
 admin.site.register(TypePiece)
 admin.site.register(AttributWCS, AttributWCSAdmin)
 admin.site.register(Appel, AppelAdmin)
