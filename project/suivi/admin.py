@@ -11,7 +11,7 @@ from django.template import RequestContext
 from django.utils.html import conditional_escape
 
 from sigma.workflow import DOSSIER_ETAT_BOURSIER
-from suivi.models import Boursier
+from suivi.models import Boursier, DepensePrevisionnelle
 
 
 class BoursierAdminForm(ModelForm):
@@ -66,11 +66,16 @@ class BoursierAdminForm(ModelForm):
         return code_operation
 
 
+class DepensePrevisionnelleInline(admin.TabularInline):
+    model = DepensePrevisionnelle
+
+
 class BoursierAdmin(admin.ModelAdmin):
     list_display = ('nom_complet', 'code_operation', 'field_actions')
     form = BoursierAdminForm
     readonly_fields = ('nom_complet', 'field_dossier')
     fields = ('nom_complet', 'field_dossier', 'code_operation', 'numero_police_assurance')
+    inlines = [DepensePrevisionnelleInline]
 
     # Champs calculés
 

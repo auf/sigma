@@ -73,3 +73,24 @@ def dossier_post_save(sender, instance=None, **kwargs):
     if instance and instance.etat == DOSSIER_ETAT_BOURSIER:
         Boursier.objects.get_or_create(dossier=instance)
 post_save.connect(dossier_post_save, sender=Dossier)
+
+
+class DepensePrevisionnelle(models.Model):
+    IMPLANTATION_CHOICES = (
+        ('O', 'Origine'),
+        ('A', 'Accueil'),
+    )
+
+    boursier = models.ForeignKey(Boursier, related_name="depensesprevisionnelles")
+    numero = models.IntegerField(null=True, blank=True)
+    date = models.DateField()
+    description = models.CharField(max_length=36)
+    montant_eur = models.DecimalField(max_digits=17, decimal_places=2)
+    implantation = models.CharField(max_length=1, choices=IMPLANTATION_CHOICES, null=True, blank=True)
+
+    class Meta:
+        verbose_name= "Dépense prévisionnelle"
+        verbose_name_plural = "Dépenses prévisionnelles"
+
+    def __unicode__(self):
+        return self.description
