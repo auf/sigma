@@ -74,7 +74,8 @@ class BoursierAdmin(admin.ModelAdmin):
     list_display = ('nom_complet', 'code_operation', 'field_actions')
     form = BoursierAdminForm
     readonly_fields = ('nom_complet', 'field_dossier')
-    fields = ('nom_complet', 'field_dossier', 'code_operation', 'numero_police_assurance')
+    fields = ('nom_complet', 'field_dossier', 'code_operation',
+              'numero_police_assurance', 'responsable_budgetaire')
     inlines = [DepensePrevisionnelleInline]
 
     # Champs calculés

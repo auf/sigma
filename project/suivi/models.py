@@ -36,6 +36,8 @@ class Boursier(models.Model):
                                       blank=True, default='', db_index=True)
     numero_police_assurance = models.CharField(max_length=100, verbose_name="numéro de police d'assurance",
                                                blank=True, default='')
+    responsable_budgetaire = models.CharField(max_length=100, verbose_name="responsable budgétaire",
+                                              blank=True, default='')
 
     # Managers
     objects = BoursierManager()
