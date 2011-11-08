@@ -9,6 +9,7 @@ from django.forms import ModelForm, ValidationError
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.html import conditional_escape
+from django.db import models
 
 from sigma.workflow import DOSSIER_ETAT_BOURSIER
 from suivi.models import Boursier, DepensePrevisionnelle
@@ -105,10 +106,12 @@ class BoursierAdmin(admin.ModelAdmin):
 
     def view_suivi(self, request, id):
         boursier = Boursier.objects.get(pk=id)
+
         lignes_ecritures = boursier.lignes_ecritures_coda() \
                 .exclude(montant_eur=0) \
                 .order_by('compte_comptable__code', '-ecriture__date') \
                 .select_related('compte_comptable', 'ecriture')
+
         groupes_ecritures = []
         for compte_comptable, lignes in groupby(lignes_ecritures, lambda x: x.compte_comptable):
             lignes = list(lignes)
@@ -117,9 +120,66 @@ class BoursierAdmin(admin.ModelAdmin):
                 'lignes': lignes,
                 'sous_total': sum(l.montant_eur for l in lignes)
             })
+
+        appel = boursier.dossier.appel
+
+        debut_date_mobilite = appel.date_debut_mobilite or ""
+        fin_date_mobilite = appel.date_fin_mobilite or ""
+
+        try:
+            debut_implantation = boursier.dossier.origine.etablissement.implantation.nom_court
+        except models.ObjectDoesNotExist:
+            debut_implantation = ""
+        try:
+            fin_implantation = boursier.dossier.accueil.etablissement.implantation.nom_court
+        except models.ObjectDoesNotExist:
+            fin_implantation = ""
+
+        debut_duree = boursier.dossier.mobilite.alternance_nb_mois_origine
+        fin_duree = boursier.dossier.mobilite.alternance_nb_mois_accueil
+
+        bareme = appel.bareme
+        if bareme == 'mensuel':
+            montant_label = 'Montant mensuel'
+            if boursier.dossier.accueil.etablissement.pays.nord_sud == 'Nord':
+                debut_montant = appel.montant_mensuel_accueil_nord
+            else:
+                debut_montant = appel.montant_mensuel_accueil_sud
+
+            if boursier.dossier.origine.etablissement.pays.nord_sud == 'Nord':
+                fin_montant = appel.montant_mensuel_origine_nord
+            else:
+                fin_montant = appel.montant_mensuel_origine_sud
+
+        elif bareme == 'perdiem':
+            montant_label = 'Montant perdiem'
+            if boursier.dossier.accueil.etablissement.pays.nord_sud == 'Nord':
+                debut_montant = appel.montant_perdiem_nord
+            else:
+                debut_montant = appel.montant_perdiem_Sud
+
+            fin_montant = ""
+        elif bareme == 'allocation':
+            montant_label = 'Allocation unique'
+            debut_montant = appel.montant_allocation_unique
+            fin_montant = ""
+
+
+        prime_installation = appel.montant_prime_installation
+
         return render_to_response('admin/suivi/boursier/suivi.html', {
             'boursier': boursier,
-            'groupes_ecritures': groupes_ecritures
+            'groupes_ecritures': groupes_ecritures,
+            'debut_date_mobilite': debut_date_mobilite,
+            'fin_date_mobilite': fin_date_mobilite,
+            'debut_implantation': debut_implantation,
+            'fin_implantation': fin_implantation,
+            'debut_duree': debut_duree,
+            'fin_duree': fin_duree,
+            'montant_label': montant_label,
+            'debut_montant': debut_montant,
+            'fin_montant': fin_montant,
+            'prime_installation': prime_installation,
         }, context_instance=RequestContext(request))
 
     # Permissions

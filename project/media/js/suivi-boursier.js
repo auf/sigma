@@ -26,7 +26,7 @@
     }
 
     function setup_tbody_toggle() {
-        $('tbody').each(function() {
+        $('table.cachedetails tbody').each(function() {
             var $header = $(this).children('tr').first().children('th').first();
             if ($header.length > 0) {
                 var $collapse_link = $('<a href="#"></a>');

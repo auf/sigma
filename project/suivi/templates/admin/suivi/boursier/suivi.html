@@ -19,6 +19,59 @@
     {% block object-tools %}{% endblock %}
 
     <h1>Suivi de {{ boursier }}</h1>
+    <h2>Administration</h2>
+    <table>
+        <tbody>
+            <tr>
+                <td>Code opération: <strong>{{ boursier.code_operation }}</strong></td>
+                <td>Responsable budgétaire: {{ boursier.responsable_budgetaire }}</td>
+                <td>
+                    {% if boursier.dossier.appel.date_debut_mobilite %}
+                    Année: {{ boursier.dossier.appel.date_debut_mobilite|date:"Y" }}
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Mobilité</h2>
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>Début</th>
+                <th>Fin</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Date</th>
+                <td>{{ debut_date_mobilite }}</td>
+                <td>{{ fin_date_mobilite }}</td>
+            </tr>
+            <tr>
+                <th>Implantation</th>
+                <td>{{ debut_implantation }}</td>
+                <td>{{ fin_implantation }}</td>
+            </tr>
+            <tr>
+                <th>Durée (mois)</th>
+                <td>{{ debut_duree }}</td>
+                <td>{{ fin_duree }}</td>
+            </tr>
+            <tr>
+                <th>{{ montant_label }}</th>
+                <td>{{ debut_montant }}</td>
+                <td>{{ fin_montant }}</td>
+            </tr>
+            <tr>
+                <th>Prime installation</th>
+                <td>{{ prime_installation }}</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
     <h2>Dépenses prévisionnelles</h2>
     <table>
         <thead>
@@ -31,19 +84,20 @@
             </tr>
         </thead>
         <tbody>
-		{% for ligne in boursier.depensesprevisionnelles.all %}
-		<tr>
-			<td>{{ ligne.numero|default_if_none:"" }}</td>
-			<td><nobr>{{ ligne.date|date:"j N Y" }}</nobr></td>
-			<td>{{ ligne.description }}</td>
-			<td align="right" char=".">{{ ligne.montant_eur }}</td>
-			<td>{{ ligne.get_implantation_display }}</td>
-		</tr>
-		{% endfor %}
-		</tbody>
-	</table>
+        {% for ligne in boursier.depensesprevisionnelles.all %}
+        <tr>
+            <td>{{ ligne.numero|default_if_none:"" }}</td>
+            <td><nobr>{{ ligne.date|date:"j N Y" }}</nobr></td>
+            <td>{{ ligne.description }}</td>
+            <td align="right" char=".">{{ ligne.montant_eur }}</td>
+            <td>{{ ligne.get_implantation_display }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
     <h2>Dépenses réelles (CODA)</h2>
-    <table>
+    <table class="cachedetails">
         <thead>
             <tr>
                 <th>Code</th>
