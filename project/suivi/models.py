@@ -61,24 +61,138 @@ class Boursier(models.Model):
         return self.dossier.candidat.nom
 
     @property
-    def code_implantation_origine(self):
+    def date_debut(self):
+        return self.dossier.appel.date_debut_mobilite
+
+    @property
+    def date_fin(self):
+        return self.dossier.appel.date_fin_mobilite
+
+    @property
+    def implantation_origine(self):
         etablissement = self.dossier.origine.etablissement
         if etablissement:
             try:
-                return etablissement.implantation.nom_court
+                return etablissement.implantation
             except ref.Implantation.DoesNotExist:
-                pass
-        return 'Origine'
+                return None
+        else:
+            return None
 
     @property
-    def code_implantation_accueil(self):
+    def implantation_accueil(self):
         etablissement = self.dossier.accueil.etablissement
         if etablissement:
             try:
-                return etablissement.implantation.nom_court
+                return etablissement.implantation
             except ref.Implantation.DoesNotExist:
-                pass
-        return 'Accueil'
+                return None
+        else:
+            return None
+
+    @property
+    def debut_accueil(self):
+        return self.dossier.mobilite.alternance_accueil_puis_origine
+
+    @property
+    def implantation_debut(self):
+        if self.debut_accueil:
+            return self.implantation_accueil
+        else:
+            return self.implantation_origine
+
+    @property
+    def implantation_fin(self):
+        if self.debut_accueil:
+            return self.implantation_origine
+        else:
+            return self.implantation_accueil
+
+    @property
+    def mois_debut(self):
+        if self.debut_accueil:
+            return self.dossier.mobilite.alternance_nb_mois_accueil
+        else:
+            return self.dossier.mobilite.alternance_nb_mois_origine
+
+    @property
+    def mois_fin(self):
+        if self.debut_accueil:
+            return self.dossier.mobilite.alternance_nb_mois_origine
+        else:
+            return self.dossier.mobilite.alternance_nb_mois_accueil
+
+    @property
+    def bareme(self):
+        return self.dossier.appel.bareme
+
+    @property
+    def montant_origine(self):
+        if self.dossier.origine.etablissement:
+            pays = self.dossier.origine.etablissement.pays
+        else:
+            pays = self.dossier.origine.autre_etablissement_pays
+        if pays is None:
+            return None
+
+        appel = self.dossier.appel
+        bareme = appel.bareme
+        if bareme == 'mensuel':
+            if pays.nord_sud == 'Nord':
+                return appel.montant_mensuel_origine_nord
+            else:
+                return appel.montant_mensuel_origine_sud
+        elif bareme == 'perdiem':
+            if pays.nord_sud == 'Nord':
+                return appel.montant_perdiem_nord
+            else:
+                return appel.montant_perdiem_sud
+        elif bareme == 'allocation':
+            return appel.montant_allocation_unique
+        else:
+            return None
+
+    @property
+    def montant_accueil(self):
+        if self.dossier.accueil.etablissement:
+            pays = self.dossier.accueil.etablissement.pays
+        else:
+            pays = self.dossier.accueil.autre_etablissement_pays
+        if pays is None:
+            return None
+
+        appel = self.dossier.appel
+        bareme = appel.bareme
+        if bareme == 'mensuel':
+            if pays.nord_sud == 'Nord':
+                return appel.montant_mensuel_accueil_nord
+            else:
+                return appel.montant_mensuel_accueil_sud
+        elif bareme == 'perdiem':
+            if pays.nord_sud == 'Nord':
+                return appel.montant_perdiem_nord
+            else:
+                return appel.montant_perdiem_sud
+        else:
+            return None
+
+    @property
+    def montant_debut(self):
+        if self.debut_accueil:
+            return self.montant_accueil
+        else:
+            return self.montant_origine
+
+    @property
+    def montant_fin(self):
+        if self.debut_accueil:
+            return self.montant_origine
+        else:
+            return self.montant_accueil
+
+    @property
+    def prime_installation(self):
+        return self.dossier.appel.montant_prime_installation
 
     def nom_complet(self):
         return self.prenom + ' ' + self.nom
