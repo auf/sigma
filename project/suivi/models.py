@@ -3,7 +3,9 @@
 from django.db import models
 from django.db.models.signals import post_save
 
+import datamaster_modeles.models as ref
 from auf.django.coda.models import LigneEcriture
+
 from sigma.models import Dossier
 from sigma.workflow import DOSSIER_ETAT_BOURSIER
 
@@ -58,6 +60,26 @@ class Boursier(models.Model):
     def nom(self):
         return self.dossier.candidat.nom
 
+    @property
+    def code_implantation_origine(self):
+        etablissement = self.dossier.origine.etablissement
+        if etablissement:
+            try:
+                return etablissement.implantation.nom_court
+            except ref.Implantation.DoesNotExist:
+                pass
+        return 'Origine'
+
+    @property
+    def code_implantation_accueil(self):
+        etablissement = self.dossier.accueil.etablissement
+        if etablissement:
+            try:
+                return etablissement.implantation.nom_court
+            except ref.Implantation.DoesNotExist:
+                pass
+        return 'Accueil'
+
     def nom_complet(self):
         return self.prenom + ' ' + self.nom
     nom_complet.short_description = 'Nom'
@@ -71,28 +93,31 @@ class Boursier(models.Model):
         super(Boursier, self).save(*args, **kwargs)
 
 
-def dossier_post_save(sender, instance=None, **kwargs):
-    if instance and instance.etat == DOSSIER_ETAT_BOURSIER:
-        Boursier.objects.get_or_create(dossier=instance)
-post_save.connect(dossier_post_save, sender=Dossier)
-
-
 class DepensePrevisionnelle(models.Model):
     IMPLANTATION_CHOICES = (
         ('O', 'Origine'),
         ('A', 'Accueil'),
     )
 
-    boursier = models.ForeignKey(Boursier, related_name="depensesprevisionnelles")
-    numero = models.IntegerField(null=True, blank=True)
+    boursier = models.ForeignKey(Boursier, related_name="depenses_previsionnelles")
+    numero = models.IntegerField(null=True, blank=True, verbose_name='numéro')
     date = models.DateField()
     description = models.CharField(max_length=36)
-    montant_eur = models.DecimalField(max_digits=17, decimal_places=2)
-    implantation = models.CharField(max_length=1, choices=IMPLANTATION_CHOICES, null=True, blank=True)
+    montant_eur = models.DecimalField(max_digits=17, decimal_places=2,
+                                      verbose_name='montant (EUR)')
+    implantation = models.CharField(max_length=1,
+                                    choices=IMPLANTATION_CHOICES, null=True,
+                                    blank=True)
 
     class Meta:
-        verbose_name= "Dépense prévisionnelle"
-        verbose_name_plural = "Dépenses prévisionnelles"
+        verbose_name= "dépense prévisionnelle"
+        verbose_name_plural = "dépenses prévisionnelles"
 
     def __unicode__(self):
         return self.description
+
+
+def dossier_post_save(sender, instance=None, **kwargs):
+    if instance and instance.etat == DOSSIER_ETAT_BOURSIER:
+        Boursier.objects.get_or_create(dossier=instance)
+post_save.connect(dossier_post_save, sender=Dossier)

@@ -4,6 +4,7 @@
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}js/suivi-boursier.js"></script>
+  <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/sigma.css" />
 {% endblock %}
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
@@ -16,9 +17,12 @@
 
 {% block content %}
 <div id="content-main">
-    {% block object-tools %}{% endblock %}
+    {% block object-tools %}
+    <ul class="object-tools">
+        <li><a href="{% url admin:suivi_boursier_change boursier.pk %}">Modifier</a></li>
+    </ul>
+    {% endblock %}
 
-    <h1>Suivi de {{ boursier }}</h1>
     <h2>Administration</h2>
     <table>
         <tbody>
@@ -73,31 +77,38 @@
     </table>
 
     <h2>Dépenses prévisionnelles</h2>
-    <table>
+    <table class="listing">
         <thead>
             <tr>
-                <th>No</th>
+                <th>Numéro</th>
                 <th>Date</th>
                 <th>Description</th>
-                <th align="right">Mont. €</th>
-                <th>Impl.</th>
+                <th align="right">Montant €</th>
+                <th>Implantation</th>
             </tr>
         </thead>
         <tbody>
-        {% for ligne in boursier.depensesprevisionnelles.all %}
+        {% for ligne in boursier.depenses_previsionnelles.all %}
         <tr>
             <td>{{ ligne.numero|default_if_none:"" }}</td>
             <td><nobr>{{ ligne.date|date:"j N Y" }}</nobr></td>
             <td>{{ ligne.description }}</td>
             <td align="right" char=".">{{ ligne.montant_eur }}</td>
-            <td>{{ ligne.get_implantation_display }}</td>
+            <td>
+              {% if ligne.implantation == 'O' %}
+              {{ boursier.code_implantation_origine }}
+              {% endif %}
+              {% if ligne.implantation == 'A' %}
+              {{ boursier.code_implantation_accueil }}
+              {% endif %}
+            </td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
 
     <h2>Dépenses réelles (CODA)</h2>
-    <table class="cachedetails">
+    <table class="listing cachedetails">
         <thead>
             <tr>
                 <th>Code</th>

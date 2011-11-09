@@ -63,13 +63,16 @@ class BoursierAdminForm(ModelForm):
                 raise ValidationError(
                     u"Code d'opération déjà attribué au boursier %s." % conflits[0]
                 )
-            
+
         return code_operation
 
 
 class DepensePrevisionnelleInline(admin.TabularInline):
     model = DepensePrevisionnelle
-
+    template = 'admin/edit_inline/tabular_compact.html'
+    formfield_overrides = {
+        models.DecimalField: {'localize': True},
+    }
 
 class BoursierAdmin(admin.ModelAdmin):
     list_display = ('nom_complet', 'code_operation', 'field_actions')
@@ -126,15 +129,8 @@ class BoursierAdmin(admin.ModelAdmin):
         debut_date_mobilite = appel.date_debut_mobilite or ""
         fin_date_mobilite = appel.date_fin_mobilite or ""
 
-        try:
-            debut_implantation = boursier.dossier.origine.etablissement.implantation.nom_court
-        except models.ObjectDoesNotExist:
-            debut_implantation = ""
-        try:
-            fin_implantation = boursier.dossier.accueil.etablissement.implantation.nom_court
-        except models.ObjectDoesNotExist:
-            fin_implantation = ""
-
+        debut_implantation = boursier.code_implantation_origine
+        fin_implantation = boursier.code_implantation_accueil
         debut_duree = boursier.dossier.mobilite.alternance_nb_mois_origine
         fin_duree = boursier.dossier.mobilite.alternance_nb_mois_accueil
 
@@ -163,11 +159,15 @@ class BoursierAdmin(admin.ModelAdmin):
             montant_label = 'Allocation unique'
             debut_montant = appel.montant_allocation_unique
             fin_montant = ""
-
+        else:
+            montant_label = None
+            debut_montant = ""
+            fin_montant = ""
 
         prime_installation = appel.montant_prime_installation
 
         return render_to_response('admin/suivi/boursier/suivi.html', {
+            'title': "Suivi de %s" % boursier,
             'boursier': boursier,
             'groupes_ecritures': groupes_ecritures,
             'debut_date_mobilite': debut_date_mobilite,
