@@ -74,6 +74,7 @@ class DepensePrevisionnelleInline(admin.TabularInline):
         models.DecimalField: {'localize': True},
     }
 
+
 class BoursierAdmin(admin.ModelAdmin):
     list_display = ('nom_complet', 'code_operation', 'field_actions')
     form = BoursierAdminForm

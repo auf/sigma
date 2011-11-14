@@ -40,9 +40,9 @@ class Boursier(models.Model):
         max_length=100, verbose_name="numéro de police d'assurance",
         blank=True, default=''
     )
-    responsable_budgetaire = models.CharField(
-        max_length=100, verbose_name="responsable budgétaire",
-        blank=True, default=''
+    responsable_budgetaire = models.ForeignKey(ref.Employe,
+        verbose_name="responsable budgétaire",
+        blank=True, null=True
     )
     date_debut = models.DateField(verbose_name="date de début", blank=True, null=True)
     date_fin = models.DateField(verbose_name="date de fin", blank=True, null=True)
