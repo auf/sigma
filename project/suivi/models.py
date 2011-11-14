@@ -36,10 +36,16 @@ class Boursier(models.Model):
                                    editable=False)
     code_operation = models.CharField(max_length=11, verbose_name="code d'opération CODA",
                                       blank=True, default='', db_index=True)
-    numero_police_assurance = models.CharField(max_length=100, verbose_name="numéro de police d'assurance",
-                                               blank=True, default='')
-    responsable_budgetaire = models.CharField(max_length=100, verbose_name="responsable budgétaire",
-                                              blank=True, default='')
+    numero_police_assurance = models.CharField(
+        max_length=100, verbose_name="numéro de police d'assurance",
+        blank=True, default=''
+    )
+    responsable_budgetaire = models.CharField(
+        max_length=100, verbose_name="responsable budgétaire",
+        blank=True, default=''
+    )
+    date_debut = models.DateField(verbose_name="date de début", blank=True, null=True)
+    date_fin = models.DateField(verbose_name="date de fin", blank=True, null=True)
 
     # Managers
     objects = BoursierManager()
@@ -59,14 +65,6 @@ class Boursier(models.Model):
     @property
     def nom(self):
         return self.dossier.candidat.nom
-
-    @property
-    def date_debut(self):
-        return self.dossier.appel.date_debut_mobilite
-
-    @property
-    def date_fin(self):
-        return self.dossier.appel.date_fin_mobilite
 
     @property
     def implantation_origine(self):

@@ -54,16 +54,17 @@
         </thead>
         <tbody>
             <tr>
-                <th>Début</th>
+                <th>
+                    {% if boursier.debut_accueil %}
+                    Accueil
+                    {% else %}
+                    Origine
+                    {% endif %}
+                </th>
                 <td>{{ boursier.date_debut|date:"j N Y" }}</td>
                 <td>
                     {% if boursier.implantation_debut %}
                     {{ boursier.implantation_debut.nom_court }}
-                    {% if boursier.debut_accueil %}
-                    (Accueil)
-                    {% else %}
-                    (Origine)
-                    {% endif %}
                     {% endif %}
                 </td>
                 <td>{{ boursier.mois_debut|default_if_none:"" }}</td>
@@ -79,16 +80,17 @@
                 {% endif %}
             </tr>
             <tr>
-                <th>Fin</th>
+                <th>
+                    {% if boursier.debut_accueil %}
+                    Origine
+                    {% else %}
+                    Accueil
+                    {% endif %}
+                </th>
                 <td>{{ boursier.date_fin|date:"j N Y" }}</td>
                 <td>
                     {% if boursier.implantation_fin %}
                     {{ boursier.implantation_fin.nom_court }}
-                    {% if boursier.debut_accueil %}
-                    (Origine)
-                    {% else %}
-                    (Accueil)
-                    {% endif %}
                     {% endif %}
                 </td>
                 <td>{{ boursier.mois_fin|default_if_none:"" }}</td>
