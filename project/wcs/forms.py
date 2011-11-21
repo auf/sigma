@@ -52,6 +52,8 @@ class NiveauEtudesField(forms.Field):
 class EtablissementField(forms.Field):
 
     def to_python(self, value):
+        if value is None:
+            return None
         pays, sep, etablissement = value.partition(' - ')
         try:
             return ref.Etablissement.objects.get(pays__nom=pays, nom=etablissement)
