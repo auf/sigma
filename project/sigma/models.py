@@ -124,8 +124,10 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     region = models.ForeignKey(Region)
     region.region_filter_spec = True
-    code_budgetaire = models.ForeignKey(coda_models.Element, verbose_name=u"Code budgétaire",
-                                        limit_choices_to = {'niveau': 3})
+    code_budgetaire = models.ForeignKey(
+        coda_models.Element, verbose_name=u"Code budgétaire",
+        limit_choices_to=({'niveau': 3, 'code__regex': r'^[^9]......$'})
+    )
     formulaire_wcs = models.CharField(max_length=255,
                         choices=APPEL_WCS_CHOICES,
                         verbose_name=u"Nom du formulaire WCS",
