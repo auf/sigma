@@ -25,7 +25,7 @@ TYPE_THESE = (
     ('CD', "Co-direction"),
     ('AU', "Autre"),
 )
-    
+
 CANDIDAT_STATUT = (
     ('1', 'Etudiant'),
     ('2', 'Chercheur'),
@@ -65,7 +65,7 @@ class ExpertManager(models.Manager):
         return super(ExpertManager, self).get_query_set().select_related(*fkeys).all()
 
 class Expert(models.Model):
-    
+
     objects = ExpertManager()
 
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
@@ -73,15 +73,15 @@ class Expert(models.Model):
     courriel =  models.EmailField(max_length=75, null=True, blank=True)
     region = models.ForeignKey(Region, verbose_name=u"Région")
     region.region_filter_spec = True
-    etablissement = models.ForeignKey(Etablissement, 
-                        verbose_name=u"Établissement", 
+    etablissement = models.ForeignKey(Etablissement,
+                        verbose_name=u"Établissement",
                         blank=True, null=True)
     commentaire = models.TextField(null=True, blank=True)
     actif = models.BooleanField(default=True)
-    disciplines = models.ManyToManyField(Discipline, 
-                        verbose_name=u"Disciplines", 
+    disciplines = models.ManyToManyField(Discipline,
+                        verbose_name=u"Disciplines",
                         blank=True, null=True)
-    
+
     class Meta:
         ordering = ['nom', 'prenom']
 
@@ -90,8 +90,8 @@ class Expert(models.Model):
 
 class UserProfile(models.Model):
     user = models.ForeignKey("auth.User", unique=True)
-    disciplines = models.ManyToManyField(Discipline, 
-                        verbose_name=u"Disciplines", 
+    disciplines = models.ManyToManyField(Discipline,
+                        verbose_name=u"Disciplines",
                         blank=True, null=True)
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
@@ -115,7 +115,7 @@ else:
 
 class Appel(AppelWorkflow, MetaModel, models.Model):
     """
-    Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité 
+    Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité
     s'intégrant dans un projet.
     """
 
@@ -128,49 +128,49 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
                                         limit_choices_to = {'niveau': 3})
     formulaire_wcs = models.CharField(max_length=255,
                         choices=APPEL_WCS_CHOICES,
-                        verbose_name=u"Nom du formulaire WCS", 
+                        verbose_name=u"Nom du formulaire WCS",
                         blank=True, null=True)
-    date_debut_appel = models.DateField(verbose_name=u"Début de l'appel", 
+    date_debut_appel = models.DateField(verbose_name=u"Début de l'appel",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
-    date_fin_appel = models.DateField(verbose_name=u"Fin de l'appel", 
+    date_fin_appel = models.DateField(verbose_name=u"Fin de l'appel",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
-    date_debut_mobilite = models.DateField(verbose_name=u"Début de la mobilité", 
+    date_debut_mobilite = models.DateField(verbose_name=u"Début de la mobilité",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
-    date_fin_mobilite = models.DateField(verbose_name=u"Fin de la mobilité", 
+    date_fin_mobilite = models.DateField(verbose_name=u"Fin de la mobilité",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     appel_en_ligne = models.BooleanField(verbose_name=u"Appel d’offres en ligne")
-    periode = models.CharField(max_length=32, verbose_name=u"Période de mobilité", 
+    periode = models.CharField(max_length=32, verbose_name=u"Période de mobilité",
                         choices=PERIODE, blank=True, null=True)
-    bareme = models.CharField(max_length=32, verbose_name=u"Barème", 
+    bareme = models.CharField(max_length=32, verbose_name=u"Barème",
                         choices=BAREME, blank=True, null=True)
     montant_mensuel_origine_sud = models.IntegerField(
-                        verbose_name=u"Montant mensuel pays origine Sud", 
+                        verbose_name=u"Montant mensuel pays origine Sud",
                         blank=True, null=True)
     montant_mensuel_origine_nord = models.IntegerField(
-                        verbose_name=u"Montant mensuel pays origine Nord", 
+                        verbose_name=u"Montant mensuel pays origine Nord",
                         blank=True, null=True)
     montant_mensuel_accueil_sud = models.IntegerField(
-                        verbose_name=u"Montant mensuel pays accueil Sud", 
+                        verbose_name=u"Montant mensuel pays accueil Sud",
                         blank=True, null=True)
     montant_mensuel_accueil_nord = models.IntegerField(
-                        verbose_name=u"Montant mensuel pays accueil Nord", 
+                        verbose_name=u"Montant mensuel pays accueil Nord",
                         blank=True, null=True)
     montant_prime_installation = models.IntegerField(
-                        verbose_name=u"Montant prime installation", 
+                        verbose_name=u"Montant prime installation",
                         blank=True, null=True)
     montant_perdiem_sud = models.IntegerField(
-                        verbose_name=u"Montant jour (perdiem) pays Sud ", 
+                        verbose_name=u"Montant jour (perdiem) pays Sud ",
                         blank=True, null=True)
     montant_perdiem_nord = models.IntegerField(
-                        verbose_name=u"Montant jour (perdiem) pays Nord", 
+                        verbose_name=u"Montant jour (perdiem) pays Nord",
                         blank=True, null=True)
     montant_allocation_unique = models.IntegerField(
-                        verbose_name=u"Montant allocation unique", 
-                        blank=True, null=True)    
+                        verbose_name=u"Montant allocation unique",
+                        blank=True, null=True)
     conformites = models.ManyToManyField("TypeConformite", verbose_name=u"Conformités à demander",
                                          blank=True, null=True)
     types_piece = models.ManyToManyField("TypePiece", verbose_name=u"Types de pièces à demander",
@@ -188,31 +188,31 @@ class Candidat(models.Model):
     """
     dossier = models.OneToOneField('Dossier', verbose_name=u"Dossier", related_name="candidat")
     # meta
-    date_creation = models.DateField(auto_now_add=True, 
+    date_creation = models.DateField(auto_now_add=True,
                         help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de création")
-    date_modification = models.DateField(auto_now=True, 
+    date_modification = models.DateField(auto_now=True,
                         help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de modification")
 
     # identification personne
-    civilite = models.CharField(max_length=2, verbose_name=u"Civilité", 
+    civilite = models.CharField(max_length=2, verbose_name=u"Civilité",
                         choices=CIVILITE,
                         blank=True, null=True)
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
-    nom_jeune_fille = models.CharField(max_length=255, 
-                        verbose_name=u"Nom de jeune fille", 
+    nom_jeune_fille = models.CharField(max_length=255,
+                        verbose_name=u"Nom de jeune fille",
                         blank=True, null=True)
 
     # identification avancée personne
-    nationalite = models.ForeignKey(Pays, verbose_name=u"Nationalité", 
+    nationalite = models.ForeignKey(Pays, verbose_name=u"Nationalité",
                         blank=True, null=True)
-    naissance_ville = models.CharField(max_length=255, 
-                        verbose_name=u"Ville de naissance", 
+    naissance_ville = models.CharField(max_length=255,
+                        verbose_name=u"Ville de naissance",
                         blank=True, null=True)
-    naissance_date = models.DateField(max_length=255, 
-                        verbose_name=u"Date de naissance", 
+    naissance_date = models.DateField(max_length=255,
+                        verbose_name=u"Date de naissance",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
 
@@ -246,7 +246,7 @@ class Candidat(models.Model):
 
 class CategorieBourse(models.Model):
     """
-    Catégorie de bourse : couche d'abstraction permettant aux utilisateurs de 
+    Catégorie de bourse : couche d'abstraction permettant aux utilisateurs de
     spécifier de nouveaux types de bourses.
     Cette catégorie doit être liée à un code budgétaire.
     """
@@ -257,7 +257,7 @@ class NiveauEtude(models.Model):
     Nombre d'années universitaires.
     """
     nom = models.CharField(max_length=255, verbose_name=u"nom",)
-    annees = models.CharField(max_length=2, 
+    annees = models.CharField(max_length=2,
                         verbose_name=u"Nombre d'années universitaires", )
 
     class Meta:
@@ -321,43 +321,43 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     appel.appelregion_filter_spec = True
 
     candidat_statut = models.CharField(max_length=255,
-                        verbose_name=u"Statut du candidat",  
+                        verbose_name=u"Statut du candidat",
                         choices=CANDIDAT_STATUT, blank=True, null=True)
-    candidat_fonction = models.CharField(max_length=255, 
+    candidat_fonction = models.CharField(max_length=255,
                         verbose_name=u"Fonction", blank=True, null=True)
 
     # Utilisé lors des appels internationaux pour définir le bureau (région) de traitement
     # Cette valeur était dérivée de dossier.etablissement (normalement équivalent de dossier.origine.etablissement)
     # Maintenant, on spécifie la valeur avec la région où est fait l'appel
-    bureau_rattachement = models.ForeignKey(Bureau, 
-                        verbose_name=u"Bureau de rattachement", 
+    bureau_rattachement = models.ForeignKey(Bureau,
+                        verbose_name=u"Bureau de rattachement",
                         blank=True, null=True)
 
     # Tentative pour récupérer de l'information passée
     dernier_projet_description = models.TextField(
                         verbose_name=u"Description du dernier projet \
-                            ou programme", 
+                            ou programme",
                         blank=True, null=True)
-    dernier_projet_annee = models.CharField(max_length=4, 
-                        verbose_name=u"Année du dernier projet ou programme", 
+    dernier_projet_annee = models.CharField(max_length=4,
+                        verbose_name=u"Année du dernier projet ou programme",
                         blank=True, null=True)
-    derniere_bourse_categorie = models.ForeignKey(CategorieBourse, 
-                        related_name="bourse_categorie", 
-                        verbose_name=u"Catégorie de la dernière bourse", 
+    derniere_bourse_categorie = models.ForeignKey(CategorieBourse,
+                        related_name="bourse_categorie",
+                        verbose_name=u"Catégorie de la dernière bourse",
                         blank=True, null=True)
-    derniere_bourse_annee = models.CharField(max_length=4, 
-                        verbose_name=u"Année de la dernière bourse", 
+    derniere_bourse_annee = models.CharField(max_length=4,
+                        verbose_name=u"Année de la dernière bourse",
                         blank=True, null=True)
 
     # Évaluations (à terminer // expert classements)
-    annotations = models.ManyToManyField(Commentaire, 
+    annotations = models.ManyToManyField(Commentaire,
                         verbose_name=u"Commentaires", blank=True, null=True)
-    moyenne_votes = models.FloatField(verbose_name=u"Moyenne des évaluateurs", 
+    moyenne_votes = models.FloatField(verbose_name=u"Moyenne des évaluateurs",
                         blank=True, null=True)
-    moyenne_academique = models.FloatField(verbose_name=u"Moyenne académique", 
+    moyenne_academique = models.FloatField(verbose_name=u"Moyenne académique",
                         blank=True, null=True)
-    opportunite_regionale = models.CharField(max_length=255, 
-                        verbose_name=u"Opportunité régionale", 
+    opportunite_regionale = models.CharField(max_length=255,
+                        verbose_name=u"Opportunité régionale",
                         blank=True, null=True)
     #classement_1 = models.IntegerField(null=True, db_column='N_CLASSEMENT_1', blank=True)
     #classement_2 = models.IntegerField(null=True, db_column='N_CLASSEMENT_2', blank=True)
@@ -376,9 +376,9 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
     # ce champs est système, il est saisi dans la partie mobilité mais il est copié ici pour pouvoir être filtré
     discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline", blank=True, null=True)
-    experts = models.ManyToManyField(Expert, verbose_name=u'Experts', 
+    experts = models.ManyToManyField(Expert, verbose_name=u'Experts',
                                      related_name="dossiers", blank=True)
-    
+
     class Meta:
         ordering = ['appel__nom', 'candidat__nom', 'candidat__prenom']
 
@@ -409,12 +409,12 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
                 self.save()
         except:
             pass
-        
+
         # Prépouplation des objets notes selon les experts sélectionnés
         if self.id is not None:
 
             experts_presents = []
-            
+
             for n in self.notes.all():
                 try:
                     experts_presents.append(n.expert)
@@ -438,10 +438,17 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     def nom(self):
         return self.candidat.nom.upper()
     nom.short_description = "Nom"
+    nom.admin_order_field = 'candidat__nom'
 
     def prenom(self):
         return self.candidat.prenom
     prenom.short_description = "Prénom"
+    prenom.admin_order_field = 'candidat__prenom'
+
+    def naissance_date(self):
+        return self.candidat.naissance_date
+    naissance_date.short_description = "Date de naissance"
+    naissance_date.admin_order_field = 'candidat__naissance_date'
 
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
@@ -589,115 +596,115 @@ class DossierMobilite(models.Model):
     dossier = models.OneToOneField(Dossier, verbose_name=u"Dossier", related_name="mobilite")
 
     # Période de mobilité
-    date_debut = models.DateField(verbose_name=u"Date de début souhaitée", 
+    date_debut = models.DateField(verbose_name=u"Date de début souhaitée",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
-    date_fin = models.DateField(verbose_name=u"Date de fin souhaitée", 
+    date_fin = models.DateField(verbose_name=u"Date de fin souhaitée",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
-    duree = models.CharField(max_length=255, 
-                        verbose_name=u"Durée totale mobilité souhaitée (mois)", 
+    duree = models.CharField(max_length=255,
+                        verbose_name=u"Durée totale mobilité souhaitée (mois)",
                         blank=True, null=True)
 
     # Dossier scientifique
-    intitule_projet = models.CharField(max_length=255, 
-                        verbose_name=u"Intitulé du projet", 
+    intitule_projet = models.CharField(max_length=255,
+                        verbose_name=u"Intitulé du projet",
                         blank=True, null=True)
-    mots_clefs = models.CharField(max_length=255, 
+    mots_clefs = models.CharField(max_length=255,
                         verbose_name=u"Mots clefs", blank=True, null=True)
 
     # Formation en cours
-    formation_en_cours_diplome = models.CharField(max_length=255, 
-                        verbose_name=u"Intitulé du diplôme", 
+    formation_en_cours_diplome = models.CharField(max_length=255,
+                        verbose_name=u"Intitulé du diplôme",
                         blank=True, null=True)
-    formation_en_cours_niveau = models.ForeignKey(NiveauEtude, 
-                        related_name="formation_en_cours_niveau", 
+    formation_en_cours_niveau = models.ForeignKey(NiveauEtude,
+                        related_name="formation_en_cours_niveau",
                         verbose_name=u"Niveau d'études", blank=True, null=True)
 
     # Programme de mission
-    type_intervention = models.ForeignKey(Intervention, 
-                        verbose_name=u"Type d'intervention", 
+    type_intervention = models.ForeignKey(Intervention,
+                        verbose_name=u"Type d'intervention",
                         blank=True, null=True)
-    public_vise = models.ForeignKey(Public, verbose_name=u"Public visé", 
+    public_vise = models.ForeignKey(Public, verbose_name=u"Public visé",
                         blank=True, null=True)
-    autres_publics = models.CharField(max_length=255, 
+    autres_publics = models.CharField(max_length=255,
                         verbose_name=u"Autres publics", blank=True, null=True)
 
     # Disciplines
-    discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline", 
+    discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline",
                         blank=True, null=True)
     sous_discipline = models.CharField(max_length=255, blank=True, null=True)
 
     # Alternance
     alternance_nb_mois_origine = models.IntegerField(
-                        verbose_name=u"Nombre de mois à l'origine", 
+                        verbose_name=u"Nombre de mois à l'origine",
                         blank=True, null=True)
     alternance_nb_mois_accueil = models.IntegerField(
-                        verbose_name=u"Nombre de mois à l'accueil", 
+                        verbose_name=u"Nombre de mois à l'accueil",
                         blank=True, null=True)
     alternance_accueil_puis_origine = models.NullBooleanField(
-                        verbose_name=u"Mobilité commençée à l'accueil?", 
+                        verbose_name=u"Mobilité commençée à l'accueil?",
                         blank=True, null=True)
 
     # Diplôme demandé
-    diplome_demande_nom = models.CharField(max_length=255, 
+    diplome_demande_nom = models.CharField(max_length=255,
                         verbose_name=u"Diplôme demandé", blank=True, null=True)
-    diplome_demande_niveau = models.ForeignKey(NiveauEtude, 
-                        related_name="diplome_demande_niveau", 
+    diplome_demande_niveau = models.ForeignKey(NiveauEtude,
+                        related_name="diplome_demande_niveau",
                         verbose_name=u"Niveau d'études", blank=True, null=True)
-    
+
     # Thèse
     these_date_inscription = models.DateField(
                         help_text=settings.HELP_TEXT_DATE,
-                        verbose_name=u"Date d'inscription", 
+                        verbose_name=u"Date d'inscription",
                         blank=True, null=True)
     these_date_obtention_prevue = models.DateField(
                         help_text=settings.HELP_TEXT_DATE,
-                        verbose_name=u"Date d'obtention prévue", 
+                        verbose_name=u"Date d'obtention prévue",
                         blank=True, null=True)
-    these_soutenance_pays = models.ForeignKey(Pays, 
-                        related_name="soutenance_pays", 
-                        verbose_name=u"Pays de soutenance", 
+    these_soutenance_pays = models.ForeignKey(Pays,
+                        related_name="soutenance_pays",
+                        verbose_name=u"Pays de soutenance",
                         blank=True, null=True)
     these_soutenance_date = models.DateField(
                         help_text=settings.HELP_TEXT_DATE,
-                        verbose_name=u"Date de soutenance", 
+                        verbose_name=u"Date de soutenance",
                         blank=True, null=True)
-    these_type = models.CharField(max_length=2, 
-                        verbose_name=u"Type de thèse", 
+    these_type = models.CharField(max_length=2,
+                        verbose_name=u"Type de thèse",
                         choices=TYPE_THESE, blank=True, null=True)
-    these_type_autre = models.CharField(max_length=255, 
-                        verbose_name=u"Autre type de thèse", 
+    these_type_autre = models.CharField(max_length=255,
+                        verbose_name=u"Autre type de thèse",
                         blank=True, null=True)
 
     # directeur thèse accueil
-    dir_acc_civilite = models.CharField(max_length=2, 
-                        verbose_name=u"Civilité", choices=CIVILITE, 
+    dir_acc_civilite = models.CharField(max_length=2,
+                        verbose_name=u"Civilité", choices=CIVILITE,
                         blank=True, null=True)
-    dir_acc_nom = models.CharField(max_length=255, 
+    dir_acc_nom = models.CharField(max_length=255,
                         verbose_name=u"Nom", blank=True, null=True)
-    dir_acc_prenom = models.CharField(max_length=255, 
+    dir_acc_prenom = models.CharField(max_length=255,
                         verbose_name=u"Prénom", blank=True, null=True)
 
     # directeur thèse origine
-    dir_ori_civilite = models.CharField(max_length=2, verbose_name=u"Civilité", 
+    dir_ori_civilite = models.CharField(max_length=2, verbose_name=u"Civilité",
                         choices=CIVILITE, blank=True, null=True)
-    dir_ori_nom = models.CharField(max_length=255, verbose_name=u"Nom", 
+    dir_ori_nom = models.CharField(max_length=255, verbose_name=u"Nom",
                         blank=True, null=True)
-    dir_ori_prenom = models.CharField(max_length=255, verbose_name=u"Prénom", 
+    dir_ori_prenom = models.CharField(max_length=255, verbose_name=u"Prénom",
                         blank=True, null=True)
 
 class Diplome(models.Model):
     """
     """
     dossier = models.ForeignKey(Dossier)
-    nom = models.CharField(max_length=255, verbose_name=u"Nom", 
+    nom = models.CharField(max_length=255, verbose_name=u"Nom",
                         blank=True, null=True)
-    date = models.DateField(max_length=255, verbose_name=u"Date", 
+    date = models.DateField(max_length=255, verbose_name=u"Date",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
-    niveau = models.ForeignKey(NiveauEtude, related_name="niveau", 
-                        verbose_name=u"Niveau d'études", 
+    niveau = models.ForeignKey(NiveauEtude, related_name="niveau",
+                        verbose_name=u"Niveau d'études",
                         blank=True, null=True)
 
     # Etablissement connu de l'AUF
@@ -732,7 +739,7 @@ class Piece(models.Model):
     """
     dossier = models.ForeignKey(Dossier, related_name="pieces")
     nom = models.CharField(max_length=255, verbose_name=u"Nom", blank=True, null=True)
-    fichier = models.FileField(verbose_name=u"Fichier", upload_to="pieces", 
+    fichier = models.FileField(verbose_name=u"Fichier", upload_to="pieces",
                                storage=FileSystemStorage(location=settings.UPLOADS_ROOT),
                                blank=True, null=True)
     conforme = models.NullBooleanField(verbose_name=u"Pièce conforme")
@@ -746,7 +753,7 @@ class AttributWCS(models.Model):
     dossier = models.ForeignKey(Dossier, related_name="attributs_wcs")
     attribut = models.CharField(max_length=255, verbose_name=u"Attribut", blank=True, null=True)
     valeur = models.TextField(verbose_name=u"Valeur", blank=True, null=True)
-    
+
     class Meta:
         verbose_name = u"Attribut WCS"
         verbose_name_plural = u"Attributs WCS"
@@ -757,7 +764,7 @@ class AttributWCS(models.Model):
 class GroupeRegional(models.Model):
     region = models.ForeignKey(Region, verbose_name="région")
     users = models.ManyToManyField('auth.User', related_name="groupes_regionaux", verbose_name=u"membres", blank=True, null=True)
-    
+
     class Meta:
         verbose_name = u"groupe régional"
         verbose_name_plural = "groupes régionaux"
@@ -783,7 +790,7 @@ class Conformite(ValueProperty, models.Model):
     """
     dossier = models.ForeignKey(Dossier)
     type = models.ForeignKey("TypeConformite")
-    conforme = models.NullBooleanField(verbose_name=u"Conforme?", 
+    conforme = models.NullBooleanField(verbose_name=u"Conforme?",
                         blank=True, null=True)
 
     class Meta:

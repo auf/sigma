@@ -198,11 +198,11 @@ class DossierMobiliteInline(admin.StackedInline):
                        'these_type_autre')
         }),
         ("Directeur de thèse à l'origine", {
-            'fields': ('dir_ori_civilite', 
+            'fields': ('dir_ori_civilite',
                        ('dir_ori_nom', 'dir_ori_prenom'))
         }),
         ("Directeur de thèse à l'accueil", {
-            'fields': ('dir_acc_civilite', 
+            'fields': ('dir_acc_civilite',
                        ('dir_acc_nom', 'dir_acc_prenom'))
         }),
     )
@@ -255,19 +255,30 @@ def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
     return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
 affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s)'
-    
+
 class DossierAdmin(WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
-    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline, DossierAccueilInline, DossierMobiliteInline, DossierConformiteAdmin)
-    list_display = ('appel', 'nom', 'prenom', 'etat', 'moyenne_votes', 'action_column')
+    inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline,
+               DossierAccueilInline, DossierMobiliteInline,
+               DossierConformiteAdmin)
+    list_display = ('appel', 'nom', 'prenom', 'naissance_date', 'etat', 'moyenne_votes', 'action_column')
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
-    search_fields = ('appel__nom',
-                     'candidat__nom', 'candidat__prenom', 'candidat__nom_jeune_fille',
-                     'discipline__code', 'discipline__nom_court', 'discipline__nom_long',
-                     'origine__resp_inst_nom', 'origine__resp_inst_prenom', 'origine__resp_inst_courriel', 'origine__resp_sc_nom', 'origine__resp_sc_prenom', 'origine__resp_sc_courriel', 'origine__faculte_nom', 'origine__faculte_courriel',
-                     'accueil__resp_inst_nom', 'accueil__resp_inst_prenom', 'accueil__resp_inst_courriel', 'accueil__resp_sc_nom', 'accueil__resp_sc_prenom', 'accueil__resp_sc_courriel', 'accueil__faculte_nom', 'accueil__faculte_courriel',
-                     'mobilite__intitule_projet', 'mobilite__mots_clefs', 'mobilite__diplome_demande_nom', 'mobilite__dir_acc_nom', 'mobilite__dir_acc_prenom', 'mobilite__dir_ori_nom', 'mobilite__dir_ori_prenom',
+    search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom',
+                     'candidat__nom_jeune_fille', 'discipline__code',
+                     'discipline__nom_court', 'discipline__nom_long',
+                     'origine__resp_inst_nom', 'origine__resp_inst_prenom',
+                     'origine__resp_inst_courriel', 'origine__resp_sc_nom',
+                     'origine__resp_sc_prenom', 'origine__resp_sc_courriel',
+                     'origine__faculte_nom', 'origine__faculte_courriel',
+                     'accueil__resp_inst_nom', 'accueil__resp_inst_prenom',
+                     'accueil__resp_inst_courriel', 'accueil__resp_sc_nom',
+                     'accueil__resp_sc_prenom', 'accueil__resp_sc_courriel',
+                     'accueil__faculte_nom', 'accueil__faculte_courriel',
+                     'mobilite__intitule_projet', 'mobilite__mots_clefs',
+                     'mobilite__diplome_demande_nom',
+                     'mobilite__dir_acc_nom', 'mobilite__dir_acc_prenom',
+                     'mobilite__dir_ori_nom', 'mobilite__dir_ori_prenom',
     )
     fieldsets = (
         (None, {
@@ -280,31 +291,33 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
             'fields': ('candidat_statut', 'candidat_fonction', ),
         }),
         ('Lien avec l\'AUF', {
-            'fields': ('dernier_projet_description', 'dernier_projet_annee', 'derniere_bourse_categorie', 'derniere_bourse_annee',),
+            'fields': ('dernier_projet_description', 'dernier_projet_annee',
+                       'derniere_bourse_categorie',
+                       'derniere_bourse_annee',),
         }),
     )
     actions = [affecter_dossiers_expert]
     filter_horizontal = ['experts']
 
-    
+
     def _naissance_date(self, obj):
         return obj.candidat.naissance_date
     _naissance_date.short_description = "Date de naissance"
-    
+
     def _nationalite(self, obj):
         return obj.candidat.nationalite
     _nationalite.short_description = "Nationalité"
-    
+
     def action_column(self, obj):
         actions = []
         actions.append("<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, )))
         if obj.etat == DOSSIER_ETAT_BOURSIER:
-            actions.append("<nobr><a href='%s'>Fiche boursier</a></nobr>" % 
+            actions.append("<nobr><a href='%s'>Fiche boursier</a></nobr>" %
                            reverse('admin:suivi_boursier_change', args=(obj.id,)))
         return '<br />\n'.join(actions)
     action_column.allow_tags = True
     action_column.short_description = ''
-    
+
     def _region(self, obj):
         return obj.appel.region
     _region.short_description = "Région"
@@ -316,7 +329,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
         if db_field.name == 'experts':
             kwargs['queryset'] = Expert.objects.region(request.user)
         return super(DossierAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
-        
+
     def get_form(self, request, obj=None, **kwargs):
         form = super(DossierAdmin, self).get_form(request, obj, **kwargs)
         if form.declared_fields.has_key('appel'):
@@ -331,19 +344,19 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
         admin_urls = super(DossierAdmin, self).get_urls()
         additional_urls = patterns(
             '',
-            url(r'^(\d+)/pieces/$', 
+            url(r'^(\d+)/pieces/$',
                 self.admin_site.admin_view(self.view_pieces),
                 name='sigma_dossier_pieces'),
-            url(r'^(\d+)/pieces/add/$', 
+            url(r'^(\d+)/pieces/add/$',
                 self.admin_site.admin_view(self.view_pieces_add),
                 name='sigma_dossier_pieces_add'),
-            url(r'^pieces/(\d+)/$', 
+            url(r'^pieces/(\d+)/$',
                 self.admin_site.admin_view(self.view_pieces_change),
                 name='sigma_dossier_pieces_change'),
-            url(r'^pieces/(\d+)/delete/$', 
+            url(r'^pieces/(\d+)/delete/$',
                 self.admin_site.admin_view(self.view_pieces_delete),
                 name='sigma_dossier_pieces_delete'),
-            url(r'^pieces/(\d+)/download/$', 
+            url(r'^pieces/(\d+)/download/$',
                 self.admin_site.admin_view(self.view_pieces_download),
                 name='sigma_dossier_pieces_download'),
         )
@@ -367,7 +380,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     def view_pieces_add(self, request, dossier_id):
         dossier = get_object_or_404(Dossier, pk=dossier_id)
         if request.method == 'POST':
-            form = PieceForm(request.POST, request.FILES, 
+            form = PieceForm(request.POST, request.FILES,
                              instance=Piece(dossier_id=dossier_id))
             if form.is_valid():
                 form.save()
@@ -402,7 +415,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     def view_pieces_download(self, request, piece_id):
         piece = get_object_or_404(Piece, pk=piece_id)
         if piece.fichier:
-            return sendfile(request, 
+            return sendfile(request,
                             os.path.join(settings.UPLOADS_ROOT, piece.fichier.name),
                             attachment=True)
         else:
@@ -461,7 +474,7 @@ class AttributWCSAdmin(admin.ModelAdmin):
 
     def _dossier(self, obj):
         return obj.dossier.id
-    
+
 
 admin.site.register(TypePiece)
 admin.site.register(AttributWCS, AttributWCSAdmin)
