@@ -76,7 +76,10 @@ class DepensePrevisionnelleInline(admin.TabularInline):
 
 
 class BoursierAdmin(admin.ModelAdmin):
-    list_display = ('nom_complet', 'code_operation', 'field_actions')
+    list_display = ('nom', 'prenom', 'code_operation', 'naissance_date', 'appel', 'debut_mobilite',
+                    'field_actions')
+    list_display_links = ('nom', 'prenom')
+    list_filter = ('dossier__appel',)
     form = BoursierAdminForm
     readonly_fields = ('nom_complet', 'field_dossier')
     fieldsets = (

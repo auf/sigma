@@ -58,13 +58,30 @@ class Boursier(models.Model):
     def __unicode__(self):
         return self.nom_complet()
 
-    @property
     def prenom(self):
         return self.dossier.candidat.prenom
+    prenom.short_description = 'Prénom'
+    prenom.admin_order_field = 'dossier__candidat__prenom'
 
-    @property
     def nom(self):
         return self.dossier.candidat.nom
+    nom.short_description = 'Nom'
+    nom.admin_order_field = 'dossier__candidat__nom'
+
+    def naissance_date(self):
+        return self.dossier.candidat.naissance_date
+    naissance_date.short_description = 'Date de naissance'
+    naissance_date.admin_order_field = 'dossier__candidat__naissance_date'
+
+    def appel(self):
+        return self.dossier.appel
+    appel.short_description = 'Appel'
+    appel.admin_order_field = 'dossier__appel__nom'
+
+    def debut_mobilite(self):
+        return self.dossier.mobilite.date_debut
+    debut_mobilite.short_description = 'Début de la mobilité'
+    debut_mobilite.admin_order_field = 'dossier__mobilite__date_debut'
 
     @property
     def implantation_origine(self):
@@ -193,7 +210,7 @@ class Boursier(models.Model):
         return self.dossier.appel.montant_prime_installation
 
     def nom_complet(self):
-        return self.prenom + ' ' + self.nom
+        return self.prenom() + ' ' + self.nom()
     nom_complet.short_description = 'Nom'
 
     def lignes_ecritures_coda(self):

@@ -150,7 +150,7 @@ class DossierMobiliteForm(forms.ModelForm):
         date_debut = self.cleaned_data['date_debut']
         date_fin = self.cleaned_data['date_fin']
 
-        if date_fin < date_debut:
+        if date_debut and date_fin and date_fin < date_debut:
             raise forms.ValidationError("La date de fin doit être après la date de début")
 
         return date_fin
