@@ -103,8 +103,7 @@ SOUTH_TESTS_MIGRATE = False
 ADMIN_TOOLS_MENU = 'project.menu.CustomMenu'
 ADMIN_TOOLS_INDEX_DASHBOARD = 'project.dashboard.CustomIndexDashboard'
 
-DATE_INPUT_FORMATS = ["%d-%m-%Y", "%Y-%m-%d"]
-HELP_TEXT_DATE = "format: jj-mm-aaaa"
+HELP_TEXT_DATE = "format: jj/mm/aaaa"
 
 # django-sendfile
 
