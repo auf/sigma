@@ -143,10 +143,7 @@ class Boursier(models.Model):
 
     @property
     def montant_origine(self):
-        if self.dossier.origine.etablissement:
-            pays = self.dossier.origine.etablissement.pays
-        else:
-            pays = self.dossier.origine.autre_etablissement_pays
+        pays = self.dossier.origine.pays
         if pays is None:
             return None
 
@@ -169,10 +166,7 @@ class Boursier(models.Model):
 
     @property
     def montant_accueil(self):
-        if self.dossier.accueil.etablissement:
-            pays = self.dossier.accueil.etablissement.pays
-        else:
-            pays = self.dossier.accueil.autre_etablissement_pays
+        pays = self.dossier.accueil.pays
         if pays is None:
             return None
 
@@ -207,7 +201,13 @@ class Boursier(models.Model):
 
     @property
     def prime_installation(self):
-        return self.dossier.appel.montant_prime_installation
+        pays = self.dossier.accueil.pays
+        if pays is None:
+            return None
+        elif pays.nord_sud == 'Nord':
+            return self.dossier.appel.prime_installation_nord
+        else:
+            return self.dossier.appel.prime_installation_sud
 
     def nom_complet(self):
         return self.prenom() + ' ' + self.nom()

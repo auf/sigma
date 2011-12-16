@@ -55,7 +55,7 @@ class AppelAdmin(WorkflowAdmin):
                 ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
                 ('montant_perdiem_sud', 'montant_perdiem_nord'),
                 'montant_allocation_unique',
-                'montant_prime_installation',
+                ('prime_installation_sud', 'prime_installation_nord'),
                 'appel_en_ligne',
                 'conformites',
                 'types_piece',

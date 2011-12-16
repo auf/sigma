@@ -128,8 +128,7 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
         coda_models.Element, verbose_name=u"Code budgétaire",
         limit_choices_to=({'niveau': 3, 'code__regex': r'^[^9]......$'})
     )
-    formulaire_wcs = models.CharField(max_length=255,
-                        choices=APPEL_WCS_CHOICES,
+    formulaire_wcs = models.CharField(max_length=255, choices=APPEL_WCS_CHOICES,
                         verbose_name=u"Nom du formulaire WCS",
                         blank=True, null=True)
     date_debut_appel = models.DateField(verbose_name=u"Début de l'appel",
@@ -161,9 +160,14 @@ class Appel(AppelWorkflow, MetaModel, models.Model):
     montant_mensuel_accueil_nord = models.IntegerField(
                         verbose_name=u"Montant mensuel pays accueil Nord",
                         blank=True, null=True)
-    montant_prime_installation = models.IntegerField(
-                        verbose_name=u"Montant prime installation",
-                        blank=True, null=True)
+    prime_installation_sud = models.IntegerField(
+        verbose_name=u"Prime d'installation (pays du Sud)",
+        blank=True, null=True
+    )
+    prime_installation_nord = models.IntegerField(
+        verbose_name=u"Prime d'installation (pays du Nord)",
+        blank=True, null=True
+    )
     montant_perdiem_sud = models.IntegerField(
                         verbose_name=u"Montant jour (perdiem) pays Sud ",
                         blank=True, null=True)
@@ -551,6 +555,10 @@ class DossierFaculte(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    def pays(self):
+        return self.etablissement.pays if self.etablissement else self.autre_etablissement_pays
 
 class DossierOrigine(DossierFaculte):
     """
