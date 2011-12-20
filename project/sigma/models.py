@@ -716,9 +716,9 @@ class Diplome(models.Model):
     """
     """
     dossier = models.ForeignKey(Dossier)
-    nom = models.CharField(max_length=255, verbose_name=u"Nom",
+    nom = models.CharField(max_length=255, verbose_name=u"Intitulé",
                         blank=True, null=True)
-    date = models.DateField(max_length=255, verbose_name=u"Date",
+    date = models.DateField(max_length=255, verbose_name=u"Date d'obtention",
                         help_text=settings.HELP_TEXT_DATE,
                         blank=True, null=True)
     niveau = models.ForeignKey(NiveauEtude, related_name="niveau",
@@ -738,6 +738,7 @@ class Diplome(models.Model):
                         related_name="etablissement_pays",
                         verbose_name=u"Pays de l'établissement",
                         blank=True, null=True)
+
 
 class TypePiece(models.Model):
     """

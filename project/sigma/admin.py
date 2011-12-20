@@ -236,7 +236,7 @@ class DiplomeInline(admin.StackedInline):
     model = Diplome
     max_num = 1
     template = "admin/sigma/edit_inline/single-stack.html"
-    verbose_name = verbose_name_plural = "Diplôme"
+    verbose_name = verbose_name_plural = "Dernier diplôme obtenu"
     can_delete = False
 
     fieldsets = (
