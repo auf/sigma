@@ -600,6 +600,15 @@ class Intervention(models.Model):
     """
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
 
+    class Meta:
+        verbose_name = "intervention"
+        verbose_name_plural = "interventions"
+        ordering = ['nom']
+
+    def __unicode__(self):
+        return self.nom
+
+
 class DossierMobilite(models.Model):
     """Informations sur la mobilité demandée par le candidat.
     """
