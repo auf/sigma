@@ -11,11 +11,10 @@ MAPPING = {
     'sigma_nom': ('Candidat', 'nom'),
     'sigma_nom_jeune_fille': ('Candidat', 'nom_jeune_fille'),
     'sigma_nationalite': ('Candidat', 'nationalite'),
-    'sigma_ville_naissance': ('Candidat', 'naissance_ville'),
     'sigma_date_naissance': ('Candidat', 'naissance_date'),
 
     # Coordonnées
-    'sigma_adresse': ('Candidat', 'adresse'),
+    'sigma_adresse_complement': ('Candidat', 'adresse_complement'),
     'sigma_ville': ('Candidat', 'ville'),
     'sigma_code_postal': ('Candidat', 'code_postal'),
     'sigma_region': ('Candidat', 'region'),
@@ -146,17 +145,20 @@ MAPPING = {
     'sigma_these_pays_soutenance': ('DossierMobilite', 'these_soutenance_pays'),
     'sigma_these_date_soutenance': ('DossierMobilite', 'these_soutenance_date'),
     'sigma_these_type': ('DossierMobilite', 'these_type'),
-    'sigma_these_type_autre': ('DossierMobilite', 'these_type_autre'),
 
     # Directeur de thèse - Origine
     'sigma_directeur_origine_civilite': ('DossierMobilite', 'dir_ori_civilite'),
     'sigma_directeur_origine_prenom': ('DossierMobilite', 'dir_ori_prenom'),
     'sigma_directeur_origine_nom': ('DossierMobilite', 'dir_ori_nom'),
+    'sigma_directeur_origine_courriel': ('DossierMobilite', 'dir_ori_courriel'),
+    'sigma_directeur_origine_telephone': ('DossierMobilite', 'dir_ori_telephone'),
 
     # Directeur de thèse - Accueil
     'sigma_directeur_accueil_civilite': ('DossierMobilite', 'dir_acc_civilite'),
     'sigma_directeur_accueil_prenom': ('DossierMobilite', 'dir_acc_prenom'),
     'sigma_directeur_accueil_nom': ('DossierMobilite', 'dir_acc_nom'),
+    'sigma_directeur_accueil_courriel': ('DossierMobilite', 'dir_acc_courriel'),
+    'sigma_directeur_accueil_telephone': ('DossierMobilite', 'dir_acc_telephone'),
     
     # Lien avec l'AUF
     'sigma_dernier_projet_description': ('Dossier', 'dernier_projet_description'),
