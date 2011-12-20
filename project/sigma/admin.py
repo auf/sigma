@@ -172,14 +172,14 @@ class DossierMobiliteInline(admin.StackedInline):
         ('Dossier scientifique', {
             'fields': ('intitule_projet', 'mots_clefs')
         }),
+        ('Disciplines', {
+            'fields': (('discipline', 'sous_discipline'),)
+        }),
         ('Formation en cours', {
             'fields': (('formation_en_cours_diplome', 'formation_en_cours_niveau'),)
         }),
         ('Diplôme demandé', {
             'fields': ('diplome_demande_nom', 'diplome_demande_niveau')
-        }),
-        ('Disciplines', {
-            'fields': (('discipline', 'sous_discipline'),)
         }),
         ('Alternance', {
             'fields': (('alternance_nb_mois_origine',

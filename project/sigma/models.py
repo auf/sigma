@@ -628,6 +628,11 @@ class DossierMobilite(models.Model):
     mots_clefs = models.CharField(max_length=255,
                         verbose_name=u"Mots clefs", blank=True, null=True)
 
+    # Disciplines
+    discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline",
+                        blank=True, null=True)
+    sous_discipline = models.CharField(max_length=255, blank=True, null=True)
+
     # Formation en cours
     formation_en_cours_diplome = models.CharField(max_length=255,
                         verbose_name=u"Intitulé du diplôme",
@@ -642,11 +647,6 @@ class DossierMobilite(models.Model):
     diplome_demande_niveau = models.ForeignKey(NiveauEtude,
                         related_name="diplome_demande_niveau",
                         verbose_name=u"Niveau d'études", blank=True, null=True)
-
-    # Disciplines
-    discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline",
-                        blank=True, null=True)
-    sous_discipline = models.CharField(max_length=255, blank=True, null=True)
 
     # Alternance
     alternance_nb_mois_origine = models.IntegerField(
