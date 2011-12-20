@@ -100,7 +100,14 @@ class AppelAdmin(WorkflowAdmin):
 
 class BaseDossierFaculteInline(admin.StackedInline):
     max_num = 1
-    template = "admin/sigma/edit_inline/stacked.html"
+    template = "admin/sigma/edit_inline/single-stack.html"
+    can_delete = False
+
+
+class DossierOrigineInline(BaseDossierFaculteInline):
+    model = DossierOrigine
+    verbose_name = verbose_name_plural = "Origine (établissement d'inscription ou d'activité à la date de la candidature)"
+
     fieldsets = (
         (None, {'fields': ('pays', 'etablissement',)}),
         ('Autre établissement si non membre de l\'AUF', {
@@ -109,9 +116,9 @@ class BaseDossierFaculteInline(admin.StackedInline):
                        ('autre_etablissement_ville', 'autre_etablissement_code_postal'),
                        ('autre_etablissement_region', 'autre_etablissement_pays'))
         }),
-        ('Responsable institutionnel', {
+        ('Responsable institutionnel à l\'origine', {
             'fields': (('resp_inst_civilite', 'resp_inst_nom', 'resp_inst_prenom'),
-                       ('resp_inst_courriel', 'resp_inst_fonction'),
+                       ('resp_inst_fonction', 'resp_inst_courriel'),
                        ('resp_inst_telephone', 'resp_inst_fax'))
         }),
         ('Responsable scientifique', {
@@ -127,20 +134,30 @@ class BaseDossierFaculteInline(admin.StackedInline):
         }),
     )
 
-
-class DossierOrigineInline(BaseDossierFaculteInline):
-    model = DossierOrigine
-    verbose_name = verbose_name_plural = "Origine (établissement d'inscription ou d'activité à la date de la candidature)"
-    template = "admin/sigma/edit_inline/single-stack.html"
-    can_delete = False
-
-
 class DossierAccueilInline(BaseDossierFaculteInline):
     model = DossierAccueil
     verbose_name = verbose_name_plural = "Accueil (établissement de destination de la mobilité)"
-    template = "admin/sigma/edit_inline/single-stack.html"
-    can_delete = False
 
+    fieldsets = (
+        (None, {'fields': ('pays', 'etablissement',)}),
+        ('Autre établissement si non membre de l\'AUF', {
+            'classes': ['collapse'],
+            'fields': (('autre_etablissement_nom', 'autre_etablissement_adresse'),
+                       ('autre_etablissement_ville', 'autre_etablissement_code_postal'),
+                       ('autre_etablissement_region', 'autre_etablissement_pays'))
+        }),
+        ('Responsable scientifique', {
+            'fields': (('resp_sc_civilite', 'resp_sc_nom', 'resp_sc_prenom'),
+                       ('resp_sc_courriel', 'resp_sc_fonction'),
+                       ('resp_sc_telephone', 'resp_sc_fax'))
+        }),
+        ('Faculté', {
+            'fields': ('faculte_nom',
+                       ('faculte_url', 'faculte_courriel'),
+                       ('faculte_adresse', 'faculte_ville', 'faculte_code_postal'),
+                       ('faculte_telephone', 'faculte_fax'))
+        }),
+    )
 
 class DossierMobiliteForm(forms.ModelForm):
     class Meta:

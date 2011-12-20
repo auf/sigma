@@ -477,29 +477,6 @@ class DossierFaculte(models.Model):
     autre_etablissement_region = models.CharField(max_length=255,
                         verbose_name=u"Région", blank=True, null=True)
 
-    # responsable institutionnel (Directeur de thèse)
-    resp_inst_civilite = models.CharField(max_length=2,
-                        verbose_name=u"Civilité",
-                        choices=CIVILITE, blank=True, null=True)
-    resp_inst_nom = models.CharField(max_length=255,
-                        verbose_name=u"Nom",
-                        blank=True, null=True)
-    resp_inst_prenom = models.CharField(max_length=255,
-                        verbose_name=u"Prénom",
-                        blank=True, null=True)
-    resp_inst_fonction = models.CharField(max_length=255,
-                        verbose_name=u"Fonction",
-                        blank=True, null=True)
-    resp_inst_courriel = models.CharField(max_length=255,
-                        verbose_name=u"Courriel",
-                        blank=True, null=True)
-    resp_inst_telephone = models.CharField(max_length=255,
-                        verbose_name=u"Téléphone",
-                        blank=True, null=True)
-    resp_inst_fax = models.CharField(max_length=255,
-                        verbose_name=u"Télécopieur",
-                        blank=True, null=True)
-
     # responsable scientifique (Accord scientifique)
     resp_sc_civilite = models.CharField(max_length=2,
                         verbose_name=u"Civilité",
@@ -565,6 +542,29 @@ class DossierOrigine(DossierFaculte):
     # Pour le champ de sélection Etablissement
     pays = models.ForeignKey(Pays, to_field="code", related_name="origine_pays",
                         verbose_name=u"Pays", blank=True, null=True)
+
+    # responsable institutionnel à l'origine
+    resp_inst_civilite = models.CharField(max_length=2,
+                        verbose_name=u"Civilité",
+                        choices=CIVILITE, blank=True, null=True)
+    resp_inst_nom = models.CharField(max_length=255,
+                        verbose_name=u"Nom",
+                        blank=True, null=True)
+    resp_inst_prenom = models.CharField(max_length=255,
+                        verbose_name=u"Prénom",
+                        blank=True, null=True)
+    resp_inst_fonction = models.CharField(max_length=255,
+                        verbose_name=u"Fonction",
+                        blank=True, null=True)
+    resp_inst_courriel = models.CharField(max_length=255,
+                        verbose_name=u"Courriel",
+                        blank=True, null=True)
+    resp_inst_telephone = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone",
+                        blank=True, null=True)
+    resp_inst_fax = models.CharField(max_length=255,
+                        verbose_name=u"Télécopieur",
+                        blank=True, null=True)
 
 class DossierAccueil(DossierFaculte):
     """

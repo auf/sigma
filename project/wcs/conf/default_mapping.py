@@ -79,15 +79,6 @@ MAPPING = {
     'sigma_accueil_autre_etablissement_region': ('DossierAccueil', 'autre_etablissement_region'),
     'sigma_accueil_autre_etablissement_pays': ('DossierAccueil', 'autre_etablissement_pays'),
 
-    # Accueil - responsable institutionnel
-    'sigma_accueil_responsable_institutionnel_civilite': ('DossierAccueil', 'resp_inst_civilite'),
-    'sigma_accueil_responsable_institutionnel_prenom': ('DossierAccueil', 'resp_inst_prenom'),
-    'sigma_accueil_responsable_institutionnel_nom': ('DossierAccueil', 'resp_inst_nom'),
-    'sigma_accueil_responsable_institutionnel_courriel': ('DossierAccueil', 'resp_inst_courriel'),
-    'sigma_accueil_responsable_institutionnel_fonction': ('DossierAccueil', 'resp_inst_fonction'),
-    'sigma_accueil_responsable_institutionnel_telephone': ('DossierAccueil', 'resp_inst_telephone'),
-    'sigma_accueil_responsable_institutionnel_fax': ('DossierAccueil', 'resp_inst_fax'),
-
     # Accueil - responsable scientifique
     'sigma_accueil_responsable_scientifique_civilite': ('DossierAccueil', 'resp_sc_civilite'),
     'sigma_accueil_responsable_scientifique_prenom': ('DossierAccueil', 'resp_sc_prenom'),
