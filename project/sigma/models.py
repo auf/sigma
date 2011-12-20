@@ -225,6 +225,8 @@ class Candidat(models.Model):
                         blank=True, null=True)
     adresse = models.CharField(max_length=255, verbose_name=u"Adresse",
                         blank=True, null=True)
+    adresse_complement = models.CharField(max_length=255, verbose_name=u"Complément d'adresse",
+                        blank=True, null=True)
     ville = models.CharField(max_length=255, verbose_name=u"Ville",
                         blank=True, null=True)
     region = models.CharField(max_length=255, verbose_name=u"Région",

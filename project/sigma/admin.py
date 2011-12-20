@@ -223,7 +223,7 @@ class DossierCandidatInline(admin.StackedInline):
         }),
         ('Coordonnées', {
             'fields': (
-                'adresse',
+                ('adresse', 'adresse_complement'),
                 ('ville', 'code_postal'),
                 ('region', 'pays'),
                 ('telephone_perso', 'courriel_perso'),
