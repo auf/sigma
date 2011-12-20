@@ -459,7 +459,7 @@ class DossierFaculte(models.Model):
                         chained_model_field="pays",
                         show_all=False,
                         auto_choose=True,
-                        verbose_name=u"Établissement",
+                        verbose_name=u"Établissement, si membre de l'AUF",
                         blank=True, null=True)
 
     # Autre établissement
@@ -734,7 +734,7 @@ class Diplome(models.Model):
 
     # Etablissement connu de l'AUF
     etablissement = models.ForeignKey(Etablissement,
-                        verbose_name=u"Établissement",
+                        verbose_name=u"Établissement d'obtention si membre de l'AUF",
                         blank=True, null=True)
 
     # Autre établissement

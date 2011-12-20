@@ -103,7 +103,7 @@ class BaseDossierFaculteInline(admin.StackedInline):
     template = "admin/sigma/edit_inline/stacked.html"
     fieldsets = (
         (None, {'fields': ('pays', 'etablissement',)}),
-        ('Autre établissement', {
+        ('Autre établissement si non membre de l\'AUF', {
             'classes': ['collapse'],
             'fields': (('autre_etablissement_nom', 'autre_etablissement_adresse'),
                        ('autre_etablissement_ville', 'autre_etablissement_code_postal'),
@@ -244,7 +244,7 @@ class DiplomeInline(admin.StackedInline):
         (None, {
             'fields': ('nom', 'date', 'niveau', 'etablissement')
         }),
-        ('Autre établissement', {
+        ('Autre établissement d\'obtention, si non membre de l\'AUF', {
             'classes': ['collapse'],
             'fields': ('autre_etablissement_nom', 'autre_etablissement_pays')
         }),
