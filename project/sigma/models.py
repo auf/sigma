@@ -214,9 +214,6 @@ class Candidat(models.Model):
     # identification avancée personne
     nationalite = models.ForeignKey(Pays, verbose_name=u"Nationalité",
                         blank=True, null=True)
-    naissance_ville = models.CharField(max_length=255,
-                        verbose_name=u"Ville de naissance",
-                        blank=True, null=True)
     naissance_date = models.DateField(max_length=255,
                         verbose_name=u"Date de naissance",
                         help_text=settings.HELP_TEXT_DATE,
