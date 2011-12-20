@@ -227,8 +227,8 @@ class DossierCandidatInline(admin.StackedInline):
                 ('adresse', 'adresse_complement'),
                 ('ville', 'code_postal'),
                 ('region', 'pays'),
-                ('telephone_perso', 'courriel_perso'),
-                ('telephone_pro', 'courriel_pro'))
+                ('telephone', 'telephone_portable'),
+                'courriel')
         }),
     )
 
