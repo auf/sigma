@@ -1,5 +1,5 @@
 {% load i18n adminmedia %}
-<h2>{{ inline_admin_formset.opts.verbose_name_plural|title }}</h2>
+<h2>{{ inline_admin_formset.opts.verbose_name_plural }}</h2>
 
 <fieldset class="inline-group" id="{{ inline_admin_formset.formset.prefix }}-group">
 {{ inline_admin_formset.formset.management_form }}

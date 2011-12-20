@@ -639,14 +639,12 @@ class DossierMobilite(models.Model):
                         related_name="formation_en_cours_niveau",
                         verbose_name=u"Niveau d'études", blank=True, null=True)
 
-    # Programme de mission
-    type_intervention = models.ForeignKey(Intervention,
-                        verbose_name=u"Type d'intervention",
-                        blank=True, null=True)
-    public_vise = models.ForeignKey(Public, verbose_name=u"Public visé",
-                        blank=True, null=True)
-    autres_publics = models.CharField(max_length=255,
-                        verbose_name=u"Autres publics", blank=True, null=True)
+    # Diplôme demandé
+    diplome_demande_nom = models.CharField(max_length=255,
+                        verbose_name=u"Diplôme demandé", blank=True, null=True)
+    diplome_demande_niveau = models.ForeignKey(NiveauEtude,
+                        related_name="diplome_demande_niveau",
+                        verbose_name=u"Niveau d'études", blank=True, null=True)
 
     # Disciplines
     discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline",
@@ -664,17 +662,10 @@ class DossierMobilite(models.Model):
                         verbose_name=u"Mobilité commençée à l'accueil?",
                         blank=True, null=True)
 
-    # Diplôme demandé
-    diplome_demande_nom = models.CharField(max_length=255,
-                        verbose_name=u"Diplôme demandé", blank=True, null=True)
-    diplome_demande_niveau = models.ForeignKey(NiveauEtude,
-                        related_name="diplome_demande_niveau",
-                        verbose_name=u"Niveau d'études", blank=True, null=True)
-
     # Thèse
     these_date_inscription = models.DateField(
                         help_text=settings.HELP_TEXT_DATE,
-                        verbose_name=u"Date d'inscription",
+                        verbose_name=u"Date de première inscription en thèse",
                         blank=True, null=True)
     these_date_obtention_prevue = models.DateField(
                         help_text=settings.HELP_TEXT_DATE,
@@ -691,9 +682,6 @@ class DossierMobilite(models.Model):
     these_type = models.CharField(max_length=2,
                         verbose_name=u"Type de thèse",
                         choices=TYPE_THESE, blank=True, null=True)
-    these_type_autre = models.CharField(max_length=255,
-                        verbose_name=u"Autre type de thèse",
-                        blank=True, null=True)
 
     # directeur thèse accueil
     dir_acc_civilite = models.CharField(max_length=2,
@@ -703,6 +691,12 @@ class DossierMobilite(models.Model):
                         verbose_name=u"Nom", blank=True, null=True)
     dir_acc_prenom = models.CharField(max_length=255,
                         verbose_name=u"Prénom", blank=True, null=True)
+    dir_acc_courriel = models.CharField(max_length=255,
+                        verbose_name=u"adresse électronique",
+                        blank=True, null=True)
+    dir_acc_telephone = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone",
+                        blank=True, null=True)
 
     # directeur thèse origine
     dir_ori_civilite = models.CharField(max_length=2, verbose_name=u"Civilité",
@@ -711,6 +705,22 @@ class DossierMobilite(models.Model):
                         blank=True, null=True)
     dir_ori_prenom = models.CharField(max_length=255, verbose_name=u"Prénom",
                         blank=True, null=True)
+    dir_ori_courriel = models.CharField(max_length=255,
+                        verbose_name=u"adresse électronique",
+                        blank=True, null=True)
+    dir_ori_telephone = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone",
+                        blank=True, null=True)
+
+    # Programme de mission
+    type_intervention = models.ForeignKey(Intervention,
+                        verbose_name=u"Type d'intervention",
+                        blank=True, null=True)
+    public_vise = models.ForeignKey(Public, verbose_name=u"Public visé",
+                        blank=True, null=True)
+    autres_publics = models.CharField(max_length=255,
+                        verbose_name=u"Autres publics", blank=True, null=True)
+
 
 class Diplome(models.Model):
     """

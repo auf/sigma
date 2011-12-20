@@ -130,14 +130,14 @@ class BaseDossierFaculteInline(admin.StackedInline):
 
 class DossierOrigineInline(BaseDossierFaculteInline):
     model = DossierOrigine
-    verbose_name = verbose_name_plural = "Origine"
+    verbose_name = verbose_name_plural = "Origine (établissement d'inscription ou d'activité à la date de la candidature)"
     template = "admin/sigma/edit_inline/single-stack.html"
     can_delete = False
 
 
 class DossierAccueilInline(BaseDossierFaculteInline):
     model = DossierAccueil
-    verbose_name = verbose_name_plural = "Accueil"
+    verbose_name = verbose_name_plural = "Accueil (établissement de destination de la mobilité)"
     template = "admin/sigma/edit_inline/single-stack.html"
     can_delete = False
 
@@ -175,8 +175,8 @@ class DossierMobiliteInline(admin.StackedInline):
         ('Formation en cours', {
             'fields': (('formation_en_cours_diplome', 'formation_en_cours_niveau'),)
         }),
-        ('Programme de mission', {
-            'fields': ('type_intervention', 'public_vise', 'autres_publics')
+        ('Diplôme demandé', {
+            'fields': ('diplome_demande_nom', 'diplome_demande_niveau')
         }),
         ('Disciplines', {
             'fields': (('discipline', 'sous_discipline'),)
@@ -186,24 +186,25 @@ class DossierMobiliteInline(admin.StackedInline):
                        'alternance_nb_mois_accueil',
                        'alternance_accueil_puis_origine'),)
         }),
-        ('Diplôme demandé', {
-            'fields': ('diplome_demande_nom', 'diplome_demande_niveau')
-        }),
         ('Thèse', {
             'fields': ('these_date_inscription',
                        'these_date_obtention_prevue',
                        'these_soutenance_pays',
                        'these_soutenance_date',
-                       'these_type',
-                       'these_type_autre')
+                       'these_type')
         }),
         ("Directeur de thèse à l'origine", {
             'fields': ('dir_ori_civilite',
-                       ('dir_ori_nom', 'dir_ori_prenom'))
+                       ('dir_ori_nom', 'dir_ori_prenom'),
+                       ('dir_ori_courriel', 'dir_ori_telephone'))
         }),
         ("Directeur de thèse à l'accueil", {
             'fields': ('dir_acc_civilite',
-                       ('dir_acc_nom', 'dir_acc_prenom'))
+                       ('dir_acc_nom', 'dir_acc_prenom'),
+                       ('dir_acc_courriel', 'dir_acc_telephone'))
+        }),
+        ('Programme de mission', {
+            'fields': ('type_intervention', 'public_vise', 'autres_publics')
         }),
     )
 
