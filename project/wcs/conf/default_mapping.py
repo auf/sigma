@@ -63,13 +63,9 @@ MAPPING = {
 
     # Origine - faculté
     'sigma_origine_faculte': ('DossierOrigine', 'faculte_nom'),
-    'sigma_origine_faculte_url': ('DossierOrigine', 'faculte_url'),
-    'sigma_origine_faculte_courriel': ('DossierOrigine', 'faculte_courriel'),
     'sigma_origine_faculte_adresse': ('DossierOrigine', 'faculte_adresse'),
     'sigma_origine_faculte_ville': ('DossierOrigine', 'faculte_ville'),
     'sigma_origine_faculte_code_postal': ('DossierOrigine', 'faculte_code_postal'),
-    'sigma_origine_faculte_telephone': ('DossierOrigine', 'faculte_telephone'),
-    'sigma_origine_faculte_fax': ('DossierOrigine', 'faculte_fax'),
 
     # Accueil
     'sigma_accueil_etablissement': ('DossierAccueil', 'etablissement'),
@@ -90,13 +86,9 @@ MAPPING = {
 
     # Accueil - faculté
     'sigma_accueil_faculte': ('DossierAccueil', 'faculte_nom'),
-    'sigma_accueil_faculte_url': ('DossierAccueil', 'faculte_url'),
-    'sigma_accueil_faculte_courriel': ('DossierAccueil', 'faculte_courriel'),
     'sigma_accueil_faculte_adresse': ('DossierAccueil', 'faculte_adresse'),
     'sigma_accueil_faculte_ville': ('DossierAccueil', 'faculte_ville'),
     'sigma_accueil_faculte_code_postal': ('DossierAccueil', 'faculte_code_postal'),
-    'sigma_accueil_faculte_telephone': ('DossierAccueil', 'faculte_telephone'),
-    'sigma_accueil_faculte_fax': ('DossierAccueil', 'faculte_fax'),
 
     # Période de mobilité
     'sigma_date_debut': ('DossierMobilite', 'date_debut'),

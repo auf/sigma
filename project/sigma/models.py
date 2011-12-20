@@ -501,29 +501,17 @@ class DossierFaculte(models.Model):
                         blank=True, null=True)
 
     # faculté, département ou labo (Accord scientifique)
-    faculte_url = models.CharField(max_length=255,
-                        verbose_name=u"URL",
-                        blank=True, null=True)
     faculte_nom = models.CharField(max_length=255,
-                        verbose_name=u"Nom",
+                        verbose_name=u"Faculté / Centre / Département",
                         blank=True, null=True)
     faculte_adresse = models.CharField(max_length=255,
                         verbose_name=u"Adresse",
                         blank=True, null=True)
-    faculte_code_postal = models.CharField(max_length=255,
-                        verbose_name=u"Code postal",
-                        blank=True, null=True)
     faculte_ville = models.CharField(max_length=255,
                         verbose_name=u"Ville",
                         blank=True, null=True)
-    faculte_courriel = models.CharField(max_length=255,
-                        verbose_name=u"Courriel",
-                        blank=True, null=True)
-    faculte_telephone = models.CharField(max_length=255,
-                        verbose_name=u"Téléphone",
-                        blank=True, null=True)
-    faculte_fax = models.CharField(max_length=255,
-                        verbose_name=u"Télécopieur",
+    faculte_code_postal = models.CharField(max_length=255,
+                        verbose_name=u"Code postal",
                         blank=True, null=True)
 
     class Meta:

@@ -121,16 +121,12 @@ class DossierOrigineInline(BaseDossierFaculteInline):
                        ('resp_inst_fonction', 'resp_inst_courriel'),
                        ('resp_inst_telephone', 'resp_inst_fax'))
         }),
-        ('Responsable scientifique', {
+        ('Responsable scientifique à l\'origine', {
             'fields': (('resp_sc_civilite', 'resp_sc_nom', 'resp_sc_prenom'),
-                       ('resp_sc_courriel', 'resp_sc_fonction'),
-                       ('resp_sc_telephone', 'resp_sc_fax'))
-        }),
-        ('Faculté', {
-            'fields': ('faculte_nom',
-                       ('faculte_url', 'faculte_courriel'),
-                       ('faculte_adresse', 'faculte_ville', 'faculte_code_postal'),
-                       ('faculte_telephone', 'faculte_fax'))
+                       ('resp_sc_fonction', 'resp_sc_courriel'),
+                       ('resp_sc_telephone', 'resp_sc_fax'),
+                       ('faculte_nom', 'faculte_adresse'),
+                       ('faculte_ville', 'faculte_code_postal'))
         }),
     )
 
@@ -146,16 +142,12 @@ class DossierAccueilInline(BaseDossierFaculteInline):
                        ('autre_etablissement_ville', 'autre_etablissement_code_postal'),
                        ('autre_etablissement_region', 'autre_etablissement_pays'))
         }),
-        ('Responsable scientifique', {
+        ('Responsable scientifique à l\'accueil', {
             'fields': (('resp_sc_civilite', 'resp_sc_nom', 'resp_sc_prenom'),
-                       ('resp_sc_courriel', 'resp_sc_fonction'),
-                       ('resp_sc_telephone', 'resp_sc_fax'))
-        }),
-        ('Faculté', {
-            'fields': ('faculte_nom',
-                       ('faculte_url', 'faculte_courriel'),
-                       ('faculte_adresse', 'faculte_ville', 'faculte_code_postal'),
-                       ('faculte_telephone', 'faculte_fax'))
+                       ('resp_sc_fonction', 'resp_sc_courriel'),
+                       ('resp_sc_telephone', 'resp_sc_fax'),
+                       ('faculte_nom', 'faculte_adresse'),
+                       ('faculte_ville', 'faculte_code_postal'))
         }),
     )
 
