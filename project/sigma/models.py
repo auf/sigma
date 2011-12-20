@@ -233,17 +233,14 @@ class Candidat(models.Model):
                         blank=True, null=True)
     code_postal = models.CharField(max_length=255, verbose_name=u"Code postal",
                         blank=True, null=True)
-    telephone_perso = models.CharField(max_length=255,
-                        verbose_name=u"Téléphone personnel",
+    telephone = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone fixe",
                         blank=True, null=True, help_text=u"(+ code régional)")
-    courriel_perso = models.EmailField(max_length=255,
-                        verbose_name=u"Courriel personnel",
-                        blank=True, null=True)
-    telephone_pro = models.CharField(max_length=255,
-                        verbose_name=u"Téléphone professionnel",
+    telephone_portable = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone portable",
                         blank=True, null=True, help_text=u"(+ code régional)")
-    courriel_pro = models.EmailField(max_length=255,
-                        verbose_name=u"Courriel professionnel",
+    courriel = models.EmailField(max_length=255,
+                        verbose_name=u"Adresse électronique",
                         blank=True, null=True)
 
     def __unicode__(self):

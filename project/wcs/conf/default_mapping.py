@@ -19,10 +19,9 @@ MAPPING = {
     'sigma_code_postal': ('Candidat', 'code_postal'),
     'sigma_region': ('Candidat', 'region'),
     'sigma_pays': ('Candidat', 'pays'),
-    'sigma_telephone_perso': ('Candidat', 'telephone_perso'),
-    'sigma_telephone_pro': ('Candidat', 'telephone_pro'),
-    'sigma_courriel_perso': ('Candidat', 'courriel_perso'),
-    'sigma_courriel_pro': ('Candidat', 'courriel_pro'),
+    'sigma_telephone_fixe': ('Candidat', 'telephone'),
+    'sigma_telephone_portable': ('Candidat', 'telephone_portable'),
+    'sigma_courriel': ('Candidat', 'courriel'),
     
     # Situation universitaire
     'sigma_statut_candidat': ('Dossier', 'candidat_statut'),
