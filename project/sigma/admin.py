@@ -215,7 +215,6 @@ class DossierMobiliteInline(admin.StackedInline):
         }),
         ('Thèse', {
             'fields': ('these_date_inscription',
-                       'these_date_obtention_prevue',
                        'these_soutenance_pays',
                        'these_soutenance_date',
                        'these_type')
@@ -299,15 +298,14 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
                      'origine__resp_inst_nom', 'origine__resp_inst_prenom',
                      'origine__resp_inst_courriel', 'origine__resp_sc_nom',
                      'origine__resp_sc_prenom', 'origine__resp_sc_courriel',
-                     'origine__faculte_nom', 'origine__faculte_courriel',
-                     'accueil__resp_inst_nom', 'accueil__resp_inst_prenom',
-                     'accueil__resp_inst_courriel', 'accueil__resp_sc_nom',
-                     'accueil__resp_sc_prenom', 'accueil__resp_sc_courriel',
-                     'accueil__faculte_nom', 'accueil__faculte_courriel',
+                     'origine__faculte_nom',
+                     'origine__dir_nom', 'origine__dir_prenom',
+                     'accueil__resp_sc_nom', 'accueil__resp_sc_prenom',
+                     'accueil__resp_sc_courriel',
+                     'accueil__faculte_nom',
+                     'accueil__dir_nom', 'accueil__dir_prenom',
                      'mobilite__intitule_projet', 'mobilite__mots_clefs',
                      'mobilite__diplome_demande_nom',
-                     'mobilite__dir_acc_nom', 'mobilite__dir_acc_prenom',
-                     'mobilite__dir_ori_nom', 'mobilite__dir_ori_prenom',
     )
     fieldsets = (
         (None, {
