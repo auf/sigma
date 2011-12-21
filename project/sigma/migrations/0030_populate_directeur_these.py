@@ -7,45 +7,53 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        for dossier_mob in orm.DossierMobilite.objects.all():
-            dossier = dossier_mob.dossier
-            dossier_acc = dossier.accueil
-            dossier_ori = dossier.origine
+        if not db.dry_run:
+            # Nettoyer les dossiers qui n'ont pas de fiche "accueil" ou
+            # "origine"
+            db.execute("DELETE FROM sigma_dossier WHERE id NOT IN (SELECT dossier_id FROM sigma_dossierorigine)")
+            db.execute("DELETE FROM sigma_dossier WHERE id NOT IN (SELECT dossier_id FROM sigma_dossieraccueil)")
+            db.execute("DELETE FROM sigma_dossiermobilite WHERE dossier_id NOT IN (SELECT id FROM sigma_dossier)")
 
-            dossier_acc.dir_civilite = dossier_mob.dir_acc_civilite
-            dossier_acc.dir_nom = dossier_mob.dir_acc_nom
-            dossier_acc.dir_prenom = dossier_mob.dir_acc_prenom
-            dossier_acc.dir_courriel = dossier_mob.dir_acc_courriel
-            dossier_acc.dir_telephone = dossier_mob.dir_acc_telephone
+            for dossier_mob in orm.DossierMobilite.objects.all():
+                dossier = dossier_mob.dossier
+                dossier_acc = dossier.accueil
+                dossier_ori = dossier.origine
 
-            dossier_ori.dir_civilite = dossier_mob.dir_ori_civilite
-            dossier_ori.dir_nom = dossier_mob.dir_ori_nom
-            dossier_ori.dir_prenom = dossier_mob.dir_ori_prenom
-            dossier_ori.dir_courriel = dossier_mob.dir_ori_courriel
-            dossier_ori.dir_telephone = dossier_mob.dir_ori_telephone
+                dossier_acc.dir_civilite = dossier_mob.dir_acc_civilite
+                dossier_acc.dir_nom = dossier_mob.dir_acc_nom
+                dossier_acc.dir_prenom = dossier_mob.dir_acc_prenom
+                dossier_acc.dir_courriel = dossier_mob.dir_acc_courriel
+                dossier_acc.dir_telephone = dossier_mob.dir_acc_telephone
 
-            dossier_acc.save()
-            dossier_ori.save()
+                dossier_ori.dir_civilite = dossier_mob.dir_ori_civilite
+                dossier_ori.dir_nom = dossier_mob.dir_ori_nom
+                dossier_ori.dir_prenom = dossier_mob.dir_ori_prenom
+                dossier_ori.dir_courriel = dossier_mob.dir_ori_courriel
+                dossier_ori.dir_telephone = dossier_mob.dir_ori_telephone
+
+                dossier_acc.save()
+                dossier_ori.save()
 
     def backwards(self, orm):
-        for dossier_mob in orm.DossierMobilite.objects.all():
-            dossier = dossier_mob.dossier
-            dossier_acc = dossier.accueil
-            dossier_ori = dossier.origine
+        if not db.dry_run:
+            for dossier_mob in orm.DossierMobilite.objects.all():
+                dossier = dossier_mob.dossier
+                dossier_acc = dossier.accueil
+                dossier_ori = dossier.origine
 
-            dossier_mob.dir_acc_civilite = dossier_acc.dir_civilite
-            dossier_mob.dir_acc_nom = dossier_acc.dir_nom
-            dossier_mob.dir_acc_prenom = dossier_acc.dir_prenom
-            dossier_mob.dir_acc_courriel = dossier_acc.dir_courriel
-            dossier_mob.dir_acc_telephone = dossier_acc.dir_telephone
+                dossier_mob.dir_acc_civilite = dossier_acc.dir_civilite
+                dossier_mob.dir_acc_nom = dossier_acc.dir_nom
+                dossier_mob.dir_acc_prenom = dossier_acc.dir_prenom
+                dossier_mob.dir_acc_courriel = dossier_acc.dir_courriel
+                dossier_mob.dir_acc_telephone = dossier_acc.dir_telephone
 
-            dossier_mob.dir_ori_civilite = dossier_ori.dir_civilite
-            dossier_mob.dir_ori_nom = dossier_ori.dir_nom
-            dossier_mob.dir_ori_prenom = dossier_ori.dir_prenom
-            dossier_mob.dir_ori_courriel = dossier_ori.dir_courriel
-            dossier_mob.dir_ori_telephone = dossier_ori.dir_telephone
+                dossier_mob.dir_ori_civilite = dossier_ori.dir_civilite
+                dossier_mob.dir_ori_nom = dossier_ori.dir_nom
+                dossier_mob.dir_ori_prenom = dossier_ori.dir_prenom
+                dossier_mob.dir_ori_courriel = dossier_ori.dir_courriel
+                dossier_mob.dir_ori_telephone = dossier_ori.dir_telephone
 
-            dossier_mob.save()
+                dossier_mob.save()
 
 
     models = {
