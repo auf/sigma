@@ -226,9 +226,20 @@ class DossierMobiliteInline(admin.StackedInline):
     )
 
 
+class DossierCandidatForm(forms.ModelForm):
+    class Meta:
+        model = Candidat
+
+    def __init__(self, *args, **kwargs):
+        super(DossierCandidatForm, self).__init__(*args, **kwargs)
+        self.fields['naissance_date'].widget = admin.widgets.AdminTextInputWidget()
+
+
 class DossierCandidatInline(admin.StackedInline):
     formset = RequiredInlineFormSet
     model = Candidat
+    form = DossierCandidatForm
+
     max_num = 1
     verbose_name = verbose_name_plural = "Identification"
     can_delete = False
