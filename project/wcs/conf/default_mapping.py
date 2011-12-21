@@ -137,7 +137,6 @@ MAPPING = {
 
     # Thèse
     'sigma_these_date_inscription': ('DossierMobilite', 'these_date_inscription'),
-    'sigma_these_date_obtention_prevue': ('DossierMobilite', 'these_date_obtention_prevue'),
     'sigma_these_pays_soutenance': ('DossierMobilite', 'these_soutenance_pays'),
     'sigma_these_date_soutenance': ('DossierMobilite', 'these_soutenance_date'),
     'sigma_these_type': ('DossierMobilite', 'these_type'),

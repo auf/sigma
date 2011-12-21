@@ -668,17 +668,13 @@ class DossierMobilite(models.Model):
                         help_text=settings.HELP_TEXT_DATE,
                         verbose_name=u"Date de première inscription en thèse",
                         blank=True, null=True)
-    these_date_obtention_prevue = models.DateField(
-                        help_text=settings.HELP_TEXT_DATE,
-                        verbose_name=u"Date d'obtention prévue",
-                        blank=True, null=True)
     these_soutenance_pays = models.ForeignKey(Pays,
                         related_name="soutenance_pays",
                         verbose_name=u"Pays de soutenance",
                         blank=True, null=True)
     these_soutenance_date = models.DateField(
                         help_text=settings.HELP_TEXT_DATE,
-                        verbose_name=u"Date de soutenance",
+                        verbose_name=u"Date de soutenance prévue",
                         blank=True, null=True)
     these_type = models.CharField(max_length=2,
                         verbose_name=u"Type de thèse",
