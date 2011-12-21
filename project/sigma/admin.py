@@ -128,6 +128,11 @@ class DossierOrigineInline(BaseDossierFaculteInline):
                        ('faculte_nom', 'faculte_adresse'),
                        ('faculte_ville', 'faculte_code_postal'))
         }),
+        ("Directeur de thèse à l'origine", {
+            'fields': ('dir_civilite',
+                       ('dir_nom', 'dir_prenom'),
+                       ('dir_courriel', 'dir_telephone'))
+        }),
     )
 
 class DossierAccueilInline(BaseDossierFaculteInline):
@@ -148,6 +153,11 @@ class DossierAccueilInline(BaseDossierFaculteInline):
                        ('resp_sc_telephone', 'resp_sc_fax'),
                        ('faculte_nom', 'faculte_adresse'),
                        ('faculte_ville', 'faculte_code_postal'))
+        }),
+        ("Directeur de thèse à l'accueil", {
+            'fields': ('dir_civilite',
+                       ('dir_nom', 'dir_prenom'),
+                       ('dir_courriel', 'dir_telephone'))
         }),
     )
 
@@ -201,16 +211,6 @@ class DossierMobiliteInline(admin.StackedInline):
                        'these_soutenance_pays',
                        'these_soutenance_date',
                        'these_type')
-        }),
-        ("Directeur de thèse à l'origine", {
-            'fields': ('dir_ori_civilite',
-                       ('dir_ori_nom', 'dir_ori_prenom'),
-                       ('dir_ori_courriel', 'dir_ori_telephone'))
-        }),
-        ("Directeur de thèse à l'accueil", {
-            'fields': ('dir_acc_civilite',
-                       ('dir_acc_nom', 'dir_acc_prenom'),
-                       ('dir_acc_courriel', 'dir_acc_telephone'))
         }),
         ('Programme de mission', {
             'fields': ('type_intervention', 'public_vise', 'autres_publics')

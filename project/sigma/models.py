@@ -514,6 +514,21 @@ class DossierFaculte(models.Model):
                         verbose_name=u"Code postal",
                         blank=True, null=True)
 
+    # directeur thèse
+    dir_civilite = models.CharField(max_length=2,
+                        verbose_name=u"Civilité", choices=CIVILITE,
+                        blank=True, null=True)
+    dir_nom = models.CharField(max_length=255,
+                        verbose_name=u"Nom", blank=True, null=True)
+    dir_prenom = models.CharField(max_length=255,
+                        verbose_name=u"Prénom", blank=True, null=True)
+    dir_courriel = models.CharField(max_length=255,
+                        verbose_name=u"adresse électronique",
+                        blank=True, null=True)
+    dir_telephone = models.CharField(max_length=255,
+                        verbose_name=u"Téléphone",
+                        blank=True, null=True)
+
     class Meta:
         abstract = True
 
@@ -667,35 +682,6 @@ class DossierMobilite(models.Model):
     these_type = models.CharField(max_length=2,
                         verbose_name=u"Type de thèse",
                         choices=TYPE_THESE, blank=True, null=True)
-
-    # directeur thèse accueil
-    dir_acc_civilite = models.CharField(max_length=2,
-                        verbose_name=u"Civilité", choices=CIVILITE,
-                        blank=True, null=True)
-    dir_acc_nom = models.CharField(max_length=255,
-                        verbose_name=u"Nom", blank=True, null=True)
-    dir_acc_prenom = models.CharField(max_length=255,
-                        verbose_name=u"Prénom", blank=True, null=True)
-    dir_acc_courriel = models.CharField(max_length=255,
-                        verbose_name=u"adresse électronique",
-                        blank=True, null=True)
-    dir_acc_telephone = models.CharField(max_length=255,
-                        verbose_name=u"Téléphone",
-                        blank=True, null=True)
-
-    # directeur thèse origine
-    dir_ori_civilite = models.CharField(max_length=2, verbose_name=u"Civilité",
-                        choices=CIVILITE, blank=True, null=True)
-    dir_ori_nom = models.CharField(max_length=255, verbose_name=u"Nom",
-                        blank=True, null=True)
-    dir_ori_prenom = models.CharField(max_length=255, verbose_name=u"Prénom",
-                        blank=True, null=True)
-    dir_ori_courriel = models.CharField(max_length=255,
-                        verbose_name=u"adresse électronique",
-                        blank=True, null=True)
-    dir_ori_telephone = models.CharField(max_length=255,
-                        verbose_name=u"Téléphone",
-                        blank=True, null=True)
 
     # Programme de mission
     type_intervention = models.ForeignKey(Intervention,

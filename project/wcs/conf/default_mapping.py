@@ -67,6 +67,13 @@ MAPPING = {
     'sigma_origine_faculte_ville': ('DossierOrigine', 'faculte_ville'),
     'sigma_origine_faculte_code_postal': ('DossierOrigine', 'faculte_code_postal'),
 
+    # Directeur de thèse - Origine
+    'sigma_directeur_origine_civilite': ('DossierOrigine', 'dir_civilite'),
+    'sigma_directeur_origine_prenom': ('DossierOrigine', 'dir_prenom'),
+    'sigma_directeur_origine_nom': ('DossierOrigine', 'dir_nom'),
+    'sigma_directeur_origine_courriel': ('DossierOrigine', 'dir_courriel'),
+    'sigma_directeur_origine_telephone': ('DossierOrigine', 'dir_telephone'),
+
     # Accueil
     'sigma_accueil_etablissement': ('DossierAccueil', 'etablissement'),
     'sigma_accueil_autre_etablissement_adresse': ('DossierAccueil', 'autre_etablissement_adresse'),
@@ -89,6 +96,13 @@ MAPPING = {
     'sigma_accueil_faculte_adresse': ('DossierAccueil', 'faculte_adresse'),
     'sigma_accueil_faculte_ville': ('DossierAccueil', 'faculte_ville'),
     'sigma_accueil_faculte_code_postal': ('DossierAccueil', 'faculte_code_postal'),
+
+    # Directeur de thèse - Accueil
+    'sigma_directeur_accueil_civilite': ('DossierAccueil', 'dir_civilite'),
+    'sigma_directeur_accueil_prenom': ('DossierAccueil', 'dir_prenom'),
+    'sigma_directeur_accueil_nom': ('DossierAccueil', 'dir_nom'),
+    'sigma_directeur_accueil_courriel': ('DossierAccueil', 'dir_courriel'),
+    'sigma_directeur_accueil_telephone': ('DossierAccueil', 'dir_telephone'),
 
     # Période de mobilité
     'sigma_date_debut': ('DossierMobilite', 'date_debut'),
@@ -128,20 +142,6 @@ MAPPING = {
     'sigma_these_date_soutenance': ('DossierMobilite', 'these_soutenance_date'),
     'sigma_these_type': ('DossierMobilite', 'these_type'),
 
-    # Directeur de thèse - Origine
-    'sigma_directeur_origine_civilite': ('DossierMobilite', 'dir_ori_civilite'),
-    'sigma_directeur_origine_prenom': ('DossierMobilite', 'dir_ori_prenom'),
-    'sigma_directeur_origine_nom': ('DossierMobilite', 'dir_ori_nom'),
-    'sigma_directeur_origine_courriel': ('DossierMobilite', 'dir_ori_courriel'),
-    'sigma_directeur_origine_telephone': ('DossierMobilite', 'dir_ori_telephone'),
-
-    # Directeur de thèse - Accueil
-    'sigma_directeur_accueil_civilite': ('DossierMobilite', 'dir_acc_civilite'),
-    'sigma_directeur_accueil_prenom': ('DossierMobilite', 'dir_acc_prenom'),
-    'sigma_directeur_accueil_nom': ('DossierMobilite', 'dir_acc_nom'),
-    'sigma_directeur_accueil_courriel': ('DossierMobilite', 'dir_acc_courriel'),
-    'sigma_directeur_accueil_telephone': ('DossierMobilite', 'dir_acc_telephone'),
-    
     # Lien avec l'AUF
     'sigma_dernier_projet_description': ('Dossier', 'dernier_projet_description'),
     'sigma_dernier_projet_annee': ('Dossier', 'dernier_projet_annee'),
