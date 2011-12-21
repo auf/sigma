@@ -1,8 +1,18 @@
 # -*- encoding: utf-8 -*
 
-DATABASE_ENGINE = 'mysql'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''
-DATABASE_USER = ''           # Not used with sqlite3.
-DATABASE_PASSWORD = ''       # Not used with sqlite3.
-DATABASE_HOST = ''           # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''           # Set to empty string for default. Not used with sqlite3.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sigma',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'OPTIONS': {
+            'init_command': 'SET storage_engine=InnoDB'
+        },
+    }
+}
+
+WCS_SIGMA_URL = 'https://formulaires.auf.org/sigma/'
+WCS_SIGMA_USER = ''
+WCS_SIGMA_PASS = ''
