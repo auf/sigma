@@ -629,7 +629,8 @@ class DossierMobilite(models.Model):
                         verbose_name=u"Intitulé du projet",
                         blank=True, null=True)
     mots_clefs = models.CharField(max_length=255,
-                        verbose_name=u"Mots clefs", blank=True, null=True)
+                        verbose_name=u"Mots clefs", blank=True, null=True,
+                        help_text="séparés par des virgules, 3 maximum")
 
     # Disciplines
     discipline = models.ForeignKey(Discipline, verbose_name=u"Discipline",
@@ -691,6 +692,14 @@ class DossierMobilite(models.Model):
                         blank=True, null=True)
     autres_publics = models.CharField(max_length=255,
                         verbose_name=u"Autres publics", blank=True, null=True)
+
+
+    def save(self, *args, **kwargs):
+
+        # Mots clefs en majuscule
+        self.mots_clefs = self.mots_clefs.upper()
+
+        super(DossierMobilite, self).save(*args, **kwargs)
 
 
 class Diplome(models.Model):

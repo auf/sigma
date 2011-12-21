@@ -174,6 +174,14 @@ class DossierMobiliteForm(forms.ModelForm):
 
         return date_fin
 
+    def clean_mots_clefs(self):
+        mots_clefs = self.cleaned_data['mots_clefs']
+
+        if mots_clefs.count(',') > 2:
+            raise forms.ValidationError("Vous avez droit qu'à trois mots clefs séparés avec virgules")
+
+        return mots_clefs
+
 
 class DossierMobiliteInline(admin.StackedInline):
     form = DossierMobiliteForm
