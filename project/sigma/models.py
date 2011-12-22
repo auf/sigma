@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from dynamo import dynamo_registry
 from dynamo.models import *
-from workflow import AppelWorkflow, DossierWorkflow
+from workflow import DossierWorkflow
 from datamaster_modeles.models import Pays, Bureau, Etablissement, Discipline, Region
 from project.wcs.wrappers import WCSAppel
 from smart_selects.db_fields import ChainedForeignKey
@@ -113,7 +113,7 @@ else:
     APPEL_WCS_CHOICES = None
 
 
-class Appel(AppelWorkflow, MetaModel, models.Model):
+class Appel(MetaModel, models.Model):
     """
     Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité
     s'intégrant dans un projet.

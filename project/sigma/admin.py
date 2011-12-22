@@ -36,7 +36,7 @@ class TypeConformiteAdmin(admin.ModelAdmin):
     form = TypeConformiteForm
 
 
-class AppelAdmin(WorkflowAdmin):
+class AppelAdmin(admin.ModelAdmin):
     list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', '_actions', )
     list_filter = ('region', )
     search_fields = ('nom', 'code_budgetaire')
@@ -59,7 +59,6 @@ class AppelAdmin(WorkflowAdmin):
                 'appel_en_ligne',
                 'conformites',
                 'types_piece',
-                'etat',
             )
         }),
     )
