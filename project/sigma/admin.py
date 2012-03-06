@@ -1,24 +1,32 @@
 # -*- encoding: utf-8 -*-
-
-from django.conf import settings
-from django.conf.urls.defaults import patterns, url
-from django.contrib import admin
-from django.core.urlresolvers import reverse
-from django.forms import ModelForm
-from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response, redirect, get_object_or_404
-from django.template import RequestContext
-
-from sendfile import sendfile
+import os
 
 from auf.django.workflow.admin import WorkflowAdmin
 from auf.django.export.admin import ExportAdmin
 from auf.django.references.models import Region
+from django import forms
+from django.conf import settings
+from django.conf.urls.defaults import patterns, url
+from django.contrib import admin
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render_to_response, redirect, get_object_or_404
+from django.template import RequestContext
+from sendfile import sendfile
 
-from sigma.models import *
-from sigma.forms import *
-from sigma.workflow import DOSSIER_ETAT_BOURSIER
-from sigma.customfilterspec import AppelRegionFilterSpec, RegionFilterSpec # Ne pas enlever!
+from project.sigma.models import \
+        Conformite, Appel, DossierOrigine, DossierAccueil, DossierMobilite, \
+        Candidat, Dossier, Expert, Piece, TypePiece, AttributWCS, Diplome, \
+        GroupeRegional, TypeConformite, NiveauEtude, Intervention, Public
+from project.sigma.forms import \
+        ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm, \
+        GroupeRegionalAdminForm
+from project.sigma.workflow import DOSSIER_ETAT_BOURSIER
+# Ne pas enlever!
+from project.sigma.customfilterspec import \
+        AppelRegionFilterSpec, RegionFilterSpec
+
+AppelRegionFilterSpec, RegionFilterSpec  # XXX: PyFlakes
 
 
 class DossierConformiteAdmin(admin.TabularInline):
@@ -37,40 +45,44 @@ class TypeConformiteAdmin(admin.ModelAdmin):
 
 
 class AppelAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'region', 'code_budgetaire', 'date_debut_appel', 'date_fin_appel', '_actions', )
+    list_display = (
+        'nom', 'region', 'code_budgetaire', 'date_debut_appel',
+        'date_fin_appel', '_actions',
+    )
     list_filter = ('region', )
     search_fields = ('nom', 'code_budgetaire')
-    fieldsets = (
-        (None, {
-            'fields': (
-                'nom',
-                'region',
-                'code_budgetaire',
-                'formulaire_wcs',
-                ('date_debut_appel', 'date_fin_appel'),
-                ('date_debut_mobilite', 'date_fin_mobilite'),
-                'periode',
-                'bareme',
-                ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
-                ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
-                ('montant_perdiem_sud', 'montant_perdiem_nord'),
-                'montant_allocation_unique',
-                ('prime_installation_sud', 'prime_installation_nord'),
-                'appel_en_ligne',
-                'conformites',
-                'types_piece',
-            )
-        }),
-    )
+    fieldsets = ((None, {
+        'fields': (
+            'nom',
+            'region',
+            'code_budgetaire',
+            'formulaire_wcs',
+            ('date_debut_appel', 'date_fin_appel'),
+            ('date_debut_mobilite', 'date_fin_mobilite'),
+            'periode',
+            'bareme',
+            ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
+            ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
+            ('montant_perdiem_sud', 'montant_perdiem_nord'),
+            'montant_allocation_unique',
+            ('prime_installation_sud', 'prime_installation_nord'),
+            'appel_en_ligne',
+            'conformites',
+            'types_piece',
+        )
+    }),)
     filter_horizontal = ['conformites', 'types_piece']
 
     class Media:
         js = ("js/appel.js",)
 
     def _actions(self, obj):
-        dossiers_url = "<a href='%s?appel=%s'>Voir les dossiers</a>" % (reverse('admin:sigma_dossier_changelist'), obj.id)
-        if hasattr(settings, 'WCS_SIGMA_URL') and obj.formulaire_wcs is not None:
-            importer_url = "<a href='%s'>Importer</a>" % (reverse('importer_dossiers', args=(obj.formulaire_wcs, )))
+        dossiers_url = "<a href='%s?appel=%s'>Voir les dossiers</a>" % \
+                (reverse('admin:sigma_dossier_changelist'), obj.id)
+        if hasattr(settings, 'WCS_SIGMA_URL') and \
+           obj.formulaire_wcs is not None:
+            importer_url = "<a href='%s'>Importer</a>" % \
+                    (reverse('importer_dossiers', args=(obj.formulaire_wcs, )))
             return " | ".join((dossiers_url, importer_url))
         else:
             return dossiers_url
@@ -78,12 +90,13 @@ class AppelAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(AppelAdmin, self).get_form(request, obj, **kwargs)
-        if form.declared_fields.has_key('region'):
+        if 'region' in form.declared_fields:
             region_field = form.declared_fields['region']
         else:
             region_field = form.base_fields['region']
 
-        region_ids = [g.region.id for g in request.user.groupes_regionaux.all()]
+        region_ids = [g.region.id
+                      for g in request.user.groupes_regionaux.all()]
         region_field.queryset = Region.objects.filter(id__in=region_ids)
         return form
 
@@ -105,20 +118,27 @@ class BaseDossierFaculteInline(admin.StackedInline):
 
 class DossierOrigineInline(BaseDossierFaculteInline):
     model = DossierOrigine
-    verbose_name = verbose_name_plural = "Origine (établissement d'inscription ou d'activité à la date de la candidature)"
+    verbose_name = verbose_name_plural = "Origine " \
+            "(établissement d'inscription ou d'activité " \
+            "à la date de la candidature)"
 
     fieldsets = (
         (None, {'fields': ('pays', 'etablissement',)}),
         ('Autre établissement si non membre de l\'AUF', {
             'classes': ['collapse'],
-            'fields': (('autre_etablissement_nom', 'autre_etablissement_adresse'),
-                       ('autre_etablissement_ville', 'autre_etablissement_code_postal'),
-                       ('autre_etablissement_region', 'autre_etablissement_pays'))
+            'fields': (
+                ('autre_etablissement_nom', 'autre_etablissement_adresse'),
+                ('autre_etablissement_ville',
+                 'autre_etablissement_code_postal'),
+                ('autre_etablissement_region', 'autre_etablissement_pays')
+            )
         }),
         ('Responsable institutionnel à l\'origine', {
-            'fields': (('resp_inst_civilite', 'resp_inst_nom', 'resp_inst_prenom'),
-                       ('resp_inst_fonction', 'resp_inst_courriel'),
-                       ('resp_inst_telephone', 'resp_inst_fax'))
+            'fields': (
+                ('resp_inst_civilite', 'resp_inst_nom', 'resp_inst_prenom'),
+                ('resp_inst_fonction', 'resp_inst_courriel'),
+                ('resp_inst_telephone', 'resp_inst_fax')
+            )
         }),
         ('Responsable scientifique à l\'origine', {
             'fields': (('resp_sc_civilite', 'resp_sc_nom', 'resp_sc_prenom'),
@@ -134,17 +154,22 @@ class DossierOrigineInline(BaseDossierFaculteInline):
         }),
     )
 
+
 class DossierAccueilInline(BaseDossierFaculteInline):
     model = DossierAccueil
-    verbose_name = verbose_name_plural = "Accueil (établissement de destination de la mobilité)"
+    verbose_name = verbose_name_plural = "Accueil " \
+            "(établissement de destination de la mobilité)"
 
     fieldsets = (
         (None, {'fields': ('pays', 'etablissement',)}),
         ('Autre établissement si non membre de l\'AUF', {
             'classes': ['collapse'],
-            'fields': (('autre_etablissement_nom', 'autre_etablissement_adresse'),
-                       ('autre_etablissement_ville', 'autre_etablissement_code_postal'),
-                       ('autre_etablissement_region', 'autre_etablissement_pays'))
+            'fields': (
+                ('autre_etablissement_nom', 'autre_etablissement_adresse'),
+                ('autre_etablissement_ville',
+                 'autre_etablissement_code_postal'),
+                ('autre_etablissement_region', 'autre_etablissement_pays')
+            )
         }),
         ('Responsable scientifique à l\'accueil', {
             'fields': (('resp_sc_civilite', 'resp_sc_nom', 'resp_sc_prenom'),
@@ -160,6 +185,7 @@ class DossierAccueilInline(BaseDossierFaculteInline):
         }),
     )
 
+
 class DossierMobiliteForm(forms.ModelForm):
     class Meta:
         model = DossierMobilite
@@ -169,7 +195,9 @@ class DossierMobiliteForm(forms.ModelForm):
         date_fin = self.cleaned_data['date_fin']
 
         if date_debut and date_fin and date_fin < date_debut:
-            raise forms.ValidationError("La date de fin doit être après la date de début")
+            raise forms.ValidationError(
+                "La date de fin doit être après la date de début"
+            )
 
         return date_fin
 
@@ -177,7 +205,9 @@ class DossierMobiliteForm(forms.ModelForm):
         mots_clefs = self.cleaned_data['mots_clefs']
 
         if mots_clefs.count(',') > 2:
-            raise forms.ValidationError("Vous avez droit qu'à trois mots clefs séparés avec virgules")
+            raise forms.ValidationError(
+                "Vous avez droit qu'à trois mots clefs séparés avec virgules"
+            )
 
         return mots_clefs
 
@@ -202,7 +232,9 @@ class DossierMobiliteInline(admin.StackedInline):
             'fields': (('discipline', 'sous_discipline'),)
         }),
         ('Formation en cours', {
-            'fields': (('formation_en_cours_diplome', 'formation_en_cours_niveau'),)
+            'fields': (
+                ('formation_en_cours_diplome', 'formation_en_cours_niveau'),
+            )
         }),
         ('Diplôme demandé', {
             'fields': ('diplome_demande_nom', 'diplome_demande_niveau')
@@ -230,7 +262,8 @@ class DossierCandidatForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DossierCandidatForm, self).__init__(*args, **kwargs)
-        self.fields['naissance_date'].widget = admin.widgets.AdminTextInputWidget()
+        self.fields['naissance_date'].widget = \
+                admin.widgets.AdminTextInputWidget()
 
 
 class DossierCandidatInline(admin.StackedInline):
@@ -280,15 +313,23 @@ class DiplomeInline(admin.StackedInline):
 
 def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
-    return HttpResponseRedirect(reverse('affecter_experts_dossiers')+"?ids=%s" % (",".join(selected)))
-affecter_dossiers_expert.short_description = 'Assigner expert(s) au(x) dossier(s)'
+    return HttpResponseRedirect(
+        reverse('affecter_experts_dossiers') + \
+        "?ids=%s" % (",".join(selected))
+    )
+affecter_dossiers_expert.short_description = \
+        'Assigner expert(s) au(x) dossier(s)'
+
 
 class DossierAdmin(WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline,
                DossierAccueilInline, DossierMobiliteInline,
                DossierConformiteAdmin)
-    list_display = ('appel', 'nom', 'prenom', 'naissance_date', 'etat', 'moyenne_votes', 'action_column')
+    list_display = (
+        'appel', 'nom', 'prenom', 'naissance_date', 'etat', 'moyenne_votes',
+        'action_column'
+    )
     list_display_links = ('nom', 'prenom')
     list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom',
@@ -325,7 +366,6 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     actions = [affecter_dossiers_expert]
     filter_horizontal = ['experts']
 
-
     def _naissance_date(self, obj):
         return obj.candidat.naissance_date
     _naissance_date.short_description = "Date de naissance"
@@ -336,10 +376,14 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
 
     def action_column(self, obj):
         actions = []
-        actions.append("<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, )))
+        actions.append(
+            "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
+        )
         if obj.etat == DOSSIER_ETAT_BOURSIER:
-            actions.append("<nobr><a href='%s'>Fiche boursier</a></nobr>" %
-                           reverse('admin:suivi_boursier_change', args=(obj.id,)))
+            actions.append(
+                "<nobr><a href='%s'>Fiche boursier</a></nobr>" %
+                reverse('admin:suivi_boursier_change', args=(obj.id,))
+            )
         return '<br />\n'.join(actions)
     action_column.allow_tags = True
     action_column.short_description = ''
@@ -349,16 +393,19 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     _region.short_description = "Région"
 
     def queryset(self, request):
-        return Dossier.objects.region(request.user).select_related('appel', 'mobilite', 'candidat')
+        return Dossier.objects.region(request.user) \
+                .select_related('appel', 'mobilite', 'candidat')
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == 'experts':
             kwargs['queryset'] = Expert.objects.region(request.user)
-        return super(DossierAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        return super(DossierAdmin, self).formfield_for_manytomany(
+            db_field, request, **kwargs
+        )
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(DossierAdmin, self).get_form(request, obj, **kwargs)
-        if form.declared_fields.has_key('appel'):
+        if 'appel' in form.declared_fields:
             appel_field = form.declared_fields['appel']
         else:
             appel_field = form.base_fields['appel']
@@ -390,7 +437,9 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
 
     def view_pieces(self, request, id):
         dossier = Dossier.objects.get(pk=id)
-        pieces_attendues = dict((x.nom, []) for x in dossier.appel.types_piece.all())
+        pieces_attendues = dict(
+            (x.nom, []) for x in dossier.appel.types_piece.all()
+        )
         pieces_supplementaires = []
         for piece in dossier.pieces.all():
             if piece.nom in pieces_attendues:
@@ -441,9 +490,11 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     def view_pieces_download(self, request, piece_id):
         piece = get_object_or_404(Piece, pk=piece_id)
         if piece.fichier:
-            return sendfile(request,
-                            os.path.join(settings.UPLOADS_ROOT, piece.fichier.name),
-                            attachment=True)
+            return sendfile(
+                request,
+                os.path.join(settings.UPLOADS_ROOT, piece.fichier.name),
+                attachment=True
+            )
         else:
             raise Http404
 
@@ -472,12 +523,13 @@ class ExpertAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(ExpertAdmin, self).get_form(request, obj, **kwargs)
-        if form.declared_fields.has_key('region'):
+        if 'region' in form.declared_fields:
             region_field = form.declared_fields['region']
         else:
             region_field = form.base_fields['region']
 
-        region_ids = [g.region.id for g in request.user.groupes_regionaux.all()]
+        region_ids = [g.region.id
+                      for g in request.user.groupes_regionaux.all()]
         region_field.queryset = Region.objects.filter(id__in=region_ids)
         return form
 
