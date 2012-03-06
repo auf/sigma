@@ -11,8 +11,7 @@ from django.template import RequestContext
 from django.utils.html import conditional_escape
 from django.db import models
 
-from sigma.workflow import DOSSIER_ETAT_BOURSIER
-from suivi.models import Boursier, DepensePrevisionnelle
+from project.suivi.models import Boursier, DepensePrevisionnelle
 
 
 class BoursierAdminForm(ModelForm):
@@ -23,7 +22,7 @@ class BoursierAdminForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BoursierAdminForm, self).__init__(*args, **kwargs)
         if self.instance is not None:
-            code_budgetaire  = self.instance.dossier.appel.code_budgetaire.code
+            code_budgetaire = self.instance.dossier.appel.code_budgetaire.code
             max_code_boursier = Boursier.objects \
                     .filter(code_operation__startswith=code_budgetaire) \
                     .order_by('-code_operation')[:1]
@@ -39,7 +38,8 @@ class BoursierAdminForm(ModelForm):
             else:
                 prochain_numero = '%03d' % (numero_int + 1)
                 prochain_code = code_budgetaire + prochain_numero + 'L'
-                self.fields['code_operation'].help_text = u"Prochain code disponible: %s" % prochain_code
+                self.fields['code_operation'].help_text = \
+                        u"Prochain code disponible: %s" % prochain_code
 
     def clean_code_operation(self):
         code_operation = self.cleaned_data['code_operation']
@@ -51,7 +51,8 @@ class BoursierAdminForm(ModelForm):
             if not code_operation.startswith(code_budgetaire) or \
                not code_operation.endswith('L'):
                 raise ValidationError(
-                    u"Code d'opération invalide: il devrait avoir la forme %sXXXL" % 
+                    u"Code d'opération invalide: "
+                    u"il devrait avoir la forme %sXXXL" %
                     code_budgetaire
                 )
 
@@ -61,7 +62,8 @@ class BoursierAdminForm(ModelForm):
                     .exclude(pk=boursier.pk)
             if len(conflits) > 0:
                 raise ValidationError(
-                    u"Code d'opération déjà attribué au boursier %s." % conflits[0]
+                    u"Code d'opération déjà attribué au boursier %s." %
+                    conflits[0]
                 )
 
         return code_operation
@@ -76,8 +78,10 @@ class DepensePrevisionnelleInline(admin.TabularInline):
 
 
 class BoursierAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'prenom', 'code_operation', 'naissance_date', 'appel', 'debut_mobilite',
-                    'field_actions')
+    list_display = (
+        'nom', 'prenom', 'code_operation', 'naissance_date', 'appel',
+        'debut_mobilite', 'field_actions'
+    )
     list_display_links = ('nom', 'prenom')
     list_filter = ('dossier__appel',)
     form = BoursierAdminForm
@@ -104,7 +108,8 @@ class BoursierAdmin(admin.ModelAdmin):
     field_dossier.short_description = 'Dossier de candidature'
 
     def field_actions(self, obj):
-        return '<a href="%s">Suivi</a>' % reverse('admin:suivi_boursier_suivi', args=(obj.pk,))
+        return '<a href="%s">Suivi</a>' % \
+                reverse('admin:suivi_boursier_suivi', args=(obj.pk,))
     field_actions.short_description = ''
     field_actions.allow_tags = True
 
@@ -123,14 +128,14 @@ class BoursierAdmin(admin.ModelAdmin):
 
         lignes_ecritures = boursier.lignes_ecritures_coda() \
                 .exclude(montant_eur=0) \
-                .order_by('compte_comptable__code', '-ecriture__date') \
-                .select_related('compte_comptable', 'ecriture')
+                .order_by('pcg__code', '-ecriture__date') \
+                .select_related('pcg', 'ecriture')
 
         groupes_ecritures = []
-        for compte_comptable, lignes in groupby(lignes_ecritures, lambda x: x.compte_comptable):
+        for pcg, lignes in groupby(lignes_ecritures, lambda x: x.pcg):
             lignes = list(lignes)
             groupes_ecritures.append({
-                'compte_comptable': compte_comptable,
+                'pcg': pcg,
                 'lignes': lignes,
                 'sous_total': sum(l.montant_eur for l in lignes)
             })

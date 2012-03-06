@@ -13,7 +13,7 @@ from sendfile import sendfile
 
 from auf.django.workflow.admin import WorkflowAdmin
 from auf.django.export.admin import ExportAdmin
-from datamaster_modeles.models import Region
+from auf.django.references.models import Region
 
 from sigma.models import *
 from sigma.forms import *

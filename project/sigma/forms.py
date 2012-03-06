@@ -9,7 +9,7 @@ from form_utils.forms import BetterModelForm
 from django.forms import ModelForm, ValidationError
 from dynamo.forms import PropertyForm
 from dynamo.fields import TEXT
-from datamaster_modeles.models import Discipline
+from auf.django.references.models import Discipline
 from models import *
 
 class RequiredInlineFormSet(BaseInlineFormSet):

@@ -49,9 +49,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'project.urls'
 
 INSTALLED_APPS = (
-    'auf.django.skin',
-    'auf.django.auth',
-    'auf.django.coda',
     'admin_tools',
     'admin_tools.theming',
     'admin_tools.menu',
@@ -61,13 +58,17 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.messages',
-    'south',
+    'auf.django.auth',
     'auf.django.admingroup',
+    'auf.django.coda',
+    'auf.django.export',
+    'auf.django.skin',
+    'auf.django.references',
     'auf.django.workflow',
+    'south',
     'form_utils',
     'sigma',
     'suivi',
-    'auf.django.export',
     'wcs',
     'smart_selects',
 )

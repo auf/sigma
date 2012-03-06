@@ -7,7 +7,7 @@ from django.forms.models import modelformset_factory
 from django.forms.formsets import TOTAL_FORM_COUNT, INITIAL_FORM_COUNT, MAX_NUM_FORM_COUNT
 
 import sigma.models as sigma
-import datamaster_modeles.models as ref
+import auf.django.references.models as ref
 
 
 # Fields

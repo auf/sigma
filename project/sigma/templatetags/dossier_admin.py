@@ -3,7 +3,7 @@
 from django import template
 from django.utils.encoding import smart_unicode
 
-from datamaster_modeles.models import Region, Pays
+from auf.django.references.models import Region, Pays
 
 register = template.Library()
 

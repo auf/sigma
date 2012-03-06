@@ -3,7 +3,7 @@
 import os
 import re
 from django import forms
-from datamaster_modeles import models as ref
+from auf.django.references import models as ref
 
 def code_from_pattern(pattern=r'^$', s=u''):
     if s is None:

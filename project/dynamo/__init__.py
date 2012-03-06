@@ -69,7 +69,7 @@ class PropertyRegisty(object):
         Extends property type available : 
 
         from django import forms
-        from datamaster_modeles.models import Etablissement
+        from auf.django.references.models import Etablissement
         ETABLISSEMENT = 1001
         ETABLISSEMENT_CHOICES = [(e.id, e.nom) for e in Etablissement.objects.all()]
         field_etablissement = {

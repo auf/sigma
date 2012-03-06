@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django import forms
-from datamaster_modeles.models import Etablissement
+from auf.django.references.models import Etablissement
 from dynamo import dynamo_registry
 
 ETABLISSEMENT = 1001
