@@ -140,10 +140,25 @@ class BoursierAdmin(admin.ModelAdmin):
                 'sous_total': sum(l.montant_eur for l in lignes)
             })
 
+        periodes_mobilite = [
+            {
+                'lieu': lieu.title(),
+                'debut': debut,
+                'fin': fin,
+                'nb_mois': (fin.month - debut.month +
+                            12 * (fin.year - debut.year)),
+                'montant': boursier.montant(lieu),
+                'implantation': boursier.implantation(lieu),
+            }
+            for lieu, debut, fin
+            in boursier.dossier.mobilite.periodes_mobilite()
+        ]
+
         return render_to_response('admin/suivi/boursier/suivi.html', {
             'title': "Suivi de %s" % boursier,
             'boursier': boursier,
             'groupes_ecritures': groupes_ecritures,
+            'periodes_mobilite': periodes_mobilite,
         }, context_instance=RequestContext(request))
 
     # Permissions

@@ -105,8 +105,10 @@ MAPPING = {
     'sigma_directeur_accueil_telephone': ('DossierAccueil', 'dir_telephone'),
 
     # Période de mobilité
-    'sigma_date_debut': ('DossierMobilite', 'date_debut'),
-    'sigma_date_fin': ('DossierMobilite', 'date_fin'),
+    'sigma_date_debut_origine': ('DossierMobilite', 'date_debut_origine'),
+    'sigma_date_fin_origine': ('DossierMobilite', 'date_fin_origine'),
+    'sigma_date_debut_accueil': ('DossierMobilite', 'date_debut_accueil'),
+    'sigma_date_fin_accueil': ('DossierMobilite', 'date_fin_accueil'),
     'sigma_duree': ('DossierMobilite', 'duree'),
 
     # Dossier scientifique

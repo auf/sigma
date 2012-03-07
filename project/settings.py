@@ -2,8 +2,7 @@
 
 import os
 import socket
-from conf import *
-
+from conf import *  # NOQA
 
 PROJET_TITRE = "SIGMA"
 

@@ -86,135 +86,48 @@ class Boursier(models.Model):
     appel.admin_order_field = 'dossier__appel__nom'
 
     def debut_mobilite(self):
-        return self.dossier.mobilite.date_debut
+        return min(self.dossier.mobilite.date_debut_origine,
+                   self.dossier.mobilite.date_debut_accueil)
     debut_mobilite.short_description = 'Début de la mobilité'
-    debut_mobilite.admin_order_field = 'dossier__mobilite__date_debut'
+    # XXX: Trouver comment ordonner par la plus petite des date de début
+    debut_mobilite.admin_order_field = 'dossier__mobilite__date_debut_origine'
 
-    @property
-    def implantation_origine(self):
-        etablissement = self.dossier.origine.etablissement
-        if etablissement:
-            try:
-                return etablissement.implantation
-            except ref.Implantation.DoesNotExist:
-                return None
-        else:
-            return None
-
-    @property
-    def implantation_accueil(self):
-        etablissement = self.dossier.accueil.etablissement
-        if etablissement:
-            try:
-                return etablissement.implantation
-            except ref.Implantation.DoesNotExist:
-                return None
-        else:
-            return None
-
-    @property
-    def debut_accueil(self):
-        return self.dossier.mobilite.alternance_accueil_puis_origine
-
-    @property
-    def implantation_debut(self):
-        if self.debut_accueil:
-            return self.implantation_accueil
-        else:
-            return self.implantation_origine
-
-    @property
-    def implantation_fin(self):
-        if self.debut_accueil:
-            return self.implantation_origine
-        else:
-            return self.implantation_accueil
-
-    @property
-    def mois_debut(self):
-        if self.debut_accueil:
-            return self.dossier.mobilite.alternance_nb_mois_accueil
-        else:
-            return self.dossier.mobilite.alternance_nb_mois_origine
-
-    @property
-    def mois_fin(self):
-        if self.debut_accueil:
-            return self.dossier.mobilite.alternance_nb_mois_origine
-        else:
-            return self.dossier.mobilite.alternance_nb_mois_accueil
-
-    @property
     def bareme(self):
         return self.dossier.appel.bareme
 
-    @property
-    def montant_origine(self):
-        pays = self.dossier.origine.pays
+    def implantation(self, lieu):
+        etablissement = getattr(self.dossier, lieu).etablissement
+        if etablissement:
+            try:
+                return etablissement.implantation
+            except ref.Implantation.DoesNotExist:
+                return None
+        else:
+            return None
+
+    def montant(self, lieu):
+        pays = getattr(self.dossier, lieu).pays
         if pays is None:
             return None
+        nord_sud = pays.nord_sud.lower()
 
         appel = self.dossier.appel
         bareme = appel.bareme
         if bareme == 'mensuel':
-            if pays.nord_sud == 'Nord':
-                return appel.montant_mensuel_origine_nord
-            else:
-                return appel.montant_mensuel_origine_sud
+            return getattr(appel, 'montant_mensuel_%s_%s' % (lieu, nord_sud))
         elif bareme == 'perdiem':
-            if pays.nord_sud == 'Nord':
-                return appel.montant_perdiem_nord
-            else:
-                return appel.montant_perdiem_sud
+            return getattr(appel, 'montant_perdiem_%s' % nord_sud)
         elif bareme == 'allocation':
             return appel.montant_allocation_unique
         else:
             return None
 
-    @property
-    def montant_accueil(self):
-        pays = self.dossier.accueil.pays
-        if pays is None:
-            return None
-
-        appel = self.dossier.appel
-        bareme = appel.bareme
-        if bareme == 'mensuel':
-            if pays.nord_sud == 'Nord':
-                return appel.montant_mensuel_accueil_nord
-            else:
-                return appel.montant_mensuel_accueil_sud
-        elif bareme == 'perdiem':
-            if pays.nord_sud == 'Nord':
-                return appel.montant_perdiem_nord
-            else:
-                return appel.montant_perdiem_sud
-        else:
-            return None
-
-    @property
-    def montant_debut(self):
-        if self.debut_accueil:
-            return self.montant_accueil
-        else:
-            return self.montant_origine
-
-    @property
-    def montant_fin(self):
-        if self.debut_accueil:
-            return self.montant_origine
-        else:
-            return self.montant_accueil
-
-    @property
     def prime_installation(self):
         pays = self.dossier.accueil.pays
         if pays is None:
             return None
-        elif pays.nord_sud == 'Nord':
-            return self.dossier.appel.prime_installation_nord
-        else:
-            return self.dossier.appel.prime_installation_sud
+        nord_sud = pays.nord_sud.lower()
+        return getattr(self.dossier.appel, 'prime_installation_%s' % nord_sud)
 
     def nom_complet(self):
         return self.prenom() + ' ' + self.nom()

@@ -1,17 +1,18 @@
 # -*- encoding: utf-8 -*-
 
+from auf.django.coda import models as coda
+from auf.django.references import models as ref
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
-from dynamo import dynamo_registry
-from dynamo.models import MetaModel, InstanceModel, TypeProperty, ValueProperty
-from workflow import DossierWorkflow
-from auf.django.references import models as ref
-from project.wcs.wrappers import WCSAppel
 from smart_selects.db_fields import ChainedForeignKey
 
-import auf.django.coda.models as coda
+from project.dynamo import dynamo_registry
+from project.dynamo.models import \
+        MetaModel, InstanceModel, TypeProperty, ValueProperty
+from project.sigma.workflow import DossierWorkflow
+from project.wcs.wrappers import WCSAppel
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -686,18 +687,21 @@ class DossierMobilite(models.Model):
     )
 
     # Période de mobilité
-    date_debut = models.DateField(
+    date_debut_origine = models.DateField(
         verbose_name=u"Date de début souhaitée",
         help_text=settings.HELP_TEXT_DATE, blank=True, null=True
     )
-    date_fin = models.DateField(
+    date_fin_origine = models.DateField(
         verbose_name=u"Date de fin souhaitée",
         help_text=settings.HELP_TEXT_DATE, blank=True, null=True
     )
-    duree = models.CharField(
-        max_length=255,
-        verbose_name=u"Durée totale mobilité souhaitée (mois)",
-        blank=True, null=True
+    date_debut_accueil = models.DateField(
+        verbose_name=u"Date de début souhaitée",
+        help_text=settings.HELP_TEXT_DATE, blank=True, null=True
+    )
+    date_fin_accueil = models.DateField(
+        verbose_name=u"Date de fin souhaitée",
+        help_text=settings.HELP_TEXT_DATE, blank=True, null=True
     )
 
     # Dossier scientifique
@@ -734,20 +738,6 @@ class DossierMobilite(models.Model):
     diplome_demande_niveau = models.ForeignKey(
         NiveauEtude, related_name="diplome_demande_niveau",
         verbose_name=u"Niveau d'études", blank=True, null=True
-    )
-
-    # Alternance
-    alternance_nb_mois_origine = models.IntegerField(
-        verbose_name=u"Nombre de mois à l'origine",
-        blank=True, null=True
-    )
-    alternance_nb_mois_accueil = models.IntegerField(
-        verbose_name=u"Nombre de mois à l'accueil",
-        blank=True, null=True
-    )
-    alternance_accueil_puis_origine = models.NullBooleanField(
-        verbose_name=u"Mobilité commençée à l'accueil?",
-        blank=True, null=True
     )
 
     # Thèse
@@ -789,6 +779,24 @@ class DossierMobilite(models.Model):
         self.mots_clefs = self.mots_clefs.upper()
 
         super(DossierMobilite, self).save(*args, **kwargs)
+
+    def periodes_mobilite(self):
+        """
+        Retourne les périodes de mobilité sous forme d'une liste de tuples.
+
+        Les tuples sont de la forme (lieu, date_debut, date_fin)
+        """
+        periodes = []
+        if self.date_debut_origine and self.date_fin_origine:
+            periodes.append(
+                ('origine', self.date_debut_origine, self.date_fin_origine)
+            )
+        if self.date_debut_accueil and self.date_fin_accueil:
+            periodes.append(
+                ('accueil', self.date_debut_accueil, self.date_fin_accueil)
+            )
+        periodes.sort(key=lambda x: x[1])
+        return periodes
 
 
 class Diplome(models.Model):

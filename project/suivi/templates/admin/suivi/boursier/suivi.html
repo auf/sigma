@@ -30,6 +30,7 @@
     {% if boursier.responsable_budgetaire %}
     <span class="field">Responsable budgétaire: {{ boursier.responsable_budgetaire }}</span>
     {% endif %}
+    {% if periodes_mobilite %}
     <h2>Mobilité</h2>
     <table>
         <thead>
@@ -53,25 +54,22 @@
             </tr>
         </thead>
         <tbody>
+            {% for periode in periodes_mobilite %}
             <tr>
                 <th>
-                    {% if boursier.debut_accueil %}
-                    Accueil
-                    {% else %}
-                    Origine
-                    {% endif %}
+                    {{ periode.lieu }}
                 </th>
-                <td>{{ boursier.date_debut|date:"j N Y" }}</td>
+                <td>{{ periode.debut|date:"j N Y" }}</td>
                 <td>
-                    {% if boursier.implantation_debut %}
-                    {{ boursier.implantation_debut.nom_court }}
+                    {% if periode.implantation %}
+                    {{ periode.implantation.nom_court }}
                     {% endif %}
                 </td>
-                <td>{{ boursier.mois_debut|default_if_none:"" }}</td>
+                <td>{{ periode.nb_mois|default_if_none:"" }}</td>
                 {% if boursier.bareme %}
                 <td>
-                    {% if boursier.montant_debut %}
-                    {{ boursier.montant_debut|floatformat:2 }} €
+                    {% if periode.montant %}
+                    {{ periode.montant|floatformat:2 }} €
                     {% endif %}
                 </td>
                 {% endif %}
@@ -79,35 +77,12 @@
                 <td>{{ boursier.prime_installation|floatformat:2 }} €</td>
                 {% endif %}
             </tr>
-            <tr>
-                <th>
-                    {% if boursier.debut_accueil %}
-                    Origine
-                    {% else %}
-                    Accueil
-                    {% endif %}
-                </th>
-                <td>{{ boursier.date_fin|date:"j N Y" }}</td>
-                <td>
-                    {% if boursier.implantation_fin %}
-                    {{ boursier.implantation_fin.nom_court }}
-                    {% endif %}
-                </td>
-                <td>{{ boursier.mois_fin|default_if_none:"" }}</td>
-                {% if boursier.bareme %}
-                <td>
-                    {% if boursier.montant_fin %}
-                    {{ boursier.montant_fin|floatformat:2 }} €
-                    {% endif %}
-                </td>
-                {% endif %}
-                {% if boursier.prime_installation %}
-                <td></td>
-                {% endif %}
-            </tr>
+            {% endfor %}
         </tbody>
     </table>
+    {% endif %}
 
+    {% if boursier.depenses_previsionnelles.count > 0 %}
     <h2>Dépenses prévisionnelles</h2>
     <table class="listing">
         <thead>
@@ -138,6 +113,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% endif %}
 
     <h2>Dépenses réelles (CODA)</h2>
     <table class="listing cachedetails">

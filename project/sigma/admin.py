@@ -190,9 +190,20 @@ class DossierMobiliteForm(forms.ModelForm):
     class Meta:
         model = DossierMobilite
 
-    def clean_date_fin(self):
-        date_debut = self.cleaned_data['date_debut']
-        date_fin = self.cleaned_data['date_fin']
+    def clean_date_fin_origine(self):
+        date_debut = self.cleaned_data['date_debut_origine']
+        date_fin = self.cleaned_data['date_fin_origine']
+
+        if date_debut and date_fin and date_fin < date_debut:
+            raise forms.ValidationError(
+                "La date de fin doit être après la date de début"
+            )
+
+        return date_fin
+
+    def clean_date_fin_accueil(self):
+        date_debut = self.cleaned_data['date_debut_accueil']
+        date_fin = self.cleaned_data['date_fin_accueil']
 
         if date_debut and date_fin and date_fin < date_debut:
             raise forms.ValidationError(
@@ -221,9 +232,11 @@ class DossierMobiliteInline(admin.StackedInline):
     verbose_name = verbose_name_plural = "Mobilité"
 
     fieldsets = (
-        ('Période de mobilité', {
-            'fields': (('date_debut', 'date_fin'),
-                       'duree')
+        ("Période de mobilité à l'origine", {
+            'fields': (('date_debut_origine', 'date_fin_origine'),)
+        }),
+        ("Période de mobilité à l'accueil", {
+            'fields': (('date_debut_accueil', 'date_fin_accueil'),)
         }),
         ('Dossier scientifique', {
             'fields': ('intitule_projet', 'mots_clefs')
@@ -238,11 +251,6 @@ class DossierMobiliteInline(admin.StackedInline):
         }),
         ('Diplôme demandé', {
             'fields': ('diplome_demande_nom', 'diplome_demande_niveau')
-        }),
-        ('Alternance', {
-            'fields': (('alternance_nb_mois_origine',
-                       'alternance_nb_mois_accueil',
-                       'alternance_accueil_puis_origine'),)
         }),
         ('Thèse', {
             'fields': ('these_date_inscription',
@@ -348,9 +356,6 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
                      'mobilite__diplome_demande_nom',
     )
     fieldsets = (
-        (None, {
-            'fields': ('appel', ),
-        }),
         ('État du dossier', {
             'fields': ('etat', 'experts'),
         }),
@@ -402,16 +407,6 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
         return super(DossierAdmin, self).formfield_for_manytomany(
             db_field, request, **kwargs
         )
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(DossierAdmin, self).get_form(request, obj, **kwargs)
-        if 'appel' in form.declared_fields:
-            appel_field = form.declared_fields['appel']
-        else:
-            appel_field = form.base_fields['appel']
-
-        appel_field.queryset = Appel.objects.region(request.user)
-        return form
 
     def get_urls(self):
         admin_urls = super(DossierAdmin, self).get_urls()
