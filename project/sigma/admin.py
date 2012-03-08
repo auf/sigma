@@ -187,30 +187,38 @@ class DossierAccueilInline(BaseDossierFaculteInline):
 
 
 class DossierMobiliteForm(forms.ModelForm):
+
     class Meta:
         model = DossierMobilite
 
     def clean_date_fin_origine(self):
-        date_debut = self.cleaned_data['date_debut_origine']
-        date_fin = self.cleaned_data['date_fin_origine']
+        date_debut = self.cleaned_data.get('date_debut_origine')
+        date_fin = self.cleaned_data.get('date_fin_origine')
 
         if date_debut and date_fin and date_fin < date_debut:
             raise forms.ValidationError(
-                "La date de fin doit être après la date de début"
+                "La date de fin précède la date de début"
             )
 
         return date_fin
 
     def clean_date_fin_accueil(self):
-        date_debut = self.cleaned_data['date_debut_accueil']
-        date_fin = self.cleaned_data['date_fin_accueil']
-
-        if date_debut and date_fin and date_fin < date_debut:
+        debut_accueil = self.cleaned_data.get('date_debut_accueil')
+        fin_accueil = self.cleaned_data.get('date_fin_accueil')
+        debut_origine = self.cleaned_data.get('date_debut_origine')
+        fin_origine = self.cleaned_data.get('date_fin_origine')
+        if debut_accueil and fin_accueil and fin_accueil < debut_accueil:
             raise forms.ValidationError(
-                "La date de fin doit être après la date de début"
+                "La date de fin précède la date de début"
             )
 
-        return date_fin
+        if debut_accueil and fin_accueil and \
+           debut_origine and fin_origine and \
+           not (fin_origine <= debut_accueil or fin_accueil <= debut_origine):
+            raise forms.ValidationError(
+                "Les périodes de mobilité se chevauchent"
+            )
+        return fin_accueil
 
     def clean_mots_clefs(self):
         mots_clefs = self.cleaned_data['mots_clefs']
