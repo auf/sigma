@@ -371,6 +371,9 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
     actions = [affecter_dossiers_expert]
     filter_horizontal = ['experts']
 
+    class Media:
+        js = ('js/dossier.js',)
+
     def _naissance_date(self, obj):
         return obj.candidat.naissance_date
     _naissance_date.short_description = "Date de naissance"
