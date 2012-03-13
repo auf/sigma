@@ -1,12 +1,16 @@
 # -*- encoding: utf-8 -*-
 
+from auf.django.permissions import get_rules
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.template import Context, RequestContext
+from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
-from forms import DisciplineForm, NoteExpertForm, CommentaireForm, EvaluationForm, ExpertForm
-from models import Dossier, Note, Commentaire, Expert
+from forms import \
+        DisciplineForm, NoteExpertForm, CommentaireForm, \
+        EvaluationForm, ExpertForm
+from models import Dossier, Commentaire, Expert
+
 
 @login_required
 def mes_disciplines(request, ):
@@ -18,11 +22,12 @@ def mes_disciplines(request, ):
             return redirect(reverse('admin:index'))
     else:
         form = DisciplineForm(instance=request.user.profile)
-    
-    c = {'form' : form, }
-    return render_to_response("admin/sigma/mes_disciplines.html", \
-                               Context(c), \
-                               context_instance = RequestContext(request))
+
+    return render_to_response("admin/sigma/mes_disciplines.html", {
+        'form': form,
+    }, context_instance=RequestContext(request))
+
+
 @login_required
 def evaluer(request, dossier_id):
     dossier = Dossier.objects.get(id=dossier_id)
@@ -53,17 +58,15 @@ def evaluer(request, dossier_id):
         noteForm = NoteExpertForm(instance=dossier)
         commentaireForm = CommentaireForm()
         evaluationForm = EvaluationForm(instance=dossier)
-    
-    c = {
-        'dossier' : dossier,
-        'noteForm' : noteForm,
-        'commentaireForm' : commentaireForm,
-        'evaluationForm' : evaluationForm,    
-    }
-    return render_to_response("admin/sigma/evaluer.html", \
-                               Context(c), \
-                               context_instance = RequestContext(request))
-        
+
+    return render_to_response("admin/sigma/evaluer.html", {
+        'dossier': dossier,
+        'noteForm': noteForm,
+        'commentaireForm': commentaireForm,
+        'evaluationForm': evaluationForm,
+    }, context_instance=RequestContext(request))
+
+
 @login_required
 def supprimer_mon_commentaire(request, note_id):
     commentaire = Commentaire.objects.get(id=note_id)
@@ -73,25 +76,27 @@ def supprimer_mon_commentaire(request, note_id):
         commentaire.delete()
         messages.success(request, "Votre commentaire a été supprimé.")
     return redirect(dossier_url)
-    
-@login_required 
+
+
+@login_required
 def affecter_experts_dossiers(request):
     dossier_ids = request.GET.get('ids').split(',')
     dossiers = Dossier.objects.filter(id__in=dossier_ids)
-    
+
     if request.method == "POST":
         form = ExpertForm(request.POST, dossiers=dossiers)
         if form.is_valid():
             form.save()
-            messages.success(request, "Les experts ont été affectés aux dossiers.")
+            messages.success(request,
+                             "Les experts ont été affectés aux dossiers.")
             return redirect("admin:sigma_dossier_changelist")
     else:
         form = ExpertForm(dossiers=dossiers)
 
-    form.fields['experts'].queryset = Expert.objects.region(request.user)
+    form.fields['experts'].queryset = get_rules().filter_queryset(
+        request.user, 'assign', Expert.objects.all()
+    )
 
-    c = {'form' : form}
-    return render_to_response("admin/sigma/affecter_experts.html", \
-                               Context(c), \
-                               context_instance = RequestContext(request))
-        
+    return render_to_response("admin/sigma/affecter_experts.html", {
+        'form': form,
+    }, context_instance=RequestContext(request))

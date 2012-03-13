@@ -108,31 +108,6 @@ class ExpertForm(forms.Form):
 
 
 ################################################################################
-# Groupe Régional - ADMIN
-################################################################################
-
-class GroupeRegionalAdminForm(forms.ModelForm):
-    users = forms.ModelMultipleChoiceField(
-        label="Membres",
-        queryset=User.objects.filter(is_active=True).order_by('username'), 
-        widget=admin.widgets.FilteredSelectMultiple("Membres", False),
-        required=False,
-        )
-    
-    class Meta:
-        model = GroupeRegional
-
-    def __init__(self, *args, **kwargs):
-        super(GroupeRegionalAdminForm, self).__init__(*args, **kwargs)
-
-        # cas édition, on prépopule les users déjà membre
-        if kwargs.has_key('instance'):
-            instance = kwargs['instance']
-            user_ids = [u.id for u in instance.users.all().order_by('username')]
-            self.fields['users'].initial = user_ids
-
-
-################################################################################
 # Dynamo - ADMIN
 ################################################################################
 class ConformiteForm(PropertyForm):

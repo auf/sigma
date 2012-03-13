@@ -6,6 +6,8 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from smart_selects.db_fields import ChainedForeignKey
 
 from project.dynamo import dynamo_registry
@@ -57,10 +59,6 @@ NOTE_MAX = 100
 
 class ExpertManager(models.Manager):
 
-    def region(self, user):
-        regions = [g.region for g in user.groupes_regionaux.all()]
-        return self.get_query_set().filter(region__in=regions)
-
     def get_query_set(self):
         fkeys = ('region', )
         return super(ExpertManager, self).get_query_set() \
@@ -92,19 +90,22 @@ class Expert(models.Model):
 
 
 class UserProfile(models.Model):
-    user = models.ForeignKey("auth.User", unique=True)
+    user = models.OneToOneField(User, related_name='profile', primary_key=True)
+    regions = models.ManyToManyField(
+        ref.Region, verbose_name=u"régions", blank=True, null=True
+    )
     disciplines = models.ManyToManyField(
-        ref.Discipline, verbose_name=u"Disciplines", blank=True, null=True
+        ref.Discipline, verbose_name=u"disciplines", blank=True, null=True
     )
 
-User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.get_or_create(user=instance)
 
 
 class AppelManager(models.Manager):
-
-    def region(self, user):
-        regions = [g.region for g in user.groupes_regionaux.all()]
-        return self.get_query_set().filter(region__in=regions)
 
     def get_query_set(self):
         fkeys = ('region', )
@@ -349,10 +350,6 @@ class DossierQuerySet(models.query.QuerySet):
 
 
 class DossierManager(models.Manager):
-
-    def region(self, user):
-        regions = [g.region for g in user.groupes_regionaux.all()]
-        return self.get_query_set().filter(appel__region__in=regions)
 
     def get_query_set(self):
         fkeys = ('appel', 'origine', 'accueil', )
@@ -873,22 +870,6 @@ class AttributWCS(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.attribut
-
-
-class GroupeRegional(models.Model):
-    region = models.ForeignKey(ref.Region, verbose_name="région")
-    users = models.ManyToManyField(
-        'auth.User', related_name="groupes_regionaux",
-        verbose_name=u"membres", blank=True, null=True
-    )
-
-    class Meta:
-        verbose_name = u"groupe régional"
-        verbose_name_plural = "groupes régionaux"
-        ordering = ['region__nom']
-
-    def __unicode__(self):
-        return self.region.nom
 
 
 # Dynamo

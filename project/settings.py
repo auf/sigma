@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     'auf.django.admingroup',
     'auf.django.coda',
     'auf.django.export',
+    'auf.django.permissions',
     'auf.django.skin',
     'auf.django.references',
     'auf.django.workflow',
@@ -85,6 +86,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 AUTHENTICATION_BACKENDS = (
     'auf.django.auth.backends.CascadeBackend',
+    'auf.django.permissions.AuthenticationBackend',
 )
 
 AUTH_PROFILE_MODULE = "sigma.userprofile"
@@ -108,3 +110,7 @@ HELP_TEXT_DATE = "format: jj/mm/aaaa"
 # django-sendfile
 
 SENDFILE_BACKEND = 'sendfile.backends.simple'
+
+# auf.django.permissions
+
+AUF_PERMISSIONS_RULES = 'project.permissions.rules'

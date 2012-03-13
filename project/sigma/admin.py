@@ -1,13 +1,20 @@
 # -*- encoding: utf-8 -*-
 import os
 
-from auf.django.workflow.admin import WorkflowAdmin
 from auf.django.export.admin import ExportAdmin
-from auf.django.references.models import Region
+from auf.django.permissions import get_rules
+from auf.django.permissions.admin import GuardedModelAdmin
+from auf.django.permissions.forms import make_global_permissions_form
+from auf.django.references import models as ref
+from auf.django.workflow.admin import WorkflowAdmin
 from django import forms
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
+from django.contrib.auth.admin import \
+        UserAdmin as DjangoUserAdmin, GroupAdmin as DjangoGroupAdmin
+from django.contrib.auth.forms import UserChangeForm as DjangoUserForm
+from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, redirect, get_object_or_404
@@ -17,10 +24,9 @@ from sendfile import sendfile
 from project.sigma.models import \
         Conformite, Appel, DossierOrigine, DossierAccueil, DossierMobilite, \
         Candidat, Dossier, Expert, Piece, TypePiece, AttributWCS, Diplome, \
-        GroupeRegional, TypeConformite, NiveauEtude, Intervention, Public
+        TypeConformite, NiveauEtude, Intervention, Public
 from project.sigma.forms import \
-        ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm, \
-        GroupeRegionalAdminForm
+        ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from project.sigma.workflow import DOSSIER_ETAT_BOURSIER
 # Ne pas enlever!
 from project.sigma.customfilterspec import \
@@ -44,7 +50,7 @@ class TypeConformiteAdmin(admin.ModelAdmin):
     form = TypeConformiteForm
 
 
-class AppelAdmin(admin.ModelAdmin):
+class AppelAdmin(GuardedModelAdmin):
     list_display = (
         'nom', 'region', 'code_budgetaire', 'date_debut_appel',
         'date_fin_appel', '_actions',
@@ -88,26 +94,14 @@ class AppelAdmin(admin.ModelAdmin):
             return dossiers_url
     _actions.allow_tags = True
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(AppelAdmin, self).get_form(request, obj, **kwargs)
-        if 'region' in form.declared_fields:
-            region_field = form.declared_fields['region']
-        else:
-            region_field = form.base_fields['region']
-
-        region_ids = [g.region.id
-                      for g in request.user.groupes_regionaux.all()]
-        region_field.queryset = Region.objects.filter(id__in=region_ids)
-        return form
-
-    def has_add_permission(self, request):
-        if not request.user.groupes_regionaux.all():
-            return False
-
-        return super(AppelAdmin, self).has_add_permission(request)
-
-    def queryset(self, request):
-        return Appel.objects.region(request.user)
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'region':
+            kwargs['queryset'] = get_rules().filter_queryset(
+                request.user, 'manage', ref.Region.objects.all()
+            )
+        return super(AppelAdmin, self).formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )
 
 
 class BaseDossierFaculteInline(admin.StackedInline):
@@ -337,7 +331,7 @@ affecter_dossiers_expert.short_description = \
         'Assigner expert(s) au(x) dossier(s)'
 
 
-class DossierAdmin(WorkflowAdmin, ExportAdmin):
+class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     change_list_template = "admin/sigma/dossier_change_list.html"
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline,
                DossierAccueilInline, DossierMobiliteInline,
@@ -408,13 +402,11 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
         return obj.appel.region
     _region.short_description = "Région"
 
-    def queryset(self, request):
-        return Dossier.objects.region(request.user) \
-                .select_related('appel', 'mobilite', 'candidat')
-
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == 'experts':
-            kwargs['queryset'] = Expert.objects.region(request.user)
+            kwargs['queryset'] = get_rules().filter_queryset(
+                request.user, 'assign', Expert.objects.all()
+            )
         return super(DossierAdmin, self).formfield_for_manytomany(
             db_field, request, **kwargs
         )
@@ -505,7 +497,7 @@ class DossierAdmin(WorkflowAdmin, ExportAdmin):
             raise Http404
 
 
-class ExpertAdmin(admin.ModelAdmin):
+class ExpertAdmin(GuardedModelAdmin):
     list_display = ('nom', 'prenom', '_region', '_disciplines')
     list_display_links = ('nom', 'prenom')
     list_filter = ('region', 'disciplines')
@@ -524,21 +516,6 @@ class ExpertAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ['disciplines']
 
-    def queryset(self, request):
-        return Expert.objects.region(request.user)
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(ExpertAdmin, self).get_form(request, obj, **kwargs)
-        if 'region' in form.declared_fields:
-            region_field = form.declared_fields['region']
-        else:
-            region_field = form.base_fields['region']
-
-        region_ids = [g.region.id
-                      for g in request.user.groupes_regionaux.all()]
-        region_field.queryset = Region.objects.filter(id__in=region_ids)
-        return form
-
     def _region(self, obj):
         return obj.region
     _region.short_description = "Région"
@@ -547,9 +524,14 @@ class ExpertAdmin(admin.ModelAdmin):
         return ', '.join([d.nom for d in obj.disciplines.all()])
     _disciplines.short_description = "Disciplines"
 
-
-class GroupeRegionalAdmin(admin.ModelAdmin):
-    form = GroupeRegionalAdminForm
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'region':
+            kwargs['queryset'] = get_rules().filter_queryset(
+                request.user, 'manage', ref.Region.objects.all()
+            )
+        return super(ExpertAdmin, self).formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )
 
 
 class AttributWCSAdmin(admin.ModelAdmin):
@@ -560,13 +542,96 @@ class AttributWCSAdmin(admin.ModelAdmin):
         return obj.dossier.id
 
 
+# Admin pour le système d'authentification
+
+GLOBAL_PERMISSIONS = (
+    ('gerer_appels', u"Peut gérer les appels d'offres"),
+    ('gerer_dossiers', u"Peut gérer les dossiers de candidature"),
+    ('gerer_boursiers', u"Peut gérer les boursiers"),
+    ('gerer_experts', u"Peut gérer les experts"),
+    ('configurer_sigma', u"Peut configurer SIGMA"),
+)
+
+
+class UserForm(DjangoUserForm):
+    regions = forms.ModelMultipleChoiceField(
+        label=u'Régions',
+        queryset=ref.Region.objects.all(),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        if 'instance' in kwargs:
+            profile = kwargs['instance'].get_profile()
+            profile_data = {'regions': profile.regions.all()}
+            initial = kwargs.get('initial')
+            if initial:
+                profile_data.update(initial)
+            kwargs['initial'] = profile_data
+        super(UserForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        user = super(UserForm, self).save(commit=commit)
+        old_save_m2m = getattr(self, 'save_m2m', None)
+
+        def save_m2m():
+            if old_save_m2m:
+                old_save_m2m()
+            profile = user.get_profile()
+            profile.regions = self.cleaned_data['regions']
+            profile.save()
+
+        if commit:
+            save_m2m()
+        else:
+            self.save_m2m = save_m2m
+        return user
+
+
+class UserAdmin(DjangoUserAdmin):
+    form = make_global_permissions_form(UserForm, GLOBAL_PERMISSIONS)
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Informations personnelles', {
+            'fields': ('first_name', 'last_name', 'email')
+        }),
+        ('Permissions', {
+            'fields': (
+                'is_active', 'is_staff', 'is_superuser'
+            ) + tuple(x[0] for x in GLOBAL_PERMISSIONS)
+        }),
+        ('Groupes', {'fields': ('groups', 'regions')}),
+    )
+    list_filter = DjangoUserAdmin.list_filter + ('groups', 'profile__regions')
+
+
+class GroupForm(forms.ModelForm):
+
+    class Meta:
+        model = Group
+
+
+class GroupAdmin(DjangoGroupAdmin):
+    form = make_global_permissions_form(GroupForm, GLOBAL_PERMISSIONS)
+    fieldsets = (
+        (None, {
+            'fields': (
+                'name',
+            ) + tuple(x[0] for x in GLOBAL_PERMISSIONS)
+        }),
+    )
+
+
 admin.site.register(TypePiece)
 admin.site.register(AttributWCS, AttributWCSAdmin)
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)
-admin.site.register(GroupeRegional, GroupeRegionalAdmin)
 admin.site.register(TypeConformite, TypeConformiteAdmin)
 admin.site.register(NiveauEtude)
 admin.site.register(Intervention)
 admin.site.register(Public)
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
+admin.site.unregister(Group)
+admin.site.register(Group, GroupAdmin)

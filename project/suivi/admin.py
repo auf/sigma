@@ -2,6 +2,7 @@
 
 from itertools import groupby
 
+from auf.django.permissions.admin import GuardedModelAdmin
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
 from django.core.urlresolvers import reverse
@@ -77,7 +78,7 @@ class DepensePrevisionnelleInline(admin.TabularInline):
     }
 
 
-class BoursierAdmin(admin.ModelAdmin):
+class BoursierAdmin(GuardedModelAdmin):
     list_display = (
         'nom', 'prenom', 'code_operation', 'naissance_date', 'appel',
         'debut_mobilite', 'field_actions'
