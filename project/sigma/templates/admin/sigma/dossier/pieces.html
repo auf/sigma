@@ -27,10 +27,10 @@
     </tr>
   <tbody>
     <tr><th colspan="0">Pièces jointes attendues</th></tr>
-    {% for nom, pieces in pieces_attendues %}
-    {% for piece in pieces %}
+    {% for identifiant, info in pieces_attendues %}
+    {% for piece in info.pieces %}
     <tr>
-      <td>{{ nom }}</td>
+      <td>{{ info.nom }}</td>
       <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-yes.gif" /></td>
       <td align="center">
         <img src="{% admin_media_prefix %}img/admin/icon-{{ piece.conforme|yesno:"yes,no,unknown" }}.gif" />
@@ -55,14 +55,14 @@
     </tr>
     {% empty %}
     <tr>
-      <td>{{ nom }}</td>
+      <td>{{ info.nom }}</td>
       <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-no.gif" /></td>
       <td></td>
       <td></td>
       <td>
         <ul class="actions">
           <li><a class="addlink"
-            href="{% url admin:sigma_dossier_pieces_add dossier.pk %}?piece={{ nom|urlencode }}"
+            href="{% url admin:sigma_dossier_pieces_add dossier.pk %}?piece={{ identifiant|urlencode }}"
             >Ajouter</a></li>
         </ul>
       </td>
@@ -75,7 +75,7 @@
     <tr><th colspan="0">Pièces jointes supplémentaires</th></tr>
     {% for piece in pieces_supplementaires %}
     <tr>
-      <td>{{ piece.nom }}</td>
+      <td>{{ piece.identifiant }}</td>
       <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-yes.gif" /></td>
       <td align="center">
         <img src="{% admin_media_prefix %}img/admin/icon-{{ piece.conforme|yesno:"yes,no,unknown" }}.gif" />

@@ -50,6 +50,13 @@ class TypeConformiteAdmin(admin.ModelAdmin):
     form = TypeConformiteForm
 
 
+class TypePieceInline(admin.TabularInline):
+    model = TypePiece
+    prepopulated_fields = {'identifiant': ('nom',)}
+    verbose_name = u'pièce à demander'
+    verbose_name_plural = u'pièces à demander'
+
+
 class AppelAdmin(GuardedModelAdmin):
     list_display = (
         'nom', 'region', 'code_budgetaire', 'date_debut_appel',
@@ -74,10 +81,10 @@ class AppelAdmin(GuardedModelAdmin):
             ('prime_installation_sud', 'prime_installation_nord'),
             'appel_en_ligne',
             'conformites',
-            'types_piece',
         )
     }),)
-    filter_horizontal = ['conformites', 'types_piece']
+    filter_horizontal = ['conformites']
+    inlines = [TypePieceInline]
 
     class Media:
         js = ("js/appel.js",)
@@ -432,12 +439,13 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     def view_pieces(self, request, id):
         dossier = Dossier.objects.get(pk=id)
         pieces_attendues = dict(
-            (x.nom, []) for x in dossier.appel.types_piece.all()
+            (p.identifiant, {'pieces': [], 'nom': p.nom})
+            for p in dossier.appel.pieces_attendues.all()
         )
         pieces_supplementaires = []
         for piece in dossier.pieces.all():
-            if piece.nom in pieces_attendues:
-                pieces_attendues[piece.nom].append(piece)
+            if piece.identifiant in pieces_attendues:
+                pieces_attendues[piece.identifiant]['pieces'].append(piece)
             else:
                 pieces_supplementaires.append(piece)
         return render_to_response('admin/sigma/dossier/pieces.html', {
@@ -455,7 +463,9 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                 form.save()
                 return redirect('admin:sigma_dossier_pieces', dossier_id)
         else:
-            form = PieceForm(initial={'nom': request.GET.get('piece', '')})
+            form = PieceForm(initial={
+                'identifiant': request.GET.get('piece', '')
+            })
         return render_to_response('admin/sigma/dossier/piece_form.html', {
             'dossier': dossier,
             'form': form
@@ -618,7 +628,6 @@ class GroupAdmin(DjangoGroupAdmin):
     )
 
 
-admin.site.register(TypePiece)
 admin.site.register(AttributWCS, AttributWCSAdmin)
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)

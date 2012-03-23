@@ -202,10 +202,6 @@ class Appel(MetaModel, models.Model):
         "TypeConformite", verbose_name=u"Conformités à demander",
         blank=True, null=True
     )
-    types_piece = models.ManyToManyField(
-        "TypePiece", verbose_name=u"Types de pièces à demander", blank=True,
-        null=True
-    )
 
     class Meta:
         ordering = ['nom']
@@ -787,24 +783,25 @@ class Diplome(models.Model):
 
 
 class TypePiece(models.Model):
-    nom = models.CharField(max_length=255, verbose_name=u"Nom système")
+    appel = models.ForeignKey(Appel, related_name='pieces_attendues')
+    nom = models.CharField(max_length=100)
+    identifiant = models.SlugField(max_length=100)
 
     def __unicode__(self):
-        return unicode(self.nom)
+        return self.nom
 
     class Meta:
         verbose_name = 'type de pièce'
         verbose_name_plural = 'types de pièces'
         ordering = ['nom']
+        unique_together = ('appel', 'identifiant')
 
 
 class Piece(models.Model):
     dossier = models.ForeignKey(Dossier, related_name="pieces")
-    nom = models.CharField(
-        max_length=255, verbose_name=u"Nom", blank=True
-    )
+    identifiant = models.CharField(max_length=100, blank=True)
     fichier = models.FileField(
-        verbose_name=u"Fichier", upload_to="pieces",
+        upload_to="pieces",
         storage=FileSystemStorage(location=settings.UPLOADS_ROOT),
         blank=True, null=True
     )

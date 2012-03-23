@@ -119,15 +119,15 @@ class Command(BaseCommand):
                         pass
         return None
 
-    def import_piece(self, dossier, nom, filename):
+    def import_piece(self, dossier, identifiant, filename):
         basename, ext = os.path.splitext(filename)
-        save_filename = str(dossier.id) + '-' + nom + ext
+        save_filename = str(dossier.id) + '-' + identifiant + ext
         contents = ContentFile(
             self.urlopen(urljoin(self.data_url, filename)).read()
         )
         piece = Piece(
             dossier=dossier,
-            nom=nom
+            identifiant=identifiant
         )
         piece.fichier.save(save_filename, contents)
 
@@ -198,32 +198,32 @@ class Command(BaseCommand):
         )
         accueil.save()
         self.import_piece(
-            dossier, u'descriptif_du_projet',
+            dossier, u'descriptif-du-projet',
             info['descriptif_detaille_du_projet_professionnel_integre_dans_'
                  'l_activite_les_projets_de_la_structure_d_accueil']
         )
         self.import_piece(
-            dossier, u'dossier_de_scolarite_universitaire',
+            dossier, u'dossier-de-scolarite-universitaire',
             info['copie_du_dossier_de_scolarite_universitaire']
         )
         self.import_piece(
-            dossier, u"attestation_inscription",
+            dossier, u"attestation-dinscription",
             info['attestation_d_inscription_a_l_universite_pour_'
                  'l_annee_en_cours']
         )
         self.import_piece(
-            dossier, u"attestation_accord",
+            dossier, u"attestation-daccord",
             info['attestation_d_accord_motive_de_l_etablissement_d_origine_'
                  'delivree_signee_et_cachetee_par_le_responsable_scientifique_'
                  'direct_et_par_le_doyen']
         )
         self.import_piece(
-            dossier, u"attestation_accueil",
+            dossier, u"attestation-daccueil",
             info['attestation_d_accueil_du_responsable_du_projet_de_stage_'
                  'dans_l_etablissement_d_accueil']
         )
         self.import_piece(
-            dossier, u"preuve_de_competence_linguistique",
+            dossier, u"preuve-de-competence-linguistique",
             info['le_document_faisant_preuve_de_competence_linguistique_'
                  'en_francais_le_cas_echeant']
         )

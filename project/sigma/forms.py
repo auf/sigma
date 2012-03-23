@@ -51,7 +51,7 @@ class PieceForm(ModelForm):
 
     class Meta:
         model = Piece
-        fields = ('nom', 'fichier', 'conforme')
+        fields = ('identifiant', 'fichier', 'conforme')
 
 
 # DOSSIER - EVALUATION
