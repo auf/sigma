@@ -15,8 +15,6 @@ urlpatterns = patterns(
     (r'^admin/', include(admin.site.urls)),
     (r'^connexion/$', 'django.contrib.auth.views.login'),
     (r'^deconnexion/$', 'django.contrib.auth.views.logout'),
-
-    (r'^chaining/', include('smart_selects.urls')),
 )
 if hasattr(settings, 'WCS_SIGMA_URL'):
     urlpatterns += patterns('', (r'^', include('wcs.urls')),)

@@ -3,41 +3,130 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from django.db.models import F
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Deleting field 'UserProfile.id'
-        db.delete_column('sigma_userprofile', 'id')
+        # Changing field 'DossierMobilite.diplome_demande_niveau'
+        db.add_column('sigma_dossiermobilite', 'diplome_demande_niveau', self.gf('django.db.models.fields.CharField')(default='', max_length=100))
+        db.execute(
+            '''
+            UPDATE sigma_dossiermobilite dm
+            SET diplome_demande_niveau = COALESCE((
+                SELECT nom
+                FROM sigma_niveauetude
+                WHERE id = dm.diplome_demande_niveau_id
+            ), '')
+            '''
+        )
+        db.delete_column('sigma_dossiermobilite', 'diplome_demande_niveau_id')
 
-        # Adding M2M table for field regions on 'UserProfile'
-        db.create_table('sigma_userprofile_regions', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('userprofile', models.ForeignKey(orm['sigma.userprofile'], null=False)),
-            ('region', models.ForeignKey(orm['references.region'], null=False))
-        ))
-        db.create_unique('sigma_userprofile_regions', ['userprofile_id', 'region_id'])
+        # Removing index on 'DossierMobilite', fields ['diplome_demande_niveau']
+        try:
+            db.delete_index('sigma_dossiermobilite', ['diplome_demande_niveau_id'])
+        except:
+            pass
 
-        # Changing field 'UserProfile.user'
-        db.alter_column('sigma_userprofile', 'user_id', self.gf('django.db.models.fields.related.OneToOneField')(unique=True, primary_key=True, to=orm['auth.User']))
+        # Changing field 'DossierMobilite.formation_en_cours_niveau'
+        db.add_column('sigma_dossiermobilite', 'formation_en_cours_niveau', self.gf('django.db.models.fields.CharField')(default='', max_length=100))
+        db.execute(
+            '''
+            UPDATE sigma_dossiermobilite dm
+            SET formation_en_cours_niveau = COALESCE((
+                SELECT nom
+                FROM sigma_niveauetude
+                WHERE id = dm.formation_en_cours_niveau_id
+            ), '')
+            '''
+        )
+        db.delete_column('sigma_dossiermobilite', 'formation_en_cours_niveau_id')
 
-        # Creating a profile for every user
-        if not db.dry_run:
-            for user in orm['auth.User'].objects.all():
-                orm['sigma.userprofile'].objects.get_or_create(user=user)
+        # Removing index on 'DossierMobilite', fields ['formation_en_cours_niveau']
+        try:
+            db.delete_index('sigma_dossiermobilite', ['formation_en_cours_niveau_id'])
+        except:
+            pass
+
+        # Changing field 'Diplome.niveau'
+        db.add_column('sigma_diplome', 'niveau', self.gf('django.db.models.fields.CharField')(default='', max_length=100))
+        db.execute(
+            '''
+            UPDATE sigma_diplome d
+            SET niveau = COALESCE((
+                SELECT nom
+                FROM sigma_niveauetude
+                WHERE id = d.niveau_id
+            ), '')
+            '''
+        )
+        db.delete_column('sigma_diplome', 'niveau_id')
+
+        # Removing index on 'Diplome', fields ['niveau']
+        try:
+            db.delete_index('sigma_diplome', ['niveau_id'])
+        except:
+            pass
+
+        # Deleting model 'NiveauEtude'
+        db.delete_table('sigma_niveauetude')
+
+        # Deleting model 'GroupeRegional'
+        db.delete_table('sigma_grouperegional')
+
+        # Removing M2M table for field users on 'GroupeRegional'
+        db.delete_table('sigma_grouperegional_users')
 
 
     def backwards(self, orm):
         
-        # User chose to not deal with backwards NULL issues for 'UserProfile.id'
-        # raise RuntimeError("Cannot reverse this migration. 'UserProfile.id' and its values cannot be restored.")
+        # Adding index on 'Diplome', fields ['niveau']
+        db.create_index('sigma_diplome', ['niveau_id'])
 
-        # Removing M2M table for field regions on 'UserProfile'
-        db.delete_table('sigma_userprofile_regions')
+        # Adding index on 'DossierMobilite', fields ['formation_en_cours_niveau']
+        db.create_index('sigma_dossiermobilite', ['formation_en_cours_niveau_id'])
 
-        # Changing field 'UserProfile.user'
-        db.alter_column('sigma_userprofile', 'user_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], unique=True))
+        # Adding index on 'DossierMobilite', fields ['diplome_demande_niveau']
+        db.create_index('sigma_dossiermobilite', ['diplome_demande_niveau_id'])
+
+        # Adding model 'NiveauEtude'
+        db.create_table('sigma_niveauetude', (
+            ('annees', self.gf('django.db.models.fields.CharField')(max_length=2)),
+            ('nom', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        ))
+        db.send_create_signal('sigma', ['NiveauEtude'])
+
+        # Adding model 'GroupeRegional'
+        db.create_table('sigma_grouperegional', (
+            ('region', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['managedref.Region'])),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        ))
+        db.send_create_signal('sigma', ['GroupeRegional'])
+
+        # Adding M2M table for field users on 'GroupeRegional'
+        db.create_table('sigma_grouperegional_users', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('grouperegional', models.ForeignKey(orm['sigma.grouperegional'], null=False)),
+            ('user', models.ForeignKey(orm['auth.user'], null=False))
+        ))
+        db.create_unique('sigma_grouperegional_users', ['grouperegional_id', 'user_id'])
+
+        # Renaming column for 'DossierMobilite.diplome_demande_niveau' to match new field type.
+        db.rename_column('sigma_dossiermobilite', 'diplome_demande_niveau', 'diplome_demande_niveau_id')
+        # Changing field 'DossierMobilite.diplome_demande_niveau'
+        db.alter_column('sigma_dossiermobilite', 'diplome_demande_niveau_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['sigma.NiveauEtude']))
+
+        # Renaming column for 'DossierMobilite.formation_en_cours_niveau' to match new field type.
+        db.rename_column('sigma_dossiermobilite', 'formation_en_cours_niveau', 'formation_en_cours_niveau_id')
+        # Changing field 'DossierMobilite.formation_en_cours_niveau'
+        db.alter_column('sigma_dossiermobilite', 'formation_en_cours_niveau_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['sigma.NiveauEtude']))
+
+        # Renaming column for 'Diplome.niveau' to match new field type.
+        db.rename_column('sigma_diplome', 'niveau', 'niveau_id')
+        # Changing field 'Diplome.niveau'
+        db.alter_column('sigma_diplome', 'niveau_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['sigma.NiveauEtude']))
 
 
     models = {
@@ -306,7 +395,7 @@ class Migration(SchemaMigration):
             'dossier': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Dossier']"}),
             'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Etablissement']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'niveau': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'niveau'", 'null': 'True', 'to': "orm['sigma.NiveauEtude']"}),
+            'niveau': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
         'sigma.dossier': {
@@ -364,12 +453,12 @@ class Migration(SchemaMigration):
             'date_debut_origine': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_fin_accueil': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_fin_origine': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'diplome_demande_niveau': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'diplome_demande_niveau'", 'null': 'True', 'to': "orm['sigma.NiveauEtude']"}),
+            'diplome_demande_niveau': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'diplome_demande_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'discipline': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Discipline']", 'null': 'True', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'mobilite'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
             'formation_en_cours_diplome': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'formation_en_cours_niveau': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'formation_en_cours_niveau'", 'null': 'True', 'to': "orm['sigma.NiveauEtude']"}),
+            'formation_en_cours_niveau': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'intitule_projet': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'mots_clefs': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -429,20 +518,8 @@ class Migration(SchemaMigration):
             'prenom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Region']"})
         },
-        'sigma.grouperegional': {
-            'Meta': {'ordering': "['region__nom']", 'object_name': 'GroupeRegional'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Region']"}),
-            'users': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'groupes_regionaux'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['auth.User']"})
-        },
         'sigma.intervention': {
             'Meta': {'ordering': "['nom']", 'object_name': 'Intervention'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
-        'sigma.niveauetude': {
-            'Meta': {'ordering': "['nom']", 'object_name': 'NiveauEtude'},
-            'annees': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },

@@ -40,15 +40,6 @@ class PaysField(forms.Field):
             return None
 
 
-class NiveauEtudesField(forms.Field):
-
-    def to_python(self, value):
-        try:
-            return sigma.NiveauEtude.objects.get(nom=value)
-        except sigma.NiveauEtude.DoesNotExist:
-            return None
-
-
 class EtablissementField(forms.Field):
 
     def to_python(self, value):
@@ -101,7 +92,6 @@ class CandidatForm(forms.ModelForm):
 
 
 class DiplomeForm(forms.ModelForm):
-    niveau = NiveauEtudesField(required=False)
     etablissement = EtablissementField(required=False)
     autre_etablissement_pays = PaysField(required=False)
 
@@ -133,11 +123,9 @@ class DossierAccueilForm(forms.ModelForm):
 
 
 class DossierMobiliteForm(forms.ModelForm):
-    formation_en_cours_niveau = NiveauEtudesField(required=False)
     type_intervention = InterventionField(required=False)
     public_vise = PublicField(required=False)
     discipline = DisciplineField(required=False)
-    diplome_demande_niveau = NiveauEtudesField(required=False)
     these_soutenance_pays = PaysField(required=False)
     these_type = ChoiceLabelField(sigma.TYPE_THESE)
     dir_ori_civilite = ChoiceLabelField(sigma.CIVILITE)

@@ -8,36 +8,39 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Deleting field 'UserProfile.id'
-        db.delete_column('sigma_userprofile', 'id')
+        # Deleting model 'CategorieBourse'
+        db.delete_table('sigma_categoriebourse')
 
-        # Adding M2M table for field regions on 'UserProfile'
-        db.create_table('sigma_userprofile_regions', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('userprofile', models.ForeignKey(orm['sigma.userprofile'], null=False)),
-            ('region', models.ForeignKey(orm['references.region'], null=False))
-        ))
-        db.create_unique('sigma_userprofile_regions', ['userprofile_id', 'region_id'])
-
-        # Changing field 'UserProfile.user'
-        db.alter_column('sigma_userprofile', 'user_id', self.gf('django.db.models.fields.related.OneToOneField')(unique=True, primary_key=True, to=orm['auth.User']))
-
-        # Creating a profile for every user
+        # Renaming column for 'Dossier.derniere_bourse_categorie' to match new field type.
+        db.rename_column('sigma_dossier', 'derniere_bourse_categorie_id', 'derniere_bourse_categorie')
+        # Changing field 'Dossier.derniere_bourse_categorie'
+        db.alter_column('sigma_dossier', 'derniere_bourse_categorie', self.gf('django.db.models.fields.CharField')(blank=True, null=True, default='', max_length=100))
         if not db.dry_run:
-            for user in orm['auth.User'].objects.all():
-                orm['sigma.userprofile'].objects.get_or_create(user=user)
+            orm.Dossier.objects.update(derniere_bourse_categorie='')
+        db.alter_column('sigma_dossier', 'derniere_bourse_categorie', self.gf('django.db.models.fields.CharField')(default='', max_length=100))
+
+        # Removing index on 'Dossier', fields ['derniere_bourse_categorie']
+        try:
+            db.delete_index('sigma_dossier', ['derniere_bourse_categorie_id'])
+        except:
+            pass
 
 
     def backwards(self, orm):
         
-        # User chose to not deal with backwards NULL issues for 'UserProfile.id'
-        # raise RuntimeError("Cannot reverse this migration. 'UserProfile.id' and its values cannot be restored.")
+        # Adding index on 'Dossier', fields ['derniere_bourse_categorie']
+        db.create_index('sigma_dossier', ['derniere_bourse_categorie_id'])
 
-        # Removing M2M table for field regions on 'UserProfile'
-        db.delete_table('sigma_userprofile_regions')
+        # Adding model 'CategorieBourse'
+        db.create_table('sigma_categoriebourse', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        ))
+        db.send_create_signal('sigma', ['CategorieBourse'])
 
-        # Changing field 'UserProfile.user'
-        db.alter_column('sigma_userprofile', 'user_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], unique=True))
+        # Renaming column for 'Dossier.derniere_bourse_categorie' to match new field type.
+        db.rename_column('sigma_dossier', 'derniere_bourse_categorie', 'derniere_bourse_categorie_id')
+        # Changing field 'Dossier.derniere_bourse_categorie'
+        db.alter_column('sigma_dossier', 'derniere_bourse_categorie_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['sigma.CategorieBourse']))
 
 
     models = {
@@ -227,14 +230,14 @@ class Migration(SchemaMigration):
         'sigma.appel': {
             'Meta': {'ordering': "['nom']", 'object_name': 'Appel'},
             'appel_en_ligne': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'bareme': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'bareme': ('django.db.models.fields.CharField', [], {'max_length': '32', 'blank': 'True'}),
             'code_budgetaire': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedcoda.ProjetPoste']"}),
             'conformites': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['sigma.TypeConformite']", 'null': 'True', 'blank': 'True'}),
             'date_debut_appel': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_debut_mobilite': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_fin_appel': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_fin_mobilite': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'formulaire_wcs': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'formulaire_wcs': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'montant_allocation_unique': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'montant_mensuel_accueil_nord': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
@@ -244,7 +247,7 @@ class Migration(SchemaMigration):
             'montant_perdiem_nord': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'montant_perdiem_sud': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'periode': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'periode': ('django.db.models.fields.CharField', [], {'max_length': '32', 'blank': 'True'}),
             'prime_installation_nord': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'prime_installation_sud': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Region']"}),
@@ -252,18 +255,18 @@ class Migration(SchemaMigration):
         },
         'sigma.attributwcs': {
             'Meta': {'object_name': 'AttributWCS'},
-            'attribut': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'attribut': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'attributs_wcs'", 'to': "orm['sigma.Dossier']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'valeur': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
+            'valeur': ('django.db.models.fields.TextField', [], {'blank': 'True'})
         },
         'sigma.candidat': {
             'Meta': {'object_name': 'Candidat'},
-            'adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'adresse_complement': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            'code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'adresse_complement': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
+            'code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '255', 'blank': 'True'}),
             'date_creation': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'date_modification': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'candidat'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
@@ -271,17 +274,13 @@ class Migration(SchemaMigration):
             'naissance_date': ('django.db.models.fields.DateField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'nationalite': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Pays']", 'null': 'True', 'blank': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'nom_jeune_fille': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'nom_jeune_fille': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'pays': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'pays'", 'null': 'True', 'to': "orm['managedref.Pays']"}),
             'prenom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'telephone_portable': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
-        },
-        'sigma.categoriebourse': {
-            'Meta': {'object_name': 'CategorieBourse'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+            'region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'telephone_portable': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
         'sigma.commentaire': {
             'Meta': {'object_name': 'Commentaire'},
@@ -300,128 +299,128 @@ class Migration(SchemaMigration):
         },
         'sigma.diplome': {
             'Meta': {'object_name': 'Diplome'},
-            'autre_etablissement_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'autre_etablissement_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'autre_etablissement_pays': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'etablissement_pays'", 'null': 'True', 'to': "orm['managedref.Pays']"}),
             'date': ('django.db.models.fields.DateField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Dossier']"}),
             'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Etablissement']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'niveau': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'niveau'", 'null': 'True', 'to': "orm['sigma.NiveauEtude']"}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
+            'niveau': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
         'sigma.dossier': {
             'Meta': {'ordering': "['appel__nom', 'candidat__nom', 'candidat__prenom']", 'object_name': 'Dossier'},
             'annotations': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['sigma.Commentaire']", 'null': 'True', 'blank': 'True'}),
             'appel': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'appel'", 'to': "orm['sigma.Appel']"}),
             'bureau_rattachement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Bureau']", 'null': 'True', 'blank': 'True'}),
-            'candidat_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'candidat_statut': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dernier_projet_annee': ('django.db.models.fields.CharField', [], {'max_length': '4', 'null': 'True', 'blank': 'True'}),
-            'dernier_projet_description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'derniere_bourse_annee': ('django.db.models.fields.CharField', [], {'max_length': '4', 'null': 'True', 'blank': 'True'}),
-            'derniere_bourse_categorie': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'bourse_categorie'", 'null': 'True', 'to': "orm['sigma.CategorieBourse']"}),
+            'candidat_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'candidat_statut': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dernier_projet_annee': ('django.db.models.fields.CharField', [], {'max_length': '4', 'blank': 'True'}),
+            'dernier_projet_description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'derniere_bourse_annee': ('django.db.models.fields.CharField', [], {'max_length': '4', 'blank': 'True'}),
+            'derniere_bourse_categorie': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'discipline': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Discipline']", 'null': 'True', 'blank': 'True'}),
             'etat': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'experts': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'dossiers'", 'blank': 'True', 'to': "orm['sigma.Expert']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'moyenne_academique': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'moyenne_votes': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
-            'opportunite_regionale': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
+            'opportunite_regionale': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
         'sigma.dossieraccueil': {
             'Meta': {'object_name': 'DossierAccueil'},
-            'autre_etablissement_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'autre_etablissement_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'autre_etablissement_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'autre_etablissement_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'autre_etablissement_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'autre_etablissement_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'autre_etablissement_pays': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Pays']", 'null': 'True', 'blank': 'True'}),
-            'autre_etablissement_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'autre_etablissement_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dir_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            'dir_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dir_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dir_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dir_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'autre_etablissement_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'autre_etablissement_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dir_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
+            'dir_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dir_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dir_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dir_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'accueil'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
             'etablissement': ('smart_selects.db_fields.ChainedForeignKey', [], {'to': "orm['managedref.Etablissement']", 'null': 'True', 'blank': 'True'}),
-            'faculte_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'faculte_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'faculte_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'faculte_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'faculte_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'faculte_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'faculte_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'faculte_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'pays': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'accueil_pays'", 'to_field': "'code'", 'null': 'True', 'to': "orm['managedref.Pays']"}),
-            'resp_sc_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
+            'resp_sc_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
+            'resp_sc_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
         'sigma.dossiermobilite': {
             'Meta': {'object_name': 'DossierMobilite'},
-            'autres_publics': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'autres_publics': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'date_debut_accueil': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_debut_origine': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_fin_accueil': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_fin_origine': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'diplome_demande_niveau': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'diplome_demande_niveau'", 'null': 'True', 'to': "orm['sigma.NiveauEtude']"}),
-            'diplome_demande_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'diplome_demande_niveau': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'diplome_demande_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'discipline': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Discipline']", 'null': 'True', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'mobilite'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
-            'formation_en_cours_diplome': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'formation_en_cours_niveau': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'formation_en_cours_niveau'", 'null': 'True', 'to': "orm['sigma.NiveauEtude']"}),
+            'formation_en_cours_diplome': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'formation_en_cours_niveau': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'intitule_projet': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'mots_clefs': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'intitule_projet': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'mots_clefs': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'public_vise': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Public']", 'null': 'True', 'blank': 'True'}),
-            'sous_discipline': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'sous_discipline': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'these_date_inscription': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'these_soutenance_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'these_soutenance_pays': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'soutenance_pays'", 'null': 'True', 'to': "orm['managedref.Pays']"}),
-            'these_type': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
+            'these_type': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
             'type_intervention': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['sigma.Intervention']", 'null': 'True', 'blank': 'True'})
         },
         'sigma.dossierorigine': {
             'Meta': {'object_name': 'DossierOrigine'},
-            'autre_etablissement_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'autre_etablissement_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'autre_etablissement_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'autre_etablissement_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'autre_etablissement_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'autre_etablissement_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'autre_etablissement_pays': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Pays']", 'null': 'True', 'blank': 'True'}),
-            'autre_etablissement_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'autre_etablissement_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dir_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            'dir_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dir_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dir_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'dir_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'autre_etablissement_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'autre_etablissement_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dir_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
+            'dir_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dir_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dir_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'dir_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'dossier': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'origine'", 'unique': 'True', 'to': "orm['sigma.Dossier']"}),
             'etablissement': ('smart_selects.db_fields.ChainedForeignKey', [], {'to': "orm['managedref.Etablissement']", 'null': 'True', 'blank': 'True'}),
-            'faculte_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'faculte_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'faculte_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'faculte_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'faculte_adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'faculte_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'faculte_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'faculte_ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'pays': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'origine_pays'", 'to_field': "'code'", 'null': 'True', 'to': "orm['managedref.Pays']"}),
-            'resp_inst_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            'resp_inst_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_inst_fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_inst_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_inst_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_inst_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_inst_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'resp_sc_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
+            'resp_inst_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
+            'resp_inst_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_inst_fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_inst_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_inst_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_inst_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_inst_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_civilite': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
+            'resp_sc_courriel': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'resp_sc_telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
         'sigma.expert': {
             'Meta': {'ordering': "['nom', 'prenom']", 'object_name': 'Expert'},
             'actif': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'commentaire': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True', 'blank': 'True'}),
+            'commentaire': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'disciplines': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['managedref.Discipline']", 'null': 'True', 'blank': 'True'}),
             'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Etablissement']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -429,20 +428,8 @@ class Migration(SchemaMigration):
             'prenom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Region']"})
         },
-        'sigma.grouperegional': {
-            'Meta': {'ordering': "['region__nom']", 'object_name': 'GroupeRegional'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['managedref.Region']"}),
-            'users': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'groupes_regionaux'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['auth.User']"})
-        },
         'sigma.intervention': {
             'Meta': {'ordering': "['nom']", 'object_name': 'Intervention'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
-        'sigma.niveauetude': {
-            'Meta': {'ordering': "['nom']", 'object_name': 'NiveauEtude'},
-            'annees': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },
@@ -460,7 +447,7 @@ class Migration(SchemaMigration):
             'dossier': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pieces'", 'to': "orm['sigma.Dossier']"}),
             'fichier': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
+            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
         'sigma.public': {
             'Meta': {'ordering': "['nom']", 'object_name': 'Public'},

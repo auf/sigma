@@ -70,7 +70,6 @@ INSTALLED_APPS = (
     'sigma',
     'suivi',
     'wcs',
-    'smart_selects',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

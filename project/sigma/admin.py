@@ -24,7 +24,7 @@ from sendfile import sendfile
 from project.sigma.models import \
         Conformite, Appel, DossierOrigine, DossierAccueil, DossierMobilite, \
         Candidat, Dossier, Expert, Piece, TypePiece, AttributWCS, Diplome, \
-        TypeConformite, NiveauEtude, Intervention, Public
+        TypeConformite, Intervention, Public
 from project.sigma.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from project.sigma.workflow import DOSSIER_ETAT_BOURSIER
@@ -117,9 +117,8 @@ class DossierOrigineInline(BaseDossierFaculteInline):
             "à la date de la candidature)"
 
     fieldsets = (
-        (None, {'fields': ('pays', 'etablissement',)}),
+        (None, {'fields': ('etablissement',)}),
         ('Autre établissement si non membre de l\'AUF', {
-            'classes': ['collapse'],
             'fields': (
                 ('autre_etablissement_nom', 'autre_etablissement_adresse'),
                 ('autre_etablissement_ville',
@@ -155,9 +154,8 @@ class DossierAccueilInline(BaseDossierFaculteInline):
             "(établissement de destination de la mobilité)"
 
     fieldsets = (
-        (None, {'fields': ('pays', 'etablissement',)}),
+        (None, {'fields': ('etablissement',)}),
         ('Autre établissement si non membre de l\'AUF', {
-            'classes': ['collapse'],
             'fields': (
                 ('autre_etablissement_nom', 'autre_etablissement_adresse'),
                 ('autre_etablissement_ville',
@@ -252,7 +250,7 @@ class DossierMobiliteInline(admin.StackedInline):
             )
         }),
         ('Diplôme demandé', {
-            'fields': ('diplome_demande_nom', 'diplome_demande_niveau')
+            'fields': (('diplome_demande_nom', 'diplome_demande_niveau'),)
         }),
         ('Thèse', {
             'fields': ('these_date_inscription',
@@ -266,20 +264,9 @@ class DossierMobiliteInline(admin.StackedInline):
     )
 
 
-class DossierCandidatForm(forms.ModelForm):
-    class Meta:
-        model = Candidat
-
-    def __init__(self, *args, **kwargs):
-        super(DossierCandidatForm, self).__init__(*args, **kwargs)
-        self.fields['naissance_date'].widget = \
-                admin.widgets.AdminTextInputWidget()
-
-
 class DossierCandidatInline(admin.StackedInline):
     formset = RequiredInlineFormSet
     model = Candidat
-    form = DossierCandidatForm
 
     max_num = 1
     verbose_name = verbose_name_plural = "Identification"
@@ -293,13 +280,23 @@ class DossierCandidatInline(admin.StackedInline):
         }),
         ('Coordonnées', {
             'fields': (
-                ('adresse', 'adresse_complement'),
+                'adresse',
+                'adresse_complement',
                 ('ville', 'code_postal'),
-                ('region', 'pays'),
+                'region',
+                'pays',
                 ('telephone', 'telephone_portable'),
                 'courriel')
         }),
     )
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name in ('adresse', 'adresse_complement'):
+            kwargs['widget'] = forms.TextInput(attrs={'size': 80})
+        elif db_field.name == 'naissance_date':
+            kwargs['widget'] = forms.DateInput(format='%d/%m/%Y')
+        return super(DossierCandidatInline, self) \
+                .formfield_for_dbfield(db_field, **kwargs)
 
 
 class DiplomeInline(admin.StackedInline):
@@ -314,7 +311,6 @@ class DiplomeInline(admin.StackedInline):
             'fields': ('nom', 'date', 'niveau', 'etablissement')
         }),
         ('Autre établissement d\'obtention, si non membre de l\'AUF', {
-            'classes': ['collapse'],
             'fields': ('autre_etablissement_nom', 'autre_etablissement_pays')
         }),
 
@@ -628,7 +624,6 @@ admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)
 admin.site.register(TypeConformite, TypeConformiteAdmin)
-admin.site.register(NiveauEtude)
 admin.site.register(Intervention)
 admin.site.register(Public)
 admin.site.unregister(User)

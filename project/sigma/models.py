@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from smart_selects.db_fields import ChainedForeignKey
 
 from project.dynamo import dynamo_registry
 from project.dynamo.models import \
@@ -68,14 +67,14 @@ class ExpertManager(models.Manager):
 class Expert(models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
-    courriel = models.EmailField(max_length=75, null=True, blank=True)
+    courriel = models.EmailField(max_length=75, blank=True)
     region = models.ForeignKey(ref.Region, verbose_name=u"Région")
     region.region_filter_spec = True
     etablissement = models.ForeignKey(
         ref.Etablissement, verbose_name=u"Établissement", blank=True,
         null=True
     )
-    commentaire = models.TextField(null=True, blank=True)
+    commentaire = models.TextField(blank=True)
     actif = models.BooleanField(default=True)
     disciplines = models.ManyToManyField(
         ref.Discipline, verbose_name=u"Disciplines", blank=True, null=True
@@ -136,7 +135,7 @@ class Appel(MetaModel, models.Model):
     )
     formulaire_wcs = models.CharField(
         max_length=255, choices=APPEL_WCS_CHOICES,
-        verbose_name=u"Nom du formulaire WCS", blank=True, null=True
+        verbose_name=u"Nom du formulaire WCS", blank=True
     )
     date_debut_appel = models.DateField(
         verbose_name=u"Début de l'appel", help_text=settings.HELP_TEXT_DATE,
@@ -159,11 +158,10 @@ class Appel(MetaModel, models.Model):
     )
     periode = models.CharField(
         max_length=32, verbose_name=u"Période de mobilité", choices=PERIODE,
-        blank=True, null=True
+        blank=True
     )
     bareme = models.CharField(
-        max_length=32, verbose_name=u"Barème", choices=BAREME, blank=True,
-        null=True
+        max_length=32, verbose_name=u"Barème", choices=BAREME, blank=True
     )
     montant_mensuel_origine_sud = models.IntegerField(
         verbose_name=u"Montant mensuel pays origine Sud", blank=True,
@@ -233,86 +231,57 @@ class Candidat(models.Model):
                         verbose_name=u"Date de modification")
 
     # identification personne
-    civilite = models.CharField(max_length=2, verbose_name=u"Civilité",
-                        choices=CIVILITE,
-                        blank=True, null=True)
+    civilite = models.CharField(
+        max_length=2, verbose_name=u"Civilité", choices=CIVILITE,
+        blank=True
+    )
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
-    nom_jeune_fille = models.CharField(max_length=255,
-                        verbose_name=u"Nom de jeune fille",
-                        blank=True, null=True)
+    nom_jeune_fille = models.CharField(
+        max_length=255, verbose_name=u"Nom de jeune fille", blank=True
+    )
 
     # identification avancée personne
     nationalite = models.ForeignKey(
         ref.Pays, verbose_name=u"Nationalité", blank=True, null=True
     )
-    naissance_date = models.DateField(max_length=255,
-                        verbose_name=u"Date de naissance",
-                        help_text=settings.HELP_TEXT_DATE,
-                        blank=True, null=True)
+    naissance_date = models.DateField(
+        max_length=255, verbose_name=u"Date de naissance",
+        help_text=settings.HELP_TEXT_DATE, blank=True, null=True
+    )
 
     # coordonnées
     pays = models.ForeignKey(
         ref.Pays, related_name="pays", verbose_name=u"Pays de résidence",
         blank=True, null=True
     )
-    adresse = models.CharField(
-        max_length=255, verbose_name=u"Adresse", blank=True, null=True
-    )
-    adresse_complement = models.CharField(
-        max_length=255, verbose_name=u"Complément d'adresse", blank=True,
-        null=True
+    adresse = models.TextField(u'Adresse', blank=True)
+    adresse_complement = models.TextField(
+        u"complément d'adresse", blank=True
     )
     ville = models.CharField(
-        max_length=255, verbose_name=u"Ville", blank=True, null=True
+        max_length=255, verbose_name=u"Ville", blank=True
     )
     region = models.CharField(
-        max_length=255, verbose_name=u"Région", blank=True, null=True
+        max_length=255, verbose_name=u"Région", blank=True
     )
     code_postal = models.CharField(
-        max_length=255, verbose_name=u"Code postal", blank=True, null=True
+        max_length=255, verbose_name=u"Code postal", blank=True
     )
     telephone = models.CharField(
         max_length=255, verbose_name=u"Téléphone fixe", blank=True,
-        null=True, help_text=u"(+ code régional)"
+        help_text=u"(+ code régional)"
     )
     telephone_portable = models.CharField(
         max_length=255, verbose_name=u"Téléphone portable", blank=True,
-        null=True, help_text=u"(+ code régional)"
+        help_text=u"(+ code régional)"
     )
     courriel = models.EmailField(
-        max_length=255, verbose_name=u"Adresse électronique", blank=True,
-        null=True
+        max_length=255, verbose_name=u"Adresse électronique", blank=True
     )
 
     def __unicode__(self):
         return u"%s %s" % (self.nom.upper(), self.prenom)
-
-
-class CategorieBourse(models.Model):
-    """
-    Catégorie de bourse : couche d'abstraction permettant aux utilisateurs de
-    spécifier de nouveaux types de bourses.
-    Cette catégorie doit être liée à un code budgétaire.
-    """
-    pass
-
-
-class NiveauEtude(models.Model):
-    """
-    Nombre d'années universitaires.
-    """
-    nom = models.CharField(max_length=255, verbose_name=u"nom",)
-    annees = models.CharField(max_length=2,
-                        verbose_name=u"Nombre d'années universitaires", )
-
-    class Meta:
-        verbose_name = "niveau d'études"
-        verbose_name_plural = "niveaux d'études"
-        ordering = ['nom']
-
-    def __unicode__(self):
-        return self.nom
 
 
 class Note(models.Model):
@@ -366,11 +335,13 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     appel.admin_filter_select = True
     appel.appelregion_filter_spec = True
 
-    candidat_statut = models.CharField(max_length=255,
-                        verbose_name=u"Statut du candidat",
-                        choices=CANDIDAT_STATUT, blank=True, null=True)
-    candidat_fonction = models.CharField(max_length=255,
-                        verbose_name=u"Fonction", blank=True, null=True)
+    candidat_statut = models.CharField(
+        max_length=255, verbose_name=u"Statut du candidat",
+        choices=CANDIDAT_STATUT, blank=True
+    )
+    candidat_fonction = models.CharField(
+        max_length=255, verbose_name=u"Fonction", blank=True
+    )
 
     # Utilisé lors des appels internationaux pour définir le bureau (région)
     # de traitement Cette valeur était dérivée de dossier.etablissement
@@ -384,20 +355,19 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     # Tentative pour récupérer de l'information passée
     dernier_projet_description = models.TextField(
         verbose_name=u"Description du dernier projet ou programme",
-        blank=True, null=True
+        blank=True
     )
     dernier_projet_annee = models.CharField(
         max_length=4, verbose_name=u"Année du dernier projet ou programme",
-        blank=True, null=True
+        blank=True
     )
-    derniere_bourse_categorie = models.ForeignKey(
-        CategorieBourse, related_name="bourse_categorie",
-        verbose_name=u"Catégorie de la dernière bourse", blank=True,
-        null=True
+    derniere_bourse_categorie = models.CharField(
+        max_length=100, verbose_name=u"Catégorie de la dernière bourse",
+        blank=True
     )
     derniere_bourse_annee = models.CharField(
         max_length=4, verbose_name=u"Année de la dernière bourse",
-        blank=True, null=True
+        blank=True
     )
 
     # Évaluations (à terminer // expert classements)
@@ -411,8 +381,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         verbose_name=u"Moyenne académique", blank=True, null=True
     )
     opportunite_regionale = models.CharField(
-        max_length=255, verbose_name=u"Opportunité régionale", blank=True,
-        null=True
+        max_length=255, verbose_name=u"Opportunité régionale", blank=True
     )
 
     # ce champs est système, il est saisi dans la partie mobilité mais il
@@ -501,90 +470,86 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
-    etablissement = ChainedForeignKey(
-        ref.Etablissement, chained_field="pays", chained_model_field="pays",
-        show_all=False, auto_choose=True,
+    etablissement = models.ForeignKey(
+        ref.Etablissement,
         verbose_name=u"Établissement, si membre de l'AUF",
         blank=True, null=True
     )
 
     # Autre établissement
     autre_etablissement_nom = models.CharField(
-        max_length=255, verbose_name=u"Autre établissement", blank=True,
-        null=True
+        max_length=255, verbose_name=u"Autre établissement", blank=True
     )
     autre_etablissement_pays = models.ForeignKey(
         ref.Pays, verbose_name=u"Pays", blank=True, null=True
     )
     autre_etablissement_adresse = models.CharField(
-        max_length=255, verbose_name=u"Adresse", blank=True, null=True
+        max_length=255, verbose_name=u"Adresse", blank=True
     )
     autre_etablissement_code_postal = models.CharField(
-        max_length=255, verbose_name=u"Code postal", blank=True, null=True
+        max_length=255, verbose_name=u"Code postal", blank=True
     )
     autre_etablissement_ville = models.CharField(
-        max_length=255, verbose_name=u"Ville", blank=True, null=True
+        max_length=255, verbose_name=u"Ville", blank=True
     )
     autre_etablissement_region = models.CharField(
-        max_length=255, verbose_name=u"Région", blank=True, null=True
+        max_length=255, verbose_name=u"Région", blank=True
     )
 
     # responsable scientifique (Accord scientifique)
     resp_sc_civilite = models.CharField(
-        max_length=2, verbose_name=u"Civilité", choices=CIVILITE,
-        blank=True, null=True
+        max_length=2, verbose_name=u"Civilité", choices=CIVILITE, blank=True
     )
     resp_sc_nom = models.CharField(
-        max_length=255, verbose_name=u"Nom", blank=True, null=True
+        max_length=255, verbose_name=u"Nom", blank=True
     )
     resp_sc_prenom = models.CharField(
-        max_length=255, verbose_name=u"Prénom", blank=True, null=True
+        max_length=255, verbose_name=u"Prénom", blank=True
     )
     resp_sc_fonction = models.CharField(
-        max_length=255, verbose_name=u"Fonction", blank=True, null=True
+        max_length=255, verbose_name=u"Fonction", blank=True
     )
     resp_sc_courriel = models.CharField(
-        max_length=255, verbose_name=u"Courriel", blank=True, null=True
+        max_length=255, verbose_name=u"Courriel", blank=True
     )
     resp_sc_telephone = models.CharField(
-        max_length=255, verbose_name=u"Téléphone", blank=True, null=True
+        max_length=255, verbose_name=u"Téléphone", blank=True
     )
     resp_sc_fax = models.CharField(
-        max_length=255, verbose_name=u"Télécopieur", blank=True, null=True
+        max_length=255, verbose_name=u"Télécopieur", blank=True
     )
 
     # faculté, département ou labo (Accord scientifique)
     faculte_nom = models.CharField(
         max_length=255, verbose_name=u"Faculté / Centre / Département",
-        blank=True, null=True
+        blank=True
     )
     faculte_adresse = models.CharField(
-        max_length=255, verbose_name=u"Adresse", blank=True, null=True
+        max_length=255, verbose_name=u"Adresse", blank=True
     )
     faculte_ville = models.CharField(
-        max_length=255, verbose_name=u"Ville", blank=True, null=True
+        max_length=255, verbose_name=u"Ville", blank=True
     )
     faculte_code_postal = models.CharField(
-        max_length=255, verbose_name=u"Code postal", blank=True, null=True
+        max_length=255, verbose_name=u"Code postal", blank=True
     )
 
     # directeur thèse
     dir_civilite = models.CharField(
         max_length=2, verbose_name=u"Civilité", choices=CIVILITE,
-        blank=True, null=True
+        blank=True
     )
     dir_nom = models.CharField(
-        max_length=255, verbose_name=u"Nom", blank=True, null=True
+        max_length=255, verbose_name=u"Nom", blank=True
     )
     dir_prenom = models.CharField(
-        max_length=255, verbose_name=u"Prénom", blank=True, null=True
+        max_length=255, verbose_name=u"Prénom", blank=True
     )
     dir_courriel = models.CharField(
-        max_length=255, verbose_name=u"adresse électronique", blank=True,
-        null=True
+        max_length=255, verbose_name=u"adresse électronique", blank=True
     )
     dir_telephone = models.CharField(
-        max_length=255, verbose_name=u"Téléphone", blank=True, null=True
+        max_length=255, verbose_name=u"Téléphone", blank=True
     )
 
     class Meta:
@@ -615,25 +580,25 @@ class DossierOrigine(DossierFaculte):
     # responsable institutionnel à l'origine
     resp_inst_civilite = models.CharField(
         max_length=2, verbose_name=u"Civilité", choices=CIVILITE,
-        blank=True, null=True
+        blank=True
     )
     resp_inst_nom = models.CharField(
-        max_length=255, verbose_name=u"Nom", blank=True, null=True
+        max_length=255, verbose_name=u"Nom", blank=True
     )
     resp_inst_prenom = models.CharField(
-        max_length=255, verbose_name=u"Prénom", blank=True, null=True
+        max_length=255, verbose_name=u"Prénom", blank=True
     )
     resp_inst_fonction = models.CharField(
-        max_length=255, verbose_name=u"Fonction", blank=True, null=True
+        max_length=255, verbose_name=u"Fonction", blank=True
     )
     resp_inst_courriel = models.CharField(
-        max_length=255, verbose_name=u"Courriel", blank=True, null=True
+        max_length=255, verbose_name=u"Courriel", blank=True
     )
     resp_inst_telephone = models.CharField(
-        max_length=255, verbose_name=u"Téléphone", blank=True, null=True
+        max_length=255, verbose_name=u"Téléphone", blank=True
     )
     resp_inst_fax = models.CharField(
-        max_length=255, verbose_name=u"Télécopieur", blank=True, null=True
+        max_length=255, verbose_name=u"Télécopieur", blank=True
     )
 
 
@@ -703,11 +668,10 @@ class DossierMobilite(models.Model):
 
     # Dossier scientifique
     intitule_projet = models.CharField(
-        max_length=255, verbose_name=u"Intitulé du projet", blank=True,
-        null=True
+        max_length=255, verbose_name=u"Intitulé du projet", blank=True
     )
     mots_clefs = models.CharField(
-        max_length=255, verbose_name=u"Mots clefs", blank=True, null=True,
+        max_length=255, verbose_name=u"Mots clefs", blank=True,
         help_text="séparés par des virgules, 3 maximum"
     )
 
@@ -715,26 +679,22 @@ class DossierMobilite(models.Model):
     discipline = models.ForeignKey(
         ref.Discipline, verbose_name=u"Discipline", blank=True, null=True
     )
-    sous_discipline = models.CharField(max_length=255, blank=True, null=True)
+    sous_discipline = models.CharField(max_length=255, blank=True)
 
     # Formation en cours
     formation_en_cours_diplome = models.CharField(
-        max_length=255, verbose_name=u"Intitulé du diplôme", blank=True,
-        null=True
+        max_length=255, verbose_name=u"Intitulé du diplôme", blank=True
     )
-    formation_en_cours_niveau = models.ForeignKey(
-        NiveauEtude, related_name="formation_en_cours_niveau",
-        verbose_name=u"Niveau d'études", blank=True, null=True
+    formation_en_cours_niveau = models.CharField(
+        max_length=100, verbose_name=u"Niveau d'études", blank=True
     )
 
     # Diplôme demandé
     diplome_demande_nom = models.CharField(
-        max_length=255, verbose_name=u"Diplôme demandé", blank=True,
-        null=True
+        max_length=255, verbose_name=u"Diplôme demandé", blank=True
     )
-    diplome_demande_niveau = models.ForeignKey(
-        NiveauEtude, related_name="diplome_demande_niveau",
-        verbose_name=u"Niveau d'études", blank=True, null=True
+    diplome_demande_niveau = models.CharField(
+        max_length=100, verbose_name=u"Niveau d'études", blank=True
     )
 
     # Thèse
@@ -754,7 +714,7 @@ class DossierMobilite(models.Model):
     )
     these_type = models.CharField(
         max_length=2, verbose_name=u"Type de thèse", choices=TYPE_THESE,
-        blank=True, null=True
+        blank=True
     )
 
     # Programme de mission
@@ -766,8 +726,7 @@ class DossierMobilite(models.Model):
         Public, verbose_name=u"Public visé", blank=True, null=True
     )
     autres_publics = models.CharField(
-        max_length=255, verbose_name=u"Autres publics", blank=True,
-        null=True
+        max_length=255, verbose_name=u"Autres publics", blank=True
     )
 
     def save(self, *args, **kwargs):
@@ -799,15 +758,14 @@ class DossierMobilite(models.Model):
 class Diplome(models.Model):
     dossier = models.ForeignKey(Dossier)
     nom = models.CharField(
-        max_length=255, verbose_name=u"Intitulé", blank=True, null=True
+        max_length=255, verbose_name=u"Intitulé", blank=True
     )
     date = models.DateField(
         max_length=255, verbose_name=u"Date d'obtention",
         help_text=settings.HELP_TEXT_DATE, blank=True, null=True
     )
-    niveau = models.ForeignKey(
-        NiveauEtude, related_name="niveau", verbose_name=u"Niveau d'études",
-        blank=True, null=True
+    niveau = models.CharField(
+        max_length=100, verbose_name=u"Niveau d'études", blank=True
     )
 
     # Etablissement connu de l'AUF
@@ -819,8 +777,7 @@ class Diplome(models.Model):
 
     # Autre établissement
     autre_etablissement_nom = models.CharField(
-        max_length=255, verbose_name=u"Autre établissement", blank=True,
-        null=True
+        max_length=255, verbose_name=u"Autre établissement", blank=True
     )
     autre_etablissement_pays = models.ForeignKey(
         ref.Pays, related_name="etablissement_pays",
@@ -844,7 +801,7 @@ class TypePiece(models.Model):
 class Piece(models.Model):
     dossier = models.ForeignKey(Dossier, related_name="pieces")
     nom = models.CharField(
-        max_length=255, verbose_name=u"Nom", blank=True, null=True
+        max_length=255, verbose_name=u"Nom", blank=True
     )
     fichier = models.FileField(
         verbose_name=u"Fichier", upload_to="pieces",
@@ -860,9 +817,9 @@ class Piece(models.Model):
 class AttributWCS(models.Model):
     dossier = models.ForeignKey(Dossier, related_name="attributs_wcs")
     attribut = models.CharField(
-        max_length=255, verbose_name=u"Attribut", blank=True, null=True
+        max_length=255, verbose_name=u"Attribut", blank=True
     )
-    valeur = models.TextField(verbose_name=u"Valeur", blank=True, null=True)
+    valeur = models.TextField(verbose_name=u"Valeur", blank=True)
 
     class Meta:
         verbose_name = u"Attribut WCS"

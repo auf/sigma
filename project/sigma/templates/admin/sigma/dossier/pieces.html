@@ -45,10 +45,10 @@
       </td>
       <td>
         <ul class="actions">
-          <li><a class="changelink" 
+          <li><a class="changelink"
             href="{% url admin:sigma_dossier_pieces_change piece.pk %}"
             >Modifier</a></li>
-          <li><a class="deletelink" 
+          <li><a class="deletelink"
             href="{% url admin:sigma_dossier_pieces_delete piece.pk %}">Supprimer</a></li>
         </ul>
       </td>
@@ -61,7 +61,7 @@
       <td></td>
       <td>
         <ul class="actions">
-          <li><a class="addlink" 
+          <li><a class="addlink"
             href="{% url admin:sigma_dossier_pieces_add dossier.pk %}?piece={{ nom|urlencode }}"
             >Ajouter</a></li>
         </ul>
@@ -82,17 +82,17 @@
       </td>
       <td>
         {% if piece.fichier %}
-        <a href="{{ piece.fichier.url }}">{{ piece.fichier.name|basename }}</a>
+        <a href="{% url admin:sigma_dossier_pieces_download piece.pk %}">{{ piece.fichier.name|basename }}</a>
         {% else %}
         Pièce réputée présente
         {% endif %}
       </td>
       <td>
         <ul class="actions">
-          <li><a class="changelink" 
+          <li><a class="changelink"
             href="{% url admin:sigma_dossier_pieces_change piece.pk %}"
             >Modifier</a></li>
-          <li><a class="deletelink" 
+          <li><a class="deletelink"
             href="{% url admin:sigma_dossier_pieces_delete piece.pk %}">Supprimer</a></li>
         </ul>
       </td>
