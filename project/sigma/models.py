@@ -371,7 +371,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         Commentaire, verbose_name=u"Commentaires", blank=True, null=True
     )
     moyenne_votes = models.FloatField(
-        verbose_name=u"Moyenne des évaluateurs", blank=True, null=True
+        verbose_name=u"Évaluation", blank=True, null=True
     )
     moyenne_academique = models.FloatField(
         verbose_name=u"Moyenne académique", blank=True, null=True

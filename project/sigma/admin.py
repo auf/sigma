@@ -59,7 +59,7 @@ class TypePieceInline(admin.TabularInline):
 
 class AppelAdmin(GuardedModelAdmin):
     list_display = (
-        'nom', 'region', 'code_budgetaire', 'date_debut_appel',
+        'nom', 'region_code', 'code_budgetaire', 'date_debut_appel',
         'date_fin_appel', '_actions',
     )
     list_filter = ('region', )
@@ -90,16 +90,14 @@ class AppelAdmin(GuardedModelAdmin):
         js = ("js/appel.js",)
 
     def _actions(self, obj):
-        dossiers_url = "<a href='%s?appel=%s'>Voir les dossiers</a>" % \
+        return "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % \
                 (reverse('admin:sigma_dossier_changelist'), obj.id)
-        if hasattr(settings, 'WCS_SIGMA_URL') and \
-           obj.formulaire_wcs is not None:
-            importer_url = "<a href='%s'>Importer</a>" % \
-                    (reverse('importer_dossiers', args=(obj.formulaire_wcs, )))
-            return " | ".join((dossiers_url, importer_url))
-        else:
-            return dossiers_url
     _actions.allow_tags = True
+    _actions.short_description = u''
+
+    def region_code(self, obj):
+        return obj.region.code
+    region_code.short_description = u'région'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'region':
@@ -340,11 +338,11 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                DossierAccueilInline, DossierMobiliteInline,
                DossierConformiteAdmin)
     list_display = (
-        'appel', 'nom', 'prenom', 'naissance_date', 'etat', 'moyenne_votes',
+        'nom', 'prenom', 'naissance_date', 'etat', 'moyenne_votes',
         'action_column'
     )
     list_display_links = ('nom', 'prenom')
-    list_filter = ('etat', 'appel', 'discipline', 'bureau_rattachement')
+    list_filter = ('appel', 'etat', 'discipline', 'bureau_rattachement')
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom',
                      'candidat__nom_jeune_fille', 'discipline__code',
                      'discipline__nom_court', 'discipline__nom_long',
@@ -501,6 +499,30 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
             )
         else:
             raise Http404
+
+    def response_add(self, request, obj, *args, **kwargs):
+        """
+        Retourne à la liste des dossiers pour l'appel en cours.
+        """
+        response = super(DossierAdmin, self).response_add(
+            request, obj, *args, **kwargs
+        )
+        if response.status_code == 302 and \
+           response['Location'].endswith('../'):
+            response['Location'] += '?appel__id__exact=%d' % obj.appel.id
+        return response
+
+    def response_change(self, request, obj, *args, **kwargs):
+        """
+        Retourne à la liste des dossiers pour l'appel en cours.
+        """
+        response = super(DossierAdmin, self).response_change(
+            request, obj, *args, **kwargs
+        )
+        if response.status_code == 302 and \
+           response['Location'].endswith('../'):
+            response['Location'] += '?appel__id__exact=%d' % obj.appel.id
+        return response
 
 
 class ExpertAdmin(GuardedModelAdmin):
