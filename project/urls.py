@@ -1,11 +1,12 @@
 # -*- encoding: utf-8 -*
-from django.conf.urls.defaults import patterns, include, handler500, handler404, url
+from django.conf.urls.defaults import \
+        patterns, include, handler500, handler404, url
 from django.conf import settings
 from django.contrib import admin
 
 admin.autodiscover()
 
-handler500, handler404 # Pyflakes
+handler500, handler404  # Pyflakes
 
 urlpatterns = patterns(
     '',
@@ -18,9 +19,3 @@ urlpatterns = patterns(
 )
 if hasattr(settings, 'WCS_SIGMA_URL'):
     urlpatterns += patterns('', (r'^', include('wcs.urls')),)
-
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve',
-         {'document_root': settings.MEDIA_ROOT}),
-    )

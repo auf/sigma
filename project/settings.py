@@ -4,6 +4,9 @@ import os
 import socket
 from conf import *  # NOQA
 
+PROJECT_HOME = os.path.dirname(__file__)
+HOME = os.path.dirname(PROJECT_HOME)
+
 PROJET_TITRE = "SIGMA"
 
 # Rapports d'erreurs
@@ -21,18 +24,13 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(os.path.dirname(__file__), 'media')
-UPLOADS_ROOT = os.path.join(os.path.dirname(__file__), 'uploads')
+MEDIA_ROOT = os.path.join(HOME, 'media')
+UPLOADS_ROOT = os.path.join(HOME, 'uploads')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = '/media/'
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/django/'
 
 # Don't share this with anybody.
 SECRET_KEY = 'wbt#ie2bktr9c7o%4cgr&9@%!3ik3#f6lh#6k@fb=l5&*ndr-m'
@@ -57,6 +55,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
     'auf.django.auth',
     'auf.django.admingroup',
     'auf.django.coda',
@@ -77,7 +76,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
-    'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.static',
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
     'auf.django.skin.context_processors.auf',
@@ -96,7 +95,7 @@ TEMPLATE_LOADERS = (
 )
 
 TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), "templates"),
+    os.path.join(PROJECT_HOME, "templates"),
 )
 
 SOUTH_TESTS_MIGRATE = False
@@ -113,3 +112,11 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 # auf.django.permissions
 
 AUF_PERMISSIONS_RULES = 'project.permissions.rules'
+
+# django.contrib.staticfiles
+
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_HOME, 'static'),
+)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(HOME, 'sitestatic')

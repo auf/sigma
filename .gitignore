@@ -20,15 +20,16 @@ conf.py
 django.wsgi
 
 # buildout
-.installed.cfg
-bin
-develop-eggs
-downloads
-eggs
-log
-parts
-tmp
+/.installed.cfg
+/bin
+/develop-eggs
+/downloads
+/eggs
+/log
+/parts
+/tmp
 
-_cache
-
-project/uploads
+# Autres
+/uploads
+/sitestatic
+/project/wcs/_cache
