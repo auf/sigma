@@ -13,7 +13,6 @@ from project.dynamo import dynamo_registry
 from project.dynamo.models import \
         MetaModel, InstanceModel, TypeProperty, ValueProperty
 from project.sigma.workflow import DossierWorkflow
-from project.wcs.wrappers import WCSAppel
 
 CIVILITE = (
     ('MR', "Monsieur"),
@@ -111,12 +110,6 @@ class AppelManager(models.Manager):
         return super(AppelManager, self).get_query_set() \
                 .select_related(*fkeys).all()
 
-if hasattr(settings, 'WCS_SIGMA_URL'):
-    wcs = WCSAppel()
-    APPEL_WCS_CHOICES = [(appel, appel) for appel in wcs.liste()]
-else:
-    APPEL_WCS_CHOICES = None
-
 
 class Appel(MetaModel, models.Model):
     """
@@ -131,11 +124,8 @@ class Appel(MetaModel, models.Model):
     region.region_filter_spec = True
     code_budgetaire = models.ForeignKey(
         coda.ProjetPoste, verbose_name=u"Code budgétaire",
-        limit_choices_to=({'code__regex': r'^[^9]......$'})
-    )
-    formulaire_wcs = models.CharField(
-        max_length=255, choices=APPEL_WCS_CHOICES,
-        verbose_name=u"Nom du formulaire WCS", blank=True
+        limit_choices_to=({'code__regex': r'^[^9]......$'}),
+        blank=True, null=True
     )
     date_debut_appel = models.DateField(
         verbose_name=u"Début de l'appel", help_text=settings.HELP_TEXT_DATE,

@@ -69,7 +69,6 @@ class AppelAdmin(GuardedModelAdmin):
             'nom',
             'region',
             'code_budgetaire',
-            'formulaire_wcs',
             ('date_debut_appel', 'date_fin_appel'),
             ('date_debut_mobilite', 'date_fin_mobilite'),
             'periode',
