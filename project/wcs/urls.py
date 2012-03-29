@@ -2,6 +2,7 @@
 
 from django.conf.urls.defaults import patterns, url
 
-urlpatterns = patterns('wcs.views',
-    url(r'^admin/importer/(.*)/$', 'importer_dossiers', name='importer_dossiers'),
+urlpatterns = patterns(
+    'wcs.views',
+    url(r'^formulaire.wcs', 'formulaire_wcs', name='formulaire_wcs'),
 )

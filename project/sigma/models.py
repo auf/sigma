@@ -20,20 +20,6 @@ CIVILITE = (
     ('ME', "Mademoiselle"),
 )
 
-TYPE_THESE = (
-    ('CT', "Co-tutelle"),
-    ('CD', "Co-direction"),
-    ('AU', "Autre"),
-)
-
-CANDIDAT_STATUT = (
-    ('1', 'Etudiant'),
-    ('2', 'Chercheur'),
-    ('3', 'Enseignant'),
-    ('4', 'Enseignant-chercheur'),
-    ('5', 'Post-doc'),
-)
-
 REPONSE = (
     ('sr', "sr"),
     ('a', "a"),
@@ -315,6 +301,14 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     """
     Informations générales du dossier de candidature.
     """
+    CANDIDAT_STATUT_CHOICES = (
+        ('1', 'Etudiant'),
+        ('2', 'Chercheur'),
+        ('3', 'Enseignant'),
+        ('4', 'Enseignant-chercheur'),
+        ('5', 'Post-doc'),
+    )
+
     appel = models.ForeignKey(
         Appel, related_name="appel", verbose_name=u"Appel"
     )
@@ -323,7 +317,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
     candidat_statut = models.CharField(
         max_length=255, verbose_name=u"Statut du candidat",
-        choices=CANDIDAT_STATUT, blank=True
+        choices=CANDIDAT_STATUT_CHOICES, blank=True
     )
     candidat_fonction = models.CharField(
         max_length=255, verbose_name=u"Fonction", blank=True
@@ -603,33 +597,15 @@ class DossierAccueil(DossierFaculte):
     )
 
 
-class Public(models.Model):
-    nom = models.CharField(max_length=255, verbose_name=u"Nom")
-
-    class Meta:
-        verbose_name = "public visé"
-        verbose_name_plural = "publics visés"
-        ordering = ['nom']
-
-    def __unicode__(self):
-        return self.nom
-
-
-class Intervention(models.Model):
-    nom = models.CharField(max_length=255, verbose_name=u"Nom")
-
-    class Meta:
-        verbose_name = "intervention"
-        verbose_name_plural = "interventions"
-        ordering = ['nom']
-
-    def __unicode__(self):
-        return self.nom
-
-
 class DossierMobilite(models.Model):
     """Informations sur la mobilité demandée par le candidat.
     """
+    TYPE_THESE_CHOICES = (
+        ('CT', "Co-tutelle"),
+        ('CD', "Co-direction"),
+        ('AU', "Autre"),
+    )
+
     dossier = models.OneToOneField(
         Dossier, verbose_name=u"Dossier", related_name="mobilite"
     )
@@ -699,20 +675,19 @@ class DossierMobilite(models.Model):
         blank=True, null=True
     )
     these_type = models.CharField(
-        max_length=2, verbose_name=u"Type de thèse", choices=TYPE_THESE,
-        blank=True
+        max_length=2, verbose_name=u"Type de thèse",
+        choices=TYPE_THESE_CHOICES, blank=True
     )
 
     # Programme de mission
-    type_intervention = models.ForeignKey(
-        Intervention, verbose_name=u"Type d'intervention", blank=True,
-        null=True
+    type_intervention = models.CharField(
+        u"Type d'intervention", max_length=255, blank=True
     )
-    public_vise = models.ForeignKey(
-        Public, verbose_name=u"Public visé", blank=True, null=True
+    public_vise = models.CharField(
+        u"Public visé", max_length=255, blank=True
     )
     autres_publics = models.CharField(
-        max_length=255, verbose_name=u"Autres publics", blank=True
+        u"Autres publics", max_length=255, blank=True
     )
 
     def save(self, *args, **kwargs):

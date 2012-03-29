@@ -73,9 +73,11 @@ class PublicField(forms.Field):
 # Forms
 
 class DossierForm(forms.ModelForm):
-    candidat_statut = ChoiceLabelField(choices=sigma.CANDIDAT_STATUT)
+    candidat_statut = ChoiceLabelField(
+        choices=sigma.Dossier.CANDIDAT_STATUT_CHOICES
+    )
     discipline = DisciplineField(required=False)
-    
+
     class Meta:
         model = sigma.Dossier
         exclude = ('etat', 'appel', 'candidat', )
@@ -85,7 +87,7 @@ class CandidatForm(forms.ModelForm):
     civilite = ChoiceLabelField(choices=sigma.CIVILITE)
     nationalite = PaysField(required=False)
     pays = PaysField(required=False)
- 
+
     class Meta:
         model = sigma.Candidat
         exclude = ('dossier', )
@@ -127,7 +129,7 @@ class DossierMobiliteForm(forms.ModelForm):
     public_vise = PublicField(required=False)
     discipline = DisciplineField(required=False)
     these_soutenance_pays = PaysField(required=False)
-    these_type = ChoiceLabelField(sigma.TYPE_THESE)
+    these_type = ChoiceLabelField(sigma.DossierMobilite.TYPE_THESE_CHOICES)
     dir_ori_civilite = ChoiceLabelField(sigma.CIVILITE)
     dir_acc_civilite = ChoiceLabelField(sigma.CIVILITE)
  

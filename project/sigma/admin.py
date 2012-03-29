@@ -24,7 +24,7 @@ from sendfile import sendfile
 from project.sigma.models import \
         Conformite, Appel, DossierOrigine, DossierAccueil, DossierMobilite, \
         Candidat, Dossier, Expert, Piece, TypePiece, AttributWCS, Diplome, \
-        TypeConformite, Intervention, Public
+        TypeConformite
 from project.sigma.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from project.sigma.workflow import DOSSIER_ETAT_BOURSIER
@@ -654,8 +654,6 @@ admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)
 admin.site.register(TypeConformite, TypeConformiteAdmin)
-admin.site.register(Intervention)
-admin.site.register(Public)
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)
