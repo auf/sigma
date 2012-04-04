@@ -26,7 +26,7 @@ class BoursierAdminForm(ModelForm):
            self.instance.dossier.appel.code_budgetaire:
             code_budgetaire = self.instance.dossier.appel.code_budgetaire.code
             max_code_boursier = Boursier.objects \
-                    .filter(code_operation__startswith=code_budgetaire.code) \
+                    .filter(code_operation__startswith=code_budgetaire) \
                     .order_by('-code_operation')[:1]
             if len(max_code_boursier) > 0:
                 max_code = max_code_boursier[0].code_operation
