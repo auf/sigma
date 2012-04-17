@@ -267,6 +267,12 @@ class DossierMobiliteInline(admin.StackedInline):
         }),
     )
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'intitule_projet':
+            kwargs['widget'] = forms.TextInput(attrs={'size': 80})
+        return super(DossierMobiliteInline, self) \
+                .formfield_for_dbfield(db_field, **kwargs)
+
 
 class DossierCandidatInline(admin.StackedInline):
     formset = RequiredInlineFormSet

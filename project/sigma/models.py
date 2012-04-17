@@ -629,9 +629,7 @@ class DossierMobilite(models.Model):
     )
 
     # Dossier scientifique
-    intitule_projet = models.CharField(
-        max_length=255, verbose_name=u"Intitulé du projet", blank=True
-    )
+    intitule_projet = models.TextField(u"Intitulé du projet", blank=True)
     mots_clefs = models.CharField(
         max_length=255, verbose_name=u"Mots clefs", blank=True,
         help_text="séparés par des virgules, 3 maximum"
