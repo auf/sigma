@@ -771,7 +771,7 @@ class Piece(models.Model):
     conforme = models.NullBooleanField(verbose_name=u"Pièce conforme")
 
     def __unicode__(self):
-        return unicode(self.nom)
+        return self.identifiant
 
 
 class AttributWCS(models.Model):
