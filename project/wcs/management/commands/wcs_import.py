@@ -196,7 +196,7 @@ class Command(BaseCommand):
             etablissement=self.parse_etablissement(
                 info.get('diplome_etablissement')
             ),
-            autre_etablissement_nom=info.get('diplome_autre_etablissement'),
+            autre_etablissement_nom=info.get('diplome_autre_etablissement', ''),
             autre_etablissement_pays=self.parse_pays(
                 info.get('diplome_autre_etablissement_pays')
             )
