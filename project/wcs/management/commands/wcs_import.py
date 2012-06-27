@@ -17,6 +17,7 @@ from project.sigma.models import \
         Dossier, Candidat, DossierOrigine, DossierMobilite, DossierAccueil, \
         Appel, Piece, Diplome
 
+from project import conf as conf_prive
 
 class Command(BaseCommand):
     args = "<id de l'appel> <url WCS> [type de formulaire]"
@@ -36,9 +37,10 @@ class Command(BaseCommand):
             self.appel = Appel.objects.get(id=int(args[0]))
         except TypeError, Appel.DoesNotExist:
             raise CommandError("L'appel %s n'existe pas" % args[0])
+
         self.wcs_url = args[1]
-        self.wcs_user = raw_input('Utilisateur: ')
-        self.wcs_password = getpass('Mot de passe: ')
+        self.wcs_user = getattr(conf_prive, 'wcs_user', False) or raw_input('Utilisateur: ')
+        self.wcs_password = getattr(conf_prive, 'wcs_password', False) or getpass('Mot de passe: ')
         if len(args) > 2:
             handler = getattr(self, 'import_' + args[2])
         else:
@@ -350,6 +352,7 @@ class Command(BaseCommand):
             dir_courriel=info.get('accueil_directeur_courriel', ''),
             dir_telephone=info.get('accueil_directeur_telephone', '')
         )
+        
         DossierMobilite.objects.create(
             dossier=dossier,
             date_debut_origine=info.get('date_debut_origine'),
@@ -368,11 +371,11 @@ class Command(BaseCommand):
             ),
             diplome_demande_nom=info.get('diplome_demande', ''),
             diplome_demande_niveau=info.get('diplome_demande_niveau', ''),
-            these_date_inscription=info.get('these_date_inscription', ''),
+            these_date_inscription=info.get('these_date_inscription'),
             these_soutenance_pays=self.parse_pays(
                 info.get('these_pays_soutenance', '')
             ),
-            these_soutenance_date=info.get('these_date_soutenance', ''),
+            these_soutenance_date=info.get('these_date_soutenance'),
             these_type=self.parse_choices(
                 info.get('these_type'), DossierMobilite.TYPE_THESE_CHOICES
             ),
@@ -380,6 +383,16 @@ class Command(BaseCommand):
             public_vise=info.get('public_vise', ''),
             autres_publics=info.get('autres_publics', '')
         )
+
+        # Dans l'import par défaut, on charge les PJ qui ont été déclarées dans
+        # l'appel
+        for piece in self.appel.pieces_attendues.all():
+            self.import_piece(
+                dossier,
+                piece.identifiant,
+                info.get(piece.identifiant)
+            )
+
 
     def import_stage_beco_2012(self, info):
         dossier = Dossier(

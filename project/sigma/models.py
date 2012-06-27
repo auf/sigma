@@ -764,6 +764,7 @@ class Piece(models.Model):
     dossier = models.ForeignKey(Dossier, related_name="pieces")
     identifiant = models.CharField(max_length=100, blank=True)
     fichier = models.FileField(
+        max_length=255,
         upload_to="pieces",
         storage=FileSystemStorage(location=settings.UPLOADS_ROOT),
         blank=True, null=True

@@ -18,7 +18,7 @@ from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, redirect, get_object_or_404
-from django.template import RequestContext
+from django.template import RequestContext, defaultfilters
 from sendfile import sendfile
 
 from project.sigma.models import \
@@ -500,7 +500,8 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
             return sendfile(
                 request,
                 os.path.join(settings.UPLOADS_ROOT, piece.fichier.name),
-                attachment=True
+                attachment=True,
+                attachment_filename=defaultfilters.slugify(piece.fichier.name),
             )
         else:
             raise Http404
