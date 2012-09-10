@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models.signals import post_save
 
 import auf.django.references.models as ref
-from auf.django.coda import models as coda
 
 from sigma.models import Dossier
 from sigma.workflow import DOSSIER_ETAT_BOURSIER
@@ -37,7 +36,7 @@ class Boursier(models.Model):
     )
     code_operation = models.CharField(
         max_length=11, verbose_name="code d'opération CODA", blank=True,
-        default='', db_index=True
+        db_index=True
     )
     numero_police_assurance = models.CharField(
         max_length=100, verbose_name="numéro de police d'assurance",
@@ -133,11 +132,6 @@ class Boursier(models.Model):
         return self.prenom() + ' ' + self.nom()
     nom_complet.short_description = 'Nom'
 
-    def lignes_ecritures_coda(self):
-        return coda.Ligne.objects.filter(
-            tiers_operation__code=self.code_operation
-        )
-
     def save(self, *args, **kwargs):
         # Assurons-nous que les codes opération sont uniques
         Boursier.inactifs \
@@ -170,6 +164,50 @@ class DepensePrevisionnelle(models.Model):
 
     def __unicode__(self):
         return self.description
+
+
+class EcritureCODA(models.Model):
+    DEBIT_CREDIT_CHOICES = (
+        ('D', u'Débit'),
+        ('C', u'Crédit'),
+    )
+    ETAT_PAIEMENT_CHOICES = (
+        ('D', 'Disponible'),
+        ('A', 'Attente'),
+        ('X', 'Fermé (non-lettrable)'),
+        ('P', 'Payé'),
+        ('O', 'Proposé'),
+        ('F', 'Effet en cours'),
+        ('Y', 'Effet payé'),
+        ('J', 'Effet en attente'),
+    )
+
+    boursier_id = models.CharField(
+        max_length=11, verbose_name="ID du boursier", db_index=True
+    )
+    code_document = models.CharField(u"code de document", max_length=12)
+    numero_document = models.CharField(u"numéro de document", max_length=12)
+    periode = models.CharField(u"exercice/période", max_length=7)
+    date_document = models.DateField(u"date du document")
+    description = models.CharField(max_length=36)
+    numero_pcg = models.CharField(u"numéro de compte PCG", max_length=5)
+    nom_pcg = models.CharField(u"nom de compte PCG", max_length=36)
+    montant = models.DecimalField(
+        u"montant (EUR)", max_digits=17, decimal_places=2
+    )
+    implantation_payeuse = models.CharField(
+        u"implantation payeuse", max_length=32
+    )
+    salarie = models.CharField(max_length=32)
+    debit_credit = models.CharField(
+        u"débit/crédit", max_length=1, choices=DEBIT_CREDIT_CHOICES
+    )
+    etat_paiement = models.CharField(
+        u"état de paiement", max_length=1, choices=ETAT_PAIEMENT_CHOICES
+    )
+    date_maj = models.DateField(
+        u"dernière mise à jour", db_index=True
+    )
 
 
 def dossier_post_save(sender, instance=None, **kwargs):

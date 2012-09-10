@@ -12,7 +12,7 @@ from django.template import RequestContext
 from django.utils.html import conditional_escape
 from django.db import models
 
-from project.suivi.models import Boursier, DepensePrevisionnelle
+from project.suivi.models import Boursier, DepensePrevisionnelle, EcritureCODA
 
 
 class BoursierAdminForm(ModelForm):
@@ -129,18 +129,19 @@ class BoursierAdmin(GuardedModelAdmin):
     def view_suivi(self, request, id):
         boursier = Boursier.objects.get(pk=id)
 
-        lignes_ecritures = boursier.lignes_ecritures_coda() \
-                .exclude(montant_eur=0) \
-                .order_by('pcg__code', '-ecriture__date') \
-                .select_related('pcg', 'ecriture')
+        ecritures = EcritureCODA.objects \
+                .filter(boursier_id=boursier.code_operation) \
+                .order_by('numero_pcg', 'nom_pcg', '-date_document')
 
         groupes_ecritures = []
-        for pcg, lignes in groupby(lignes_ecritures, lambda x: x.pcg):
+        for pcg, lignes in groupby(
+            ecritures, lambda x: (x.numero_pcg, x.nom_pcg)
+        ):
             lignes = list(lignes)
             groupes_ecritures.append({
                 'pcg': pcg,
                 'lignes': lignes,
-                'sous_total': sum(l.montant_eur for l in lignes)
+                'sous_total': sum(l.montant for l in lignes)
             })
 
         periodes_mobilite = [
