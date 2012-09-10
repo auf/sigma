@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
 
-from auf.django.coda import models as coda
 from auf.django.references import models as ref
 from django.conf import settings
 from django.db import models
@@ -108,10 +107,8 @@ class Appel(MetaModel, models.Model):
     nom = models.CharField(max_length=255, verbose_name=u"Nom")
     region = models.ForeignKey(ref.Region)
     region.region_filter_spec = True
-    code_budgetaire = models.ForeignKey(
-        coda.ProjetPoste, verbose_name=u"Code budgétaire",
-        limit_choices_to=({'code__regex': r'^[^9]......$'}),
-        blank=True, null=True
+    code_budgetaire = models.CharField(
+        u"Code budgétaire", max_length=72, blank=True, null=True
     )
     date_debut_appel = models.DateField(
         verbose_name=u"Début de l'appel", help_text=settings.HELP_TEXT_DATE,

@@ -58,7 +58,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'auf.django.auth',
     'auf.django.admingroup',
-    'auf.django.coda',
     'auf.django.export',
     'auf.django.permissions',
     'auf.django.skin',
