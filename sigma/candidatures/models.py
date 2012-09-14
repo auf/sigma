@@ -53,7 +53,6 @@ class Expert(models.Model):
     prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     courriel = models.EmailField(max_length=75, blank=True)
     region = models.ForeignKey(ref.Region, verbose_name=u"Région")
-    region.region_filter_spec = True
     etablissement = models.ForeignKey(
         ref.Etablissement, verbose_name=u"Établissement", blank=True,
         null=True
@@ -106,7 +105,6 @@ class Appel(MetaModel, models.Model):
 
     nom = models.CharField(u"nom", max_length=255)
     region = models.ForeignKey(ref.Region, verbose_name=u"région")
-    region.region_filter_spec = True
     code_budgetaire = models.CharField(
         u"Code budgétaire", max_length=72, blank=True, null=True
     )
@@ -299,7 +297,6 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         Appel, related_name="appel", verbose_name=u"appel"
     )
     appel.admin_filter_select = True
-    appel.appelregion_filter_spec = True
 
     candidat_statut = models.CharField(
         max_length=255, verbose_name=u"Statut du candidat",

@@ -16,6 +16,7 @@ from django.contrib.auth.admin import \
 from django.contrib.auth.forms import UserChangeForm as DjangoUserForm
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext, defaultfilters
@@ -28,82 +29,156 @@ from sigma.candidatures.models import \
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from sigma.candidatures.workflow import DOSSIER_ETAT_BOURSIER
-# Ne pas enlever!
-#from sigma.candidatures.customfilterspec import \
-#        AppelRegionFilterSpec, RegionFilterSpec
 
 
-class DossierConformiteAdmin(admin.TabularInline):
-    """
-    Admin pour spécifier spécifier si la conformité est passée ou non
-    """
-    form = ConformiteForm
-    model = Conformite
-    extra = 0
-    max_num = 0
-    can_delete = False
+# Filtres
+
+class RegionFilter(admin.SimpleListFilter):
+    title = 'région'
+    parameter_name = 'region'
+
+    def lookups(self, request, model_admin):
+        return [
+            (unicode(a), b)
+            for (a, b) in get_rules().filter_queryset(
+                request.user, 'manage', ref.Region.objects.all()
+            ).values_list('id', 'nom')
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(region=self.value())
+        else:
+            return queryset
 
 
-class TypeConformiteAdmin(admin.ModelAdmin):
-    form = TypeConformiteForm
+class AppelFilter(admin.SimpleListFilter):
+    title = 'appel'
+    parameter_name = 'appel'
 
+    def lookups(self, request, model_admin):
+        region_ids = get_rules().filter_queryset(
+            request.user, 'manage', ref.Region.objects.all()
+        ).values_list('id', flat=True)
+        return [
+            (unicode(a), b)
+            for (a, b) in Appel.objects.filter(region__in=region_ids)
+            .values_list('id', 'nom')
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(appel=self.value())
+        else:
+            return queryset
+
+
+class RegionOrigineFilter(admin.SimpleListFilter):
+    title = "région d'origine"
+    parameter_name = 'region_origine'
+
+    def lookups(self, request, model_admin):
+        return [
+            (unicode(a), b)
+            for (a, b) in ref.Region.objects.values_list('id', 'nom')
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(
+                Q(
+                    origine__etablissement__isnull=False,
+                    origine__etablissement__region=self.value()
+                ) |
+                Q(
+                    origine__etablissement__isnull=True,
+                    origine__etablissement__pays__region=self.value()
+                )
+            )
+        else:
+            return queryset
+
+
+class RegionAccueilFilter(admin.SimpleListFilter):
+    title = "région d'accueil"
+    parameter_name = 'region_accueil'
+
+    def lookups(self, request, model_admin):
+        return [
+            (unicode(a), b)
+            for (a, b) in ref.Region.objects.values_list('id', 'nom')
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(
+                Q(
+                    accueil__etablissement__isnull=False,
+                    accueil__etablissement__region=self.value()
+                ) |
+                Q(
+                    accueil__etablissement__isnull=True,
+                    accueil__etablissement__pays__region=self.value()
+                )
+            )
+        else:
+            return queryset
+
+
+# Forms
+
+class DossierMobiliteForm(forms.ModelForm):
+
+    class Meta:
+        model = DossierMobilite
+
+    def clean_date_fin_origine(self):
+        date_debut = self.cleaned_data.get('date_debut_origine')
+        date_fin = self.cleaned_data.get('date_fin_origine')
+
+        if date_debut and date_fin and date_fin < date_debut:
+            raise forms.ValidationError(
+                "La date de fin précède la date de début"
+            )
+
+        return date_fin
+
+    def clean_date_fin_accueil(self):
+        debut_accueil = self.cleaned_data.get('date_debut_accueil')
+        fin_accueil = self.cleaned_data.get('date_fin_accueil')
+        debut_origine = self.cleaned_data.get('date_debut_origine')
+        fin_origine = self.cleaned_data.get('date_fin_origine')
+        if debut_accueil and fin_accueil and fin_accueil < debut_accueil:
+            raise forms.ValidationError(
+                "La date de fin précède la date de début"
+            )
+
+        if debut_accueil and fin_accueil and \
+           debut_origine and fin_origine and \
+           not (fin_origine <= debut_accueil or fin_accueil <= debut_origine):
+            raise forms.ValidationError(
+                "Les périodes de mobilité se chevauchent"
+            )
+        return fin_accueil
+
+    def clean_mots_clefs(self):
+        mots_clefs = self.cleaned_data['mots_clefs']
+
+        if mots_clefs.count(',') > 2:
+            raise forms.ValidationError(
+                "Vous avez droit qu'à trois mots clefs séparés avec virgules"
+            )
+
+        return mots_clefs
+
+
+# Inlines
 
 class TypePieceInline(admin.TabularInline):
     model = TypePiece
     prepopulated_fields = {'identifiant': ('nom',)}
     verbose_name = u'pièce à demander'
     verbose_name_plural = u'pièces à demander'
-
-
-class AppelAdmin(GuardedModelAdmin):
-    list_display = (
-        'nom', 'region_code', 'code_budgetaire', 'date_debut_appel',
-        'date_fin_appel', '_actions',
-    )
-    list_filter = ('region',)
-    search_fields = ('nom', 'code_budgetaire')
-    fieldsets = ((None, {
-        'fields': (
-            'nom',
-            'region',
-            'code_budgetaire',
-            ('date_debut_appel', 'date_fin_appel'),
-            ('date_debut_mobilite', 'date_fin_mobilite'),
-            'periode',
-            'bareme',
-            ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
-            ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
-            ('montant_perdiem_sud', 'montant_perdiem_nord'),
-            'montant_allocation_unique',
-            ('prime_installation_sud', 'prime_installation_nord'),
-            'appel_en_ligne',
-            'conformites',
-        )
-    }),)
-    filter_horizontal = ['conformites']
-    inlines = [TypePieceInline]
-
-    class Media:
-        js = ("candidatures/appel.js",)
-
-    def _actions(self, obj):
-        return "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % \
-                (reverse('admin:candidatures_dossier_changelist'), obj.id)
-    _actions.allow_tags = True
-    _actions.short_description = u''
-
-    def region_code(self, obj):
-        return obj.region.code
-    region_code.short_description = u'région'
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'region':
-            kwargs['queryset'] = get_rules().filter_queryset(
-                request.user, 'manage', ref.Region.objects.all()
-            )
-        return super(AppelAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
 
 
 class BaseDossierFaculteInline(admin.StackedInline):
@@ -180,49 +255,15 @@ class DossierAccueilInline(BaseDossierFaculteInline):
     )
 
 
-class DossierMobiliteForm(forms.ModelForm):
-
-    class Meta:
-        model = DossierMobilite
-
-    def clean_date_fin_origine(self):
-        date_debut = self.cleaned_data.get('date_debut_origine')
-        date_fin = self.cleaned_data.get('date_fin_origine')
-
-        if date_debut and date_fin and date_fin < date_debut:
-            raise forms.ValidationError(
-                "La date de fin précède la date de début"
-            )
-
-        return date_fin
-
-    def clean_date_fin_accueil(self):
-        debut_accueil = self.cleaned_data.get('date_debut_accueil')
-        fin_accueil = self.cleaned_data.get('date_fin_accueil')
-        debut_origine = self.cleaned_data.get('date_debut_origine')
-        fin_origine = self.cleaned_data.get('date_fin_origine')
-        if debut_accueil and fin_accueil and fin_accueil < debut_accueil:
-            raise forms.ValidationError(
-                "La date de fin précède la date de début"
-            )
-
-        if debut_accueil and fin_accueil and \
-           debut_origine and fin_origine and \
-           not (fin_origine <= debut_accueil or fin_accueil <= debut_origine):
-            raise forms.ValidationError(
-                "Les périodes de mobilité se chevauchent"
-            )
-        return fin_accueil
-
-    def clean_mots_clefs(self):
-        mots_clefs = self.cleaned_data['mots_clefs']
-
-        if mots_clefs.count(',') > 2:
-            raise forms.ValidationError(
-                "Vous avez droit qu'à trois mots clefs séparés avec virgules"
-            )
-
-        return mots_clefs
+class DossierConformiteAdmin(admin.TabularInline):
+    """
+    Admin pour spécifier spécifier si la conformité est passée ou non
+    """
+    form = ConformiteForm
+    model = Conformite
+    extra = 0
+    max_num = 0
+    can_delete = False
 
 
 class DossierMobiliteInline(admin.StackedInline):
@@ -325,6 +366,63 @@ class DiplomeInline(admin.StackedInline):
     )
 
 
+# Model admins
+
+class TypeConformiteAdmin(admin.ModelAdmin):
+    form = TypeConformiteForm
+
+
+class AppelAdmin(GuardedModelAdmin):
+    list_display = (
+        'nom', 'region_code', 'code_budgetaire', 'date_debut_appel',
+        'date_fin_appel', '_actions',
+    )
+    list_filter = (RegionFilter,)
+    search_fields = ('nom', 'code_budgetaire')
+    fieldsets = ((None, {
+        'fields': (
+            'nom',
+            'region',
+            'code_budgetaire',
+            ('date_debut_appel', 'date_fin_appel'),
+            ('date_debut_mobilite', 'date_fin_mobilite'),
+            'periode',
+            'bareme',
+            ('montant_mensuel_origine_sud', 'montant_mensuel_origine_nord'),
+            ('montant_mensuel_accueil_sud', 'montant_mensuel_accueil_nord'),
+            ('montant_perdiem_sud', 'montant_perdiem_nord'),
+            'montant_allocation_unique',
+            ('prime_installation_sud', 'prime_installation_nord'),
+            'appel_en_ligne',
+            'conformites',
+        )
+    }),)
+    filter_horizontal = ['conformites']
+    inlines = [TypePieceInline]
+
+    class Media:
+        js = ("candidatures/appel.js",)
+
+    def _actions(self, obj):
+        return "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % \
+                (reverse('admin:candidatures_dossier_changelist'), obj.id)
+    _actions.allow_tags = True
+    _actions.short_description = u''
+
+    def region_code(self, obj):
+        return obj.region.code
+    region_code.short_description = u'région'
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'region':
+            kwargs['queryset'] = get_rules().filter_queryset(
+                request.user, 'manage', ref.Region.objects.all()
+            )
+        return super(AppelAdmin, self).formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )
+
+
 def affecter_dossiers_expert(modeladmin, request, queryset):
     selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
     return HttpResponseRedirect(
@@ -336,7 +434,6 @@ affecter_dossiers_expert.short_description = \
 
 
 class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
-    change_list_template = "admin/candidatures/dossier_change_list.html"
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline,
                DossierAccueilInline, DossierMobiliteInline,
                DossierConformiteAdmin)
@@ -346,7 +443,8 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     )
     list_display_links = ('nom', 'prenom')
     list_filter = (
-        'appel', 'etat', 'discipline', 'bureau_rattachement'
+        AppelFilter, 'etat', 'discipline', 'bureau_rattachement',
+        'candidat__pays', RegionOrigineFilter, RegionAccueilFilter
     )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom',
                      'candidat__nom_jeune_fille', 'discipline__code',
@@ -542,7 +640,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
 class ExpertAdmin(GuardedModelAdmin):
     list_display = ('nom', 'prenom', '_region', '_disciplines')
     list_display_links = ('nom', 'prenom')
-    list_filter = ('region', 'disciplines')
+    list_filter = (RegionFilter, 'disciplines')
     search_fields = ('nom', 'prenom', 'courriel')
     fieldsets = (
         (None, {

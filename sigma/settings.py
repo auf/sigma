@@ -87,7 +87,7 @@ AUTHENTICATION_BACKENDS = (
     'auf.django.permissions.AuthenticationBackend',
 )
 
-AUTH_PROFILE_MODULE = "sigma.userprofile"
+AUTH_PROFILE_MODULE = "candidatures.userprofile"
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
