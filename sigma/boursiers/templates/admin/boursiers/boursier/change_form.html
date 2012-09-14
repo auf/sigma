@@ -1,0 +1,9 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools %}
+{% if change and not is_popup %}
+<ul class="object-tools">
+    <li><a href="{% url admin:boursiers_boursier_suivi object_id %}">Suivi</a></li>
+</ul>
+{% endif %}
+{% endblock %}

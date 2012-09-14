@@ -1,0 +1,109 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia sigma %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+  <a href="{% url admin:index %}">{% trans "Home" %}</a> &rsaquo;
+  <a href="{% url admin:candidatures_dossier_changelist %}">Dossiers</a> &rsaquo;
+  <a href="{% url admin:candidatures_dossier_change dossier.pk %}">{{ dossier }}</a> &rsaquo;
+  Pièces jointes
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<h1>Pièces jointes</h1>
+<ul class="object-tools">
+  <li><a href="{% url admin:candidatures_dossier_change dossier.pk %}">Dossier</a></li>
+</ul>
+
+<table style="width: 100%">
+  <thead>
+    <tr>
+      <th>Nom de la pièce</th>
+      <th style="text-align:center">Présente</th>
+      <th style="text-align:center">Conforme</th>
+      <th>Fichier</th>
+      <th></th>
+    </tr>
+  <tbody>
+    <tr><th colspan="0">Pièces jointes attendues</th></tr>
+    {% for identifiant, info in pieces_attendues %}
+    {% for piece in info.pieces %}
+    <tr>
+      <td>{{ info.nom }}</td>
+      <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-yes.gif" /></td>
+      <td align="center">
+        <img src="{% admin_media_prefix %}img/admin/icon-{{ piece.conforme|yesno:"yes,no,unknown" }}.gif" />
+      </td>
+      <td>
+        {% if piece.fichier %}
+        <a href="{% url admin:candidatures_dossier_pieces_download piece.pk %}"
+          >{{ piece.fichier.name|basename }}</a>
+        {% else %}
+        Pièce réputée présente
+        {% endif %}
+      </td>
+      <td>
+        <ul class="actions">
+          <li><a class="changelink"
+            href="{% url admin:candidatures_dossier_pieces_change piece.pk %}"
+            >Modifier</a></li>
+          <li><a class="deletelink"
+            href="{% url admin:candidatures_dossier_pieces_delete piece.pk %}">Supprimer</a></li>
+        </ul>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td>{{ info.nom }}</td>
+      <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-no.gif" /></td>
+      <td></td>
+      <td></td>
+      <td>
+        <ul class="actions">
+          <li><a class="addlink"
+            href="{% url admin:candidatures_dossier_pieces_add dossier.pk %}?piece={{ identifiant|urlencode }}"
+            >Ajouter</a></li>
+        </ul>
+      </td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </tbody>
+  {% if pieces_supplementaires %}
+  <tbody>
+    <tr><th colspan="0">Pièces jointes supplémentaires</th></tr>
+    {% for piece in pieces_supplementaires %}
+    <tr>
+      <td>{{ piece.identifiant }}</td>
+      <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-yes.gif" /></td>
+      <td align="center">
+        <img src="{% admin_media_prefix %}img/admin/icon-{{ piece.conforme|yesno:"yes,no,unknown" }}.gif" />
+      </td>
+      <td>
+        {% if piece.fichier %}
+        <a href="{% url admin:candidatures_dossier_pieces_download piece.pk %}">{{ piece.fichier.name|basename }}</a>
+        {% else %}
+        Pièce réputée présente
+        {% endif %}
+      </td>
+      <td>
+        <ul class="actions">
+          <li><a class="changelink"
+            href="{% url admin:candidatures_dossier_pieces_change piece.pk %}"
+            >Modifier</a></li>
+          <li><a class="deletelink"
+            href="{% url admin:candidatures_dossier_pieces_delete piece.pk %}">Supprimer</a></li>
+        </ul>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  {% endif %}
+</table>
+
+<ul class="actions">
+  <li><a class="addlink" href="{% url admin:candidatures_dossier_pieces_add dossier.pk %}"
+    >Joindre une autre pièce</a></li>
+</ul>
+{% endblock %}
