@@ -3,8 +3,6 @@
 import os
 import socket
 
-from sigma.conf import *  # NOQA
-
 PROJECT_PATH = os.path.dirname(__file__)
 HOME = os.path.dirname(PROJECT_PATH)
 
@@ -63,8 +61,9 @@ INSTALLED_APPS = (
     'auf.django.skin',
     'auf.django.references',
     'auf.django.workflow',
-    'south',
     'form_utils',
+    'south',
+    'raven.contrib.django',
     'sigma.core',
     'sigma.boursiers',
     'sigma.candidatures',
@@ -124,3 +123,5 @@ STATICFILES_DIRS = (
 )
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(HOME, 'sitestatic')
+
+from sigma.conf import *  # NOQA

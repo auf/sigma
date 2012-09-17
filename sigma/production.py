@@ -5,4 +5,4 @@
 import sys
 sys.stdout = sys.stderr
 
-from project.settings import *  # NOQA
+from sigma.settings import *  # NOQA

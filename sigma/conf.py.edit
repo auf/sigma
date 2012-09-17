@@ -16,3 +16,5 @@ DATABASES = {
 WCS_SIGMA_URL = 'https://formulaires.auf.org/sigma/'
 WCS_SIGMA_USER = ''
 WCS_SIGMA_PASS = ''
+
+SENTRY_DSN = ''
