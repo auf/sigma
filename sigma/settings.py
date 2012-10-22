@@ -20,6 +20,10 @@ TIME_ZONE = 'America/Montreal'
 
 LANGUAGE_CODE = 'fr-ca'
 USE_L10N = True
+LOCALE_PATHS = (
+    os.path.join(PROJECT_PATH, 'locale'),
+)
+
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
