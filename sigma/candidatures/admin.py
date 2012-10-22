@@ -3,7 +3,6 @@ import os
 
 from auf.django.export.admin import ExportAdmin
 from auf.django.permissions import get_rules
-from auf.django.permissions.admin import GuardedModelAdmin
 from auf.django.permissions.forms import make_global_permissions_form
 from auf.django.references import models as ref
 from auf.django.workflow.admin import WorkflowAdmin
@@ -29,7 +28,7 @@ from sigma.candidatures.models import \
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from sigma.candidatures.workflow import DOSSIER_ETAT_BOURSIER
-
+from sigma.custom_admin import ModelAdmin, GuardedModelAdmin
 
 # Filtres
 
@@ -368,7 +367,7 @@ class DiplomeInline(admin.StackedInline):
 
 # Model admins
 
-class TypeConformiteAdmin(admin.ModelAdmin):
+class TypeConformiteAdmin(ModelAdmin):
     form = TypeConformiteForm
 
 
@@ -674,7 +673,7 @@ class ExpertAdmin(GuardedModelAdmin):
         )
 
 
-class AttributWCSAdmin(admin.ModelAdmin):
+class AttributWCSAdmin(ModelAdmin):
     search_fields = ('dossier__id', )
     list_display = ('_dossier', 'attribut', 'valeur', )
 

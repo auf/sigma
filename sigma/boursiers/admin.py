@@ -2,7 +2,6 @@
 
 from itertools import groupby
 
-from auf.django.permissions.admin import GuardedModelAdmin
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
 from django.core.urlresolvers import reverse
@@ -15,7 +14,7 @@ from django.db import models
 from sigma.boursiers.models import (
     Boursier, DepensePrevisionnelle, EcritureCODA
 )
-
+from sigma.custom_admin import GuardedModelAdmin
 
 class BoursierAdminForm(ModelForm):
 
