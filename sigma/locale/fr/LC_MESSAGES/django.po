@@ -1452,7 +1452,7 @@ msgstr ""
 #: eggs/Django-1.4.1-py2.6.egg/django/contrib/admin/views/main.py:76
 #, python-format
 msgid "Select %s to change"
-msgstr ""
+msgstr "Sélectionnez un %s à consulter ou à modifier"
 
 #: eggs/Django-1.3.1-py2.6.egg/django/contrib/admindocs/views.py:63
 #: eggs/Django-1.3.1-py2.6.egg/django/contrib/admindocs/views.py:65
