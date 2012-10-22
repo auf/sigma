@@ -369,7 +369,8 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
             candidat = u"%s pour l'" % self.candidat
         except:
             candidat = u""
-        return u"dossier #%s (%sappel %s)" % (self.id, candidat, self.appel)
+        return u"%s #%s (%sappel %s)" % (self._meta.verbose_name,
+                self.id, candidat, self.appel,)
 
     def calculer_moyenne(self,):
         if self.id:
