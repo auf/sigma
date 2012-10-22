@@ -30,7 +30,7 @@ class CustomMenu(Menu):
                     'Appels', reverse('admin:candidatures_appel_changelist')
                 ),
                 MenuItem(
-                    'Dossiers',
+                    'Dossiers de candidature',
                     reverse('admin:candidatures_dossier_changelist')
                 ),
                 MenuItem(
