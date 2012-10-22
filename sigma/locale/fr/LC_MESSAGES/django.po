@@ -8361,7 +8361,7 @@ msgstr ""
 #: eggs/django_admin_tools-0.4.1-py2.6.egg/admin_tools/menu/menus.py:100
 #: sigma/menu.py:26
 msgid "Dashboard"
-msgstr ""
+msgstr "Accueil"
 
 #: eggs/django_admin_tools-0.4.1-py2.6.egg/admin_tools/dashboard/dashboards.py:224
 msgid "Quick links"

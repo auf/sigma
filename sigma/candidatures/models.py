@@ -361,6 +361,8 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
     class Meta:
         ordering = ['appel__nom', 'candidat__nom', 'candidat__prenom']
+        verbose_name = u"Dossier de candidature"
+        verbose_name_plural = u"Dossiers de candidature"
 
     def __unicode__(self, ):
         try:
