@@ -202,7 +202,12 @@ class Appel(MetaModel, models.Model):
         if not self.nom and self.type_bourse is None or \
                 self.nom and self.type_bourse is not None:
             raise ValidationError("Choisissez un type de bourse OU remplissez un nom")
-
+        if self.date_debut_appel is not None and self.date_fin_appel is not None and \
+                self.date_debut_appel > self.date_fin_appel:
+            raise ValidationError("La date de fin d'appel précède la date de début d'appel")
+        if self.date_debut_mobilite is not None and self.date_fin_mobilite is not None and \
+                self.date_debut_mobilite > self.date_fin_mobilite:
+            raise ValidationError("La date de fin de mobilité précède la date de début de mobilité")
 
 class Candidat(models.Model):
     """
