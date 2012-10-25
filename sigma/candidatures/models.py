@@ -110,6 +110,11 @@ def validateur_annee(value):
         raise ValidationError("Inscrivez l'année avec 4 chiffres")
     return value
 
+def validateur_code_budgetaire(value):
+    if re.match(r"^\d{5}\w{2}$", value) is None:
+        raise ValidationError(u"Le code budgétaire est composé de 5 chiffres + 2 lettres")
+    return value
+
 
 class Appel(MetaModel, models.Model):
     """
@@ -128,7 +133,9 @@ class Appel(MetaModel, models.Model):
     annee = models.IntegerField(u"année", validators=[validateur_annee, ])
 
     code_budgetaire = models.CharField(
-        u"Code budgétaire", max_length=72, blank=True, null=True
+        u"Code budgétaire", max_length=72,
+        help_text=u"Le code budgétaire est composé de 5 chiffres + 2 lettres",
+        validators=[validateur_code_budgetaire, ]
     )
     date_debut_appel = models.DateField(
         u"Début de l'appel", help_text=settings.HELP_TEXT_DATE,
