@@ -394,7 +394,6 @@ class AppelAdmin(GuardedModelAdmin):
             ('montant_perdiem_sud', 'montant_perdiem_nord'),
             'montant_allocation_unique',
             ('prime_installation_sud', 'prime_installation_nord'),
-            'appel_en_ligne',
             'conformites',
         )
     }),)

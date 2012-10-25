@@ -153,7 +153,6 @@ class Appel(MetaModel, models.Model):
         u"Fin de la mobilité",
         help_text=settings.HELP_TEXT_DATE, blank=True, null=True
     )
-    appel_en_ligne = models.BooleanField(u"Appel d’offres en ligne")
     periode = models.CharField(
         u"Période de mobilité", max_length=32, choices=PERIODE, blank=True
     )
