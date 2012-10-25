@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from auf.django.references import models as ref
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
@@ -95,6 +96,14 @@ class AppelManager(models.Manager):
                 .select_related(*fkeys).all()
 
 
+class TypeBourse(models.Model):
+    nom = models.CharField(u"nom", max_length=255)
+
+
+def validateur_annee(value):
+    raise ValidationError("Inscrivez l'année avec 4 chiffres")
+
+
 class Appel(MetaModel, models.Model):
     """
     Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité
@@ -103,8 +112,14 @@ class Appel(MetaModel, models.Model):
 
     objects = AppelManager()
 
-    nom = models.CharField(u"nom", max_length=255)
+    nom = models.CharField(u"nom", max_length=255, blank=True,
+            help_text=u"À défaut d'un type de bourse qui convienne, expliquez la nature de votre appel")
+    type_bourse = models.ForeignKey(TypeBourse,
+            verbose_name=u"type de bourse",
+            blank=True, null=True)
     region = models.ForeignKey(ref.Region, verbose_name=u"région")
+    annee = models.IntegerField(u"année", validators=[validateur_annee, ])
+
     code_budgetaire = models.CharField(
         u"Code budgétaire", max_length=72, blank=True, null=True
     )
