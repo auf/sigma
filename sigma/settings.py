@@ -129,3 +129,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(HOME, 'sitestatic')
 
 from sigma.conf import *  # NOQA
+
+# Force innoDb
+DATABASES['default']['OPTIONS'] = {
+    "init_command": "SET storage_engine=InnoDB",
+}
+

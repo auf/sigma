@@ -24,7 +24,7 @@ from sendfile import sendfile
 from sigma.candidatures.models import \
         Conformite, Appel, DossierOrigine, DossierAccueil, DossierMobilite, \
         Candidat, Dossier, Expert, Piece, TypePiece, AttributWCS, Diplome, \
-        TypeConformite
+        TypeConformite, TypeBourse
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from sigma.candidatures.workflow import DOSSIER_ETAT_BOURSIER
@@ -373,10 +373,10 @@ class TypeConformiteAdmin(ModelAdmin):
 
 class AppelAdmin(GuardedModelAdmin):
     list_display = (
-        'nom', 'region_code', 'code_budgetaire', 'date_debut_appel',
+        'type_bourse', 'nom', 'region_code', 'code_budgetaire', 'date_debut_appel',
         'date_fin_appel', '_actions',
     )
-    list_filter = (RegionFilter,)
+    list_filter = (RegionFilter, 'type_bourse', 'annee', )
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = ((None, {
         'fields': (
@@ -762,8 +762,12 @@ class GroupAdmin(DjangoGroupAdmin):
         }),
     )
 
+class TypeBourseAdmin(admin.ModelAdmin):
+    pass
+
 
 admin.site.register(AttributWCS, AttributWCSAdmin)
+admin.site.register(TypeBourse, TypeBourseAdmin)
 admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)

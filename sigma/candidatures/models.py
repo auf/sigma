@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+import re
+
 from auf.django.references import models as ref
 from django.core.exceptions import ValidationError
 from django.conf import settings
@@ -99,9 +101,14 @@ class AppelManager(models.Manager):
 class TypeBourse(models.Model):
     nom = models.CharField(u"nom", max_length=255)
 
+    def __unicode__(self):
+        return self.nom
 
 def validateur_annee(value):
-    raise ValidationError("Inscrivez l'année avec 4 chiffres")
+    string_value = unicode(value)
+    if re.match(r"^\d{4}$", string_value) is None:
+        raise ValidationError("Inscrivez l'année avec 4 chiffres")
+    return value
 
 
 class Appel(MetaModel, models.Model):
@@ -183,6 +190,11 @@ class Appel(MetaModel, models.Model):
 
     def __unicode__(self):
         return self.nom
+
+    def clean(self):
+        if not self.nom and self.type_bourse is None or \
+                self.nom and self.type_bourse is not None:
+            raise ValidationError("Choisissez un type de bourse OU remplissez un nom")
 
 
 class Candidat(models.Model):
