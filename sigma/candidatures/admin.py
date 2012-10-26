@@ -26,7 +26,7 @@ from sigma.candidatures.models import \
         TypeConformite, TypeBourse
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
-from sigma.candidatures.workflow import DOSSIER_ETAT_BOURSIER
+from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 from sigma.candidatures.filters import RegionFilter, AppelFilter, \
         RegionOrigineFilter, RegionAccueilFilter, \
         PaysOrigineFilter, PaysAccueilFilter
@@ -418,7 +418,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
         actions.append(
             "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
         )
-        if obj.etat == DOSSIER_ETAT_BOURSIER:
+        if obj.etat == DOSSIER_ETAT_RETENU:
             actions.append(
                 "<nobr><a href='%s'>Fiche boursier</a></nobr>" %
                 reverse('admin:boursiers_boursier_change', args=(obj.id,))

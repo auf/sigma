@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 import auf.django.references.models as ref
 
 from sigma.candidatures.models import Dossier
-from sigma.candidatures.workflow import DOSSIER_ETAT_BOURSIER
+from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 
 
 class BoursierManager(models.Manager):
@@ -17,7 +17,7 @@ class BoursierManager(models.Manager):
 
     def get_query_set(self):
         qs = super(BoursierManager, self).get_query_set()
-        return qs.filter(dossier__etat=DOSSIER_ETAT_BOURSIER)
+        return qs.filter(dossier__etat=DOSSIER_ETAT_RETENU)
 
 
 class BoursierInactifManager(models.Manager):
@@ -25,7 +25,7 @@ class BoursierInactifManager(models.Manager):
 
     def get_query_set(self):
         qs = super(BoursierInactifManager, self).get_query_set()
-        return qs.exclude(dossier__etat=DOSSIER_ETAT_BOURSIER)
+        return qs.exclude(dossier__etat=DOSSIER_ETAT_RETENU)
 
 
 class Boursier(models.Model):
@@ -211,6 +211,6 @@ class EcritureCODA(models.Model):
 
 
 def dossier_post_save(sender, instance=None, **kwargs):
-    if instance and instance.etat == DOSSIER_ETAT_BOURSIER:
+    if instance and instance.etat == DOSSIER_ETAT_RETENU:
         Boursier.objects.get_or_create(dossier=instance)
 post_save.connect(dossier_post_save, sender=Dossier)

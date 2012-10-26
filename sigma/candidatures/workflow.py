@@ -20,8 +20,7 @@ from auf.django.workflow.models import WorkflowMixin
 #En attente
 #(liste de réserves avec un classement hiérarchisé, dans laquelle seront récupérés les remplaçants en cas de désistement)
 
-#Retenu OU
-#Boursier
+#Retenu
 #(dans l'étape de gestion de la bourse seuls ces dossiers seront pris en compte et visibles dans la partie boursiers)
 
 #Désisté
@@ -37,7 +36,6 @@ DOSSIER_ETAT_RECEVABLE = 'RECEVABLE'
 DOSSIER_ETAT_REJETE = 'REJETE'
 DOSSIER_ETAT_ATTENTE = 'ATTENTE'
 DOSSIER_ETAT_RETENU = 'RETENU'
-DOSSIER_ETAT_BOURSIER = 'BOURSIER'
 DOSSIER_ETAT_DESISTE = 'DESISTE'
 
 
@@ -50,7 +48,6 @@ DOSSIER_ETATS = {
     DOSSIER_ETAT_RECEVABLE: 'Recevable',
     DOSSIER_ETAT_ATTENTE: 'En attente',
     DOSSIER_ETAT_RETENU: 'Retenu',
-    DOSSIER_ETAT_BOURSIER: 'Boursier',
     DOSSIER_ETAT_DESISTE: 'Désisté',
 }
 
@@ -93,9 +90,6 @@ class DossierWorkflow(WorkflowMixin):
         return True
 
     def acces_retenu(self, action, request):
-        return True
-
-    def acces_boursier(self, action, request):
         return True
 
     def acces_desiste(self, action, request):
