@@ -8,3 +8,8 @@
 &rsaquo; {{ cl.opts.verbose_name_plural|capfirst }}
 </div>
 {% endblock %}
+
+{% block content %}
+<h3>volumétrie: {{ cl.result_count }}/{{ cl.full_result_count }}</h3>
+    {{ block.super }}
+{% endblock %}
