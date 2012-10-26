@@ -340,6 +340,8 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         ('5', 'Post-doc'),
     )
 
+    a_verifier = models.BooleanField(verbose_name=u"À vérifier", default=False)
+
     appel = models.ForeignKey(
         Appel, related_name="appel", verbose_name=u"appel"
     )

@@ -348,11 +348,12 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                DossierConformiteAdmin)
     list_display = (
         'nom', 'prenom', 'naissance_date', 'etat', 'moyenne_votes',
-        'action_column'
+        'a_verifier', 'action_column'
     )
     list_display_links = ('nom', 'prenom')
+    list_editable = ('a_verifier', )
     list_filter = (
-        AppelFilter, 'etat', 'discipline', 'bureau_rattachement',
+        AppelFilter, 'etat', 'a_verifier', 'discipline', 'bureau_rattachement',
         'candidat__pays',
         RegionOrigineFilter, RegionAccueilFilter,
         PaysOrigineFilter, PaysAccueilFilter,
