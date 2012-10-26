@@ -15,7 +15,6 @@ from django.contrib.auth.admin import \
 from django.contrib.auth.forms import UserChangeForm as DjangoUserForm
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext, defaultfilters
@@ -28,101 +27,10 @@ from sigma.candidatures.models import \
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from sigma.candidatures.workflow import DOSSIER_ETAT_BOURSIER
+from sigma.candidatures.filters import RegionFilter, AppelFilter, \
+        RegionOrigineFilter, RegionAccueilFilter, \
+        PaysOrigineFilter, PaysAccueilFilter
 from sigma.custom_admin import ModelAdmin, GuardedModelAdmin
-
-# Filtres
-
-class RegionFilter(admin.SimpleListFilter):
-    title = 'région'
-    parameter_name = 'region'
-
-    def lookups(self, request, model_admin):
-        return [
-            (unicode(a), b)
-            for (a, b) in get_rules().filter_queryset(
-                request.user, 'manage', ref.Region.objects.all()
-            ).values_list('id', 'nom')
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(region=self.value())
-        else:
-            return queryset
-
-
-class AppelFilter(admin.SimpleListFilter):
-    title = 'appel'
-    parameter_name = 'appel'
-
-    def lookups(self, request, model_admin):
-        region_ids = get_rules().filter_queryset(
-            request.user, 'manage', ref.Region.objects.all()
-        ).values_list('id', flat=True)
-        return [
-            (unicode(a), b)
-            for (a, b) in Appel.objects.filter(region__in=region_ids)
-            .values_list('id', 'nom')
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(appel=self.value())
-        else:
-            return queryset
-
-
-class RegionOrigineFilter(admin.SimpleListFilter):
-    title = "région d'origine"
-    parameter_name = 'region_origine'
-
-    def lookups(self, request, model_admin):
-        return [
-            (unicode(a), b)
-            for (a, b) in ref.Region.objects.values_list('id', 'nom')
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(
-                Q(
-                    origine__etablissement__isnull=False,
-                    origine__etablissement__region=self.value()
-                ) |
-                Q(
-                    origine__etablissement__isnull=True,
-                    origine__etablissement__pays__region=self.value()
-                )
-            )
-        else:
-            return queryset
-
-
-class RegionAccueilFilter(admin.SimpleListFilter):
-    title = "région d'accueil"
-    parameter_name = 'region_accueil'
-
-    def lookups(self, request, model_admin):
-        return [
-            (unicode(a), b)
-            for (a, b) in ref.Region.objects.values_list('id', 'nom')
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(
-                Q(
-                    accueil__etablissement__isnull=False,
-                    accueil__etablissement__region=self.value()
-                ) |
-                Q(
-                    accueil__etablissement__isnull=True,
-                    accueil__etablissement__pays__region=self.value()
-                )
-            )
-        else:
-            return queryset
-
 
 # Forms
 
@@ -412,6 +320,7 @@ class AppelAdmin(GuardedModelAdmin):
     def region_code(self, obj):
         return obj.region.code
     region_code.short_description = u'région'
+    region_code.admin_order_field = 'region'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'region':
@@ -444,7 +353,10 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     list_display_links = ('nom', 'prenom')
     list_filter = (
         AppelFilter, 'etat', 'discipline', 'bureau_rattachement',
-        'candidat__pays', RegionOrigineFilter, RegionAccueilFilter
+        'candidat__pays',
+        RegionOrigineFilter, RegionAccueilFilter,
+        PaysOrigineFilter, PaysAccueilFilter,
+
     )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom',
                      'candidat__nom_jeune_fille', 'discipline__code',
@@ -479,6 +391,15 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
 
     class Media:
         js = ('candidatures/dossier.js',)
+
+    def lookup_allowed(self, key, value):
+        if key in (PaysOrigineFilter.parameter_name,
+                PaysAccueilFilter.parameter_name,
+                RegionOrigineFilter.parameter_name,
+                RegionAccueilFilter.parameter_name,
+                ):
+            return True
+        return super(AppelAdmin, self).lookup_allowed(key, value)
 
     def _naissance_date(self, obj):
         return obj.candidat.naissance_date
