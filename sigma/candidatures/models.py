@@ -40,7 +40,7 @@ BAREME = (
 )
 
 NOTE_MIN = 1
-NOTE_MAX = 100
+NOTE_MAX = 20
 
 
 class ExpertManager(models.Manager):
@@ -204,7 +204,10 @@ class Appel(MetaModel, models.Model):
         ordering = ['nom']
 
     def __unicode__(self):
-        return self.nom
+        if self.type_bourse is not None:
+            return self.type_bourse
+        else:
+            return self.nom
 
     def clean(self):
         if not self.nom and self.type_bourse is None or \

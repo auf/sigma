@@ -34,19 +34,17 @@
     <h2>Notations (moyenne = {{ dossier.moyenne_votes|floatformat }})</h2>
     </div>
 
-	<p>* Les notes doivent être entre 1 et 100.</p>
-        {% for f in noteForm.management_form %}
-            {{ f }}
-        {% endfor %}
-    
-        {% for f in noteForm.forms %}
-            <table>
-            {% for field in f %}
-                {% if field.is_hidden %}{{ field }}{% endif %}
-            {% endfor %}
-            <tr><td>{{ f.instance.expert }}</td><td>{{ f.note}}</td></tr>
-            </table>
-        {% endfor %}
+    <p>* Les notes doivent être entre {{ NOTE_MIN }} et {{ NOTE_MAX }}.</p>
+
+    <table>
+    {% for n in dossier.notes.all %}
+        <tr><td>{{ n.expert }}</td><td>{{ n.note }}</td></tr>
+    {% endfor %}
+    </table>
+
+    {% if noteForm %}
+        Votre note : {{ noteForm.note }}
+    {% endif %}
 
     <div class="module">
     <h2>Commentaires</h2>

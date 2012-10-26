@@ -9,7 +9,7 @@ from auf.django.references.models import Discipline
 
 from sigma.candidatures.models import \
         UserProfile, Piece, Note, Dossier, Commentaire, Expert, Conformite, \
-        TypeConformite
+        TypeConformite, NOTE_MIN, NOTE_MAX
 from sigma.dynamo.forms import PropertyForm
 from sigma.dynamo.fields import TEXT
 
@@ -58,25 +58,19 @@ class PieceForm(ModelForm):
 
 class NoteForm(BetterModelForm):
     class Meta:
-        exclude = ('expert', )
+        exclude = ('expert', 'dossier', )
         model = Note
 
     def clean_note(self):
         note = self.cleaned_data['note']
 
-        from models import NOTE_MIN, NOTE_MAX
-
         if note < NOTE_MIN or note > NOTE_MAX:
             raise forms.ValidationError(
-                "Vous devez spécifier une note entre 1 et 100"
+                "Vous devez spécifier une note entre %s et %s" %
+                (NOTE_MIN, NOTE_MAX)
             )
 
         return note
-
-
-class NoteExpertForm(inlineformset_factory(Dossier, Note,  extra=0,
-                                           form=NoteForm)):
-    pass
 
 
 class CommentaireForm(BetterModelForm):
