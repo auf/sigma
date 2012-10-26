@@ -399,7 +399,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                 RegionAccueilFilter.parameter_name,
                 ):
             return True
-        return super(AppelAdmin, self).lookup_allowed(key, value)
+        return super(DossierAdmin, self).lookup_allowed(key, value)
 
     def _naissance_date(self, obj):
         return obj.candidat.naissance_date
