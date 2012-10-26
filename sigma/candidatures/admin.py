@@ -312,8 +312,11 @@ class AppelAdmin(GuardedModelAdmin):
         js = ("candidatures/appel.js",)
 
     def _actions(self, obj):
-        return "<a href='%s?appel__id__exact=%s'>Voir les dossiers</a>" % \
-                (reverse('admin:candidatures_dossier_changelist'), obj.id)
+        return "<a href='%s?%s=%s'>Voir les dossiers</a>" % \
+                (reverse('admin:candidatures_dossier_changelist'),
+                AppelFilter.parameter_name,
+                obj.id,
+                )
     _actions.allow_tags = True
     _actions.short_description = u''
 
