@@ -211,7 +211,7 @@ class Appel(MetaModel, models.Model):
         if self.nom != u"":
             return self.nom
         else:
-            return u"%s %s %s" % (self.type_bourse.nom, self.annee,
+            return u"%s %s %s" % (self.type_bourse, self.annee,
                     self.region.nom)
 
     def clean(self):
