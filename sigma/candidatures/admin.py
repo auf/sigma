@@ -372,6 +372,8 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                      'mobilite__diplome_demande_nom',
     )
     fieldsets = (
+            (None, {'fields': ('appel',) },
+            ),
         ('État du dossier', {
             'fields': ('etat', 'experts'),
         }),
