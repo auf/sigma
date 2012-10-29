@@ -22,7 +22,7 @@ from sendfile import sendfile
 
 from sigma.candidatures.models import \
         Conformite, Appel, DossierOrigine, DossierAccueil, DossierMobilite, \
-        Candidat, Dossier, Expert, Piece, TypePiece, AttributWCS, Diplome, \
+        Candidat, Dossier, Expert, Piece, AttributWCS, Diplome, \
         TypeConformite, TypeBourse
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
@@ -80,13 +80,6 @@ class DossierMobiliteForm(forms.ModelForm):
 
 
 # Inlines
-
-class TypePieceInline(admin.TabularInline):
-    model = TypePiece
-    prepopulated_fields = {'identifiant': ('nom',)}
-    verbose_name = u'pièce à demander'
-    verbose_name_plural = u'pièces à demander'
-
 
 class BaseDossierFaculteInline(admin.StackedInline):
     max_num = 1
@@ -288,10 +281,10 @@ class AppelAdmin(GuardedModelAdmin):
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = ((None, {
         'fields': (
-            'type_bourse',
-            'nom',
             'region',
             'annee',
+            'type_bourse',
+            'nom',
             'code_budgetaire',
             ('date_debut_appel', 'date_fin_appel'),
             ('date_debut_mobilite', 'date_fin_mobilite'),
@@ -303,10 +296,11 @@ class AppelAdmin(GuardedModelAdmin):
             'montant_allocation_unique',
             ('prime_installation_sud', 'prime_installation_nord'),
             'conformites',
+            'pieces_attendues',
+
         )
     }),)
-    filter_horizontal = ['conformites']
-    inlines = [TypePieceInline]
+    filter_horizontal = ['conformites', 'pieces_attendues',]
 
     class Media:
         js = ("candidatures/appel.js",)

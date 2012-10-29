@@ -199,20 +199,24 @@ class Appel(MetaModel, models.Model):
         "TypeConformite", verbose_name=u"Conformités à demander",
         blank=True, null=True
     )
+    pieces_attendues = models.ManyToManyField(
+        "TypePiece", verbose_name=u"Pièces à demander",
+        blank=True, null=True
+    )
 
     class Meta:
         ordering = ['nom']
 
     def __unicode__(self):
-        if self.type_bourse is not None:
-            return self.type_bourse.nom
-        else:
+        if self.nom != u"":
             return self.nom
+        else:
+            return u"%s %s %s" % (self.type_bourse.nom, self.annee,
+                    self.region.nom)
 
     def clean(self):
-        if not self.nom and self.type_bourse is None or \
-                self.nom and self.type_bourse is not None:
-            raise ValidationError(u"Choisissez un type de bourse OU remplissez un nom")
+        if not self.nom and self.type_bourse is None:
+            raise ValidationError(u"Choisissez un type de bourse ET/OU remplissez un nom")
         if self.date_debut_appel is not None and self.date_fin_appel is not None and \
                 self.date_debut_appel > self.date_fin_appel:
             raise ValidationError(u"La date de fin d'appel précède la date de début d'appel")
@@ -784,18 +788,16 @@ class Diplome(models.Model):
 
 
 class TypePiece(models.Model):
-    appel = models.ForeignKey(Appel, related_name='pieces_attendues')
     nom = models.CharField(max_length=100)
     identifiant = models.SlugField(max_length=100)
 
     def __unicode__(self):
-        return self.nom
+        return u"%s (%s)" % (self.nom, self.identifiant, )
 
     class Meta:
         verbose_name = 'type de pièce'
         verbose_name_plural = 'types de pièces'
         ordering = ['nom']
-        unique_together = ('appel', 'identifiant')
 
 
 class Piece(models.Model):
