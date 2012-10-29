@@ -208,15 +208,15 @@ class Appel(MetaModel, models.Model):
         ordering = ['nom']
 
     def __unicode__(self):
-        if self.type_bourse is not None:
-            return self.type_bourse.nom
-        else:
+        if self.nom != u"":
             return self.nom
+        else:
+            return u"%s %s %s" % (self.type_bourse.nom, self.annee,
+                    self.region.nom)
 
     def clean(self):
-        if not self.nom and self.type_bourse is None or \
-                self.nom and self.type_bourse is not None:
-            raise ValidationError(u"Choisissez un type de bourse OU remplissez un nom")
+        if not self.nom and self.type_bourse is None:
+            raise ValidationError(u"Choisissez un type de bourse ET/OU remplissez un nom")
         if self.date_debut_appel is not None and self.date_fin_appel is not None and \
                 self.date_debut_appel > self.date_fin_appel:
             raise ValidationError(u"La date de fin d'appel précède la date de début d'appel")

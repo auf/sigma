@@ -281,10 +281,10 @@ class AppelAdmin(GuardedModelAdmin):
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = ((None, {
         'fields': (
-            'type_bourse',
-            'nom',
             'region',
             'annee',
+            'type_bourse',
+            'nom',
             'code_budgetaire',
             ('date_debut_appel', 'date_fin_appel'),
             ('date_debut_mobilite', 'date_fin_mobilite'),
