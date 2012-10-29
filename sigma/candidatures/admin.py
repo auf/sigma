@@ -350,8 +350,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     list_display_links = ('nom', 'prenom')
     list_editable = ('a_verifier', )
     list_filter = (
-        AppelFilter, 'etat', 'a_verifier', 'discipline', 'bureau_rattachement',
-        'candidat__pays',
+        AppelFilter, 'etat', 'a_verifier', 'discipline', 
         RegionOrigineFilter, RegionAccueilFilter,
         PaysOrigineFilter, PaysAccueilFilter,
 
