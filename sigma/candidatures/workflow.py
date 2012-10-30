@@ -42,28 +42,53 @@ DOSSIER_ETAT_DESISTE = 'DESISTE'
 #libellés états
 DOSSIER_ETATS = {
     DOSSIER_ETAT_NOUVEAU: 'Nouveau',
-    DOSSIER_ETAT_ATTENTE: 'En attente',
     DOSSIER_ETAT_IRRECEVABLE: 'Irrecevable',
-    DOSSIER_ETAT_REJETE: 'Non retenu',
     DOSSIER_ETAT_RECEVABLE: 'Recevable',
     DOSSIER_ETAT_ATTENTE: 'En attente',
+    DOSSIER_ETAT_REJETE: 'Non retenu',
     DOSSIER_ETAT_RETENU: 'Retenu',
     DOSSIER_ETAT_DESISTE: 'Désisté',
 }
 
-# Création des actions à partir des états
-# le workflow est très permissif, pour le générer de cette
-# façon, autrement on pourrait faire un dictionnaire pour créer chaque action
-DOSSIER_ACTIONS = {}
-for etat in DOSSIER_ETATS.keys():
-    DOSSIER_ACTIONS[etat] = {
-        'nom': DOSSIER_ETATS[etat],
-        'etat_initial': DOSSIER_ETATS.keys(),
-        'etat_final': etat,
+DOSSIER_ACTIONS = {
+    DOSSIER_ETAT_NOUVEAU: {
+        'nom': DOSSIER_ETATS[DOSSIER_ETAT_NOUVEAU],
+        'etat_initial': None,
+        'etat_final': DOSSIER_ETAT_NOUVEAU,
+        },
+    DOSSIER_ETAT_IRRECEVABLE: {
+        'nom': DOSSIER_ETATS[DOSSIER_ETAT_IRRECEVABLE],
+        'etat_initial': (DOSSIER_ETAT_NOUVEAU, ),
+        'etat_final': DOSSIER_ETAT_IRRECEVABLE,
+        },
+    DOSSIER_ETAT_RECEVABLE: {
+        'nom': DOSSIER_ETATS[DOSSIER_ETAT_RECEVABLE],
+        'etat_initial': (DOSSIER_ETAT_NOUVEAU, DOSSIER_ETAT_IRRECEVABLE, ),
+        'etat_final': DOSSIER_ETAT_RECEVABLE,
+        },
+    DOSSIER_ETAT_ATTENTE: {
+        'nom': DOSSIER_ETATS[DOSSIER_ETAT_ATTENTE],
+        'etat_initial': (DOSSIER_ETAT_RECEVABLE, DOSSIER_ETAT_RETENU,
+            DOSSIER_ETAT_REJETE,),
+        'etat_final': DOSSIER_ETAT_ATTENTE,
+        },
+    DOSSIER_ETAT_REJETE: {
+        'nom': DOSSIER_ETATS[DOSSIER_ETAT_REJETE],
+        'etat_initial': (DOSSIER_ETAT_RECEVABLE, ),
+        'etat_final': DOSSIER_ETAT_REJETE,
+        },
+    DOSSIER_ETAT_RETENU: {
+        'nom': DOSSIER_ETATS[DOSSIER_ETAT_RETENU],
+        'etat_initial': (DOSSIER_ETAT_RECEVABLE, DOSSIER_ETAT_ATTENTE,
+            DOSSIER_ETAT_REJETE, ),
+        'etat_final': DOSSIER_ETAT_RETENU,
+        },
+    DOSSIER_ETAT_DESISTE: {
+        'nom': DOSSIER_ETATS[DOSSIER_ETAT_DESISTE],
+        'etat_initial': (DOSSIER_ETAT_RETENU, ),
+        'etat_final': DOSSIER_ETAT_DESISTE,
+        },
     }
-
-# À la création, attribution automatique de l'état
-DOSSIER_ACTIONS[DOSSIER_ETAT_NOUVEAU]['etat_initial'] = None
 
 
 class DossierWorkflow(WorkflowMixin):
