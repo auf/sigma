@@ -273,10 +273,10 @@ class TypeConformiteAdmin(ModelAdmin):
 
 
 class AppelAdmin(GuardedModelAdmin):
-    list_display = ('type_bourse',
-            'nom',
+    list_display = ('_nom',
             'region_code',
             'annee',
+            'type_bourse',
             'code_budgetaire',
             'date_debut_appel',
             'date_fin_appel',
@@ -318,6 +318,10 @@ class AppelAdmin(GuardedModelAdmin):
                 )
     _actions.allow_tags = True
     _actions.short_description = u''
+
+    def _nom(self, obj):
+        return obj.__unicode__()
+    _nom.short_description = u'Nom'
 
     def region_code(self, obj):
         return obj.region.code
