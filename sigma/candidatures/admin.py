@@ -282,7 +282,7 @@ class AppelAdmin(GuardedModelAdmin):
             'date_fin_appel',
             '_actions',
     )
-    list_filter = (RegionFilter, 'type_bourse', 'annee', )
+    list_filter = (RegionFilter, 'annee', 'type_bourse', )
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = ((None, {
         'fields': (
