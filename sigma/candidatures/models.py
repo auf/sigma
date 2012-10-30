@@ -336,7 +336,7 @@ class DossierQuerySet(models.query.QuerySet):
 class DossierManager(models.Manager):
 
     def get_query_set(self):
-        fkeys = ('appel', 'origine', 'accueil', )
+        fkeys = ('appel', 'origine', 'accueil', 'candidat', )
         return DossierQuerySet(Dossier).select_related(*fkeys).all()
 
 
@@ -442,19 +442,10 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
             else:
                 self.moyenne_votes = 0
 
-    def __init__(self, *args, **kwargs):
+    def prepopuler_notes(self, *args, **kwargs):
         """
         A l'instanciation, on synchronise les meta pour optimisation
         """
-        super(Dossier, self).__init__(*args, **kwargs)
-
-        try:
-            if self.discipline != self.mobilite.discipline:
-                self.discipline = self.mobilite.discipline
-                self.save()
-        except:
-            pass
-
         # Prépouplation des objets notes selon les experts sélectionnés
         if self.id is not None:
 

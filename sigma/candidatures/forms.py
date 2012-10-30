@@ -107,6 +107,7 @@ class ExpertForm(forms.Form):
         for d in self.dossiers:
             d.experts = self.cleaned_data.get('experts', [])
             d.save()
+            d.prepopuler_notes()
 
 
 # Dynamo - ADMIN
