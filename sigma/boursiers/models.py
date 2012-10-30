@@ -58,8 +58,8 @@ class Boursier(models.Model):
     inactifs = BoursierInactifManager()
 
     class Meta:
-        verbose_name = 'boursier'
-        verbose_name_plural = 'boursiers'
+        verbose_name = 'Boursier'
+        verbose_name_plural = 'Boursiers'
 
     def __unicode__(self):
         return self.nom_complet()

@@ -65,10 +65,13 @@ class Expert(models.Model):
     disciplines = models.ManyToManyField(
         ref.Discipline, verbose_name=u"Disciplines", blank=True, null=True
     )
+
     objects = ExpertManager()
 
     class Meta:
         ordering = ['nom', 'prenom']
+        verbose_name = u"Expert"
+        verbose_name_plural = u"Experts"
 
     def __unicode__(self):
         return "%s %s" % (self.prenom, self.nom)
@@ -206,6 +209,8 @@ class Appel(MetaModel, models.Model):
 
     class Meta:
         ordering = ['nom']
+        verbose_name = u"Appel"
+        verbose_name_plural = u"Appels"
 
     def __unicode__(self):
         if self.nom != u"":
