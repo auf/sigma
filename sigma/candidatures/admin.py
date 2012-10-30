@@ -273,9 +273,14 @@ class TypeConformiteAdmin(ModelAdmin):
 
 
 class AppelAdmin(GuardedModelAdmin):
-    list_display = (
-        'type_bourse', 'nom', 'region_code', 'code_budgetaire', 'date_debut_appel',
-        'date_fin_appel', '_actions',
+    list_display = ('type_bourse',
+            'nom',
+            'region_code',
+            'annee',
+            'code_budgetaire',
+            'date_debut_appel',
+            'date_fin_appel',
+            '_actions',
     )
     list_filter = (RegionFilter, 'type_bourse', 'annee', )
     search_fields = ('nom', 'code_budgetaire')
