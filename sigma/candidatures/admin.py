@@ -23,7 +23,7 @@ from sendfile import sendfile
 from sigma.candidatures.models import \
         Conformite, Appel, DossierOrigine, DossierAccueil, DossierMobilite, \
         Candidat, Dossier, Expert, Piece, AttributWCS, Diplome, \
-        TypeConformite, TypeBourse
+        TypeConformite, TypeBourse, TypePiece
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
@@ -700,6 +700,7 @@ admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)
 admin.site.register(TypeConformite, TypeConformiteAdmin)
+admin.site.register(TypePiece)
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)
