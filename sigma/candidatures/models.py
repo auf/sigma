@@ -9,8 +9,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.dispatch import receiver
-from django.db.models.signals import post_save
-
+from django.db.models.signals import post_save, m2m_changed
 from sigma.dynamo import dynamo_registry
 from sigma.dynamo.models import \
         MetaModel, InstanceModel, TypeProperty, ValueProperty
@@ -494,6 +493,11 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     naissance_date.short_description = "Date de naissance"
     naissance_date.admin_order_field = 'candidat__naissance_date'
 
+# on fait ca au change du m2m des experts dans le dossier
+def experts_changed(sender, **kwargs):
+    dossier = kwargs['instance']
+    dossier.prepopuler_notes()
+m2m_changed.connect(experts_changed, sender=Dossier.experts.through)
 
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
