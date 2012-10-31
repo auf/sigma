@@ -73,9 +73,12 @@ class _RegionFilter(_NullFKFilter):
     model = None
 
     def lookups(self, request, model_admin):
+        entries = self.model.objects.\
+                select_related('etablissement', 'etablissement__region').\
+                all()
+        
         regions_existantes = set([d.etablissement.region.code for d in
-        self.model.objects.select_related('etablissement', 'region') if
-                d.etablissement is not None])
+         entries if d.etablissement_id is not None])
         regions = ref.Region.objects.\
                 filter(code__in=regions_existantes).\
                 order_by('nom')

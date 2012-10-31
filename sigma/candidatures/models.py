@@ -304,7 +304,7 @@ class Note(models.Model):
     Une personne attribue une note à un dossier de candidature.
     """
     dossier = models.ForeignKey("Dossier", related_name="notes")
-    expert = models.ForeignKey(Expert)
+    expert = models.ForeignKey(Expert, blank=True, null=True)
     date = models.DateField(auto_now_add=True)
     note = models.IntegerField(blank=True, null=True)
 

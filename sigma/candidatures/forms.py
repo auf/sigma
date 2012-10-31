@@ -63,7 +63,8 @@ class NoteForm(BetterModelForm):
 
     def clean_note(self):
         note = self.cleaned_data['note']
-
+        if note is None:
+            return note
         if note < NOTE_MIN or note > NOTE_MAX:
             raise forms.ValidationError(
                 "Vous devez spécifier une note entre %s et %s" %
