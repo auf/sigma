@@ -58,7 +58,7 @@ class PieceForm(ModelForm):
 
 class NoteForm(BetterModelForm):
     class Meta:
-        exclude = ('expert', 'dossier', )
+        exclude = ('dossier', )
         model = Note
 
     def clean_note(self):
@@ -71,7 +71,8 @@ class NoteForm(BetterModelForm):
             )
 
         return note
-
+    
+NoteFormSet = inlineformset_factory(Dossier, Note, form=NoteForm, extra=1)
 
 class CommentaireForm(BetterModelForm):
     class Meta:

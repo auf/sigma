@@ -36,15 +36,10 @@
 
     <p>* Les notes doivent être entre {{ NOTE_MIN }} et {{ NOTE_MAX }}.</p>
 
-    <table>
-    {% for n in dossier.notes.all %}
-        <tr><td>{{ n.expert }}</td><td>{{ n.note }}</td></tr>
+    {{ notes_formset.management_form }}
+    {% for form in notes_formset %}
+        <div>{{ form }}</div>
     {% endfor %}
-    </table>
-
-    {% if noteForm %}
-        Votre note : {{ noteForm.note }}
-    {% endif %}
 
     <div class="module">
     <h2>Commentaires</h2>

@@ -8,8 +8,8 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
 from forms import \
         DisciplineForm, CommentaireForm, \
-        EvaluationForm, ExpertForm, NoteForm
-from models import Dossier, Commentaire, Expert, NOTE_MIN, NOTE_MAX, Note
+        EvaluationForm, ExpertForm, NoteFormSet
+from models import Dossier, Commentaire, Expert, NOTE_MIN, NOTE_MAX
 
 
 @login_required
@@ -31,24 +31,17 @@ def mes_disciplines(request, ):
 @login_required
 def evaluer(request, dossier_id):
     dossier = Dossier.objects.get(id=dossier_id)
-    try:
-        expert = Expert.objects.get(courriel=request.user.email)
-        note = Note.objects.get(dossier=dossier, expert=expert)
-        notable = True
-    except:
-        notable = False
 
     if request.method == "POST":
-        if notable:
-            noteForm = NoteForm(instance=note, data=request.POST)
+        notes_formset = NoteFormSet(instance=dossier, data=request.POST)
         commentaireForm = CommentaireForm(data=request.POST)
         evaluationForm = EvaluationForm(data=request.POST, instance=dossier)
 
-        if notable and noteForm.is_valid():
-            noteForm.save()
+        if notes_formset.is_valid():
+            notes_formset.save()
             messages.success(request, "Les notes ont été enregistrées.")
 
-        if notable and noteForm.is_valid() and commentaireForm.is_valid():
+        if notes_formset.is_valid() and commentaireForm.is_valid():
             commentaire = commentaireForm.save(commit=False)
             commentaire.user = request.user
             commentaire.dossier = dossier
@@ -57,26 +50,22 @@ def evaluer(request, dossier_id):
             dossier.save()
             messages.success(request, "Le commentaire a été ajouté.")
 
-        if  notable and noteForm.is_valid() and evaluationForm.is_valid():
+        if notes_formset.is_valid() and evaluationForm.is_valid():
             evaluationForm.save()
             messages.success(request, "Les évaluations ont été enregistrées.")
 
-        if notable and noteForm.is_valid():
+        if notes_formset.is_valid():
             return redirect(reverse('evaluer', args=[dossier.id]))
     else:
-        if notable:
-            noteForm = NoteForm(instance=note)
+        notes_formset = NoteFormSet(instance=dossier)
         commentaireForm = CommentaireForm()
         evaluationForm = EvaluationForm(instance=dossier)
     
-    if not notable:
-        noteForm = None
-
     return render_to_response("admin/candidatures/evaluer.html", {
         'dossier': dossier,
         'NOTE_MIN': NOTE_MIN,
         'NOTE_MAX': NOTE_MAX,
-        'noteForm': noteForm,
+        'notes_formset': notes_formset,
         'commentaireForm': commentaireForm,
         'evaluationForm': evaluationForm,
     }, context_instance=RequestContext(request))
