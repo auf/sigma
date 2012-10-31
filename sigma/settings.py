@@ -53,6 +53,11 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': False,
         },
+        'dynamo': {
+            'level': 'INFO',
+            'handlers': ['console'],
+            'propagate': False,
+        },
     },
 }
 
@@ -112,6 +117,7 @@ INSTALLED_APPS = (
     'sigma.boursiers',
     'sigma.candidatures',
     'sigma.wcs',
+    'sigma.dynamo',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

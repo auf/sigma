@@ -23,7 +23,7 @@ from sendfile import sendfile
 from sigma.candidatures.models import \
         Conformite, Appel, DossierOrigine, DossierAccueil, DossierMobilite, \
         Candidat, Dossier, Expert, Piece, AttributWCS, Diplome, \
-        TypeConformite, TypeBourse
+        TypeConformite, TypeBourse, TypePiece
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
@@ -273,16 +273,16 @@ class TypeConformiteAdmin(ModelAdmin):
 
 
 class AppelAdmin(GuardedModelAdmin):
-    list_display = ('type_bourse',
-            'nom',
+    list_display = ('_nom',
             'region_code',
             'annee',
+            'type_bourse',
             'code_budgetaire',
             'date_debut_appel',
             'date_fin_appel',
             '_actions',
     )
-    list_filter = (RegionFilter, 'type_bourse', 'annee', )
+    list_filter = (RegionFilter, 'annee', 'type_bourse', )
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = ((None, {
         'fields': (
@@ -318,6 +318,10 @@ class AppelAdmin(GuardedModelAdmin):
                 )
     _actions.allow_tags = True
     _actions.short_description = u''
+
+    def _nom(self, obj):
+        return obj.__unicode__()
+    _nom.short_description = u'Nom'
 
     def region_code(self, obj):
         return obj.region.code
@@ -696,6 +700,7 @@ admin.site.register(Appel, AppelAdmin)
 admin.site.register(Dossier, DossierAdmin)
 admin.site.register(Expert, ExpertAdmin)
 admin.site.register(TypeConformite, TypeConformiteAdmin)
+admin.site.register(TypePiece)
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)

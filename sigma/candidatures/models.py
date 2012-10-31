@@ -163,39 +163,39 @@ class Appel(MetaModel, models.Model):
         u"Barème", max_length=32, choices=BAREME, blank=True
     )
     montant_mensuel_origine_sud = models.IntegerField(
-        u"Montant mensuel pays origine Sud", default=0,
+        u"Montant mensuel pays origine Sud", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     montant_mensuel_origine_nord = models.IntegerField(
-        u"Montant mensuel pays origine Nord", default=0,
+        u"Montant mensuel pays origine Nord", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     montant_mensuel_accueil_sud = models.IntegerField(
-        u"Montant mensuel pays accueil Sud", default=0,
+        u"Montant mensuel pays accueil Sud", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     montant_mensuel_accueil_nord = models.IntegerField(
-        u"Montant mensuel pays accueil Nord", default=0,
+        u"Montant mensuel pays accueil Nord", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     prime_installation_sud = models.IntegerField(
-        u"Prime d'installation (pays du Sud)", default=0,
+        u"Prime d'installation (pays du Sud)", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     prime_installation_nord = models.IntegerField(
-        u"Prime d'installation (pays du Nord)", default=0,
+        u"Prime d'installation (pays du Nord)", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     montant_perdiem_sud = models.IntegerField(
-        u"Montant jour (perdiem) pays Sud ", default=0,
+        u"Montant jour (perdiem) pays Sud ", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     montant_perdiem_nord = models.IntegerField(
-        u"Montant jour (perdiem) pays Nord", default=0,
+        u"Montant jour (perdiem) pays Nord", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     montant_allocation_unique = models.IntegerField(
-        u"Montant allocation unique", default=0,
+        u"Montant allocation unique", 
         help_text=u"Indiquer 0 dans les champs non-pertinents",
     )
     conformites = models.ManyToManyField(
@@ -336,7 +336,7 @@ class DossierQuerySet(models.query.QuerySet):
 class DossierManager(models.Manager):
 
     def get_query_set(self):
-        fkeys = ('appel', 'origine', 'accueil', )
+        fkeys = ('appel', 'origine', 'accueil', 'candidat', )
         return DossierQuerySet(Dossier).select_related(*fkeys).all()
 
 
@@ -442,19 +442,10 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
             else:
                 self.moyenne_votes = 0
 
-    def __init__(self, *args, **kwargs):
+    def prepopuler_notes(self, *args, **kwargs):
         """
         A l'instanciation, on synchronise les meta pour optimisation
         """
-        super(Dossier, self).__init__(*args, **kwargs)
-
-        try:
-            if self.discipline != self.mobilite.discipline:
-                self.discipline = self.mobilite.discipline
-                self.save()
-        except:
-            pass
-
         # Prépouplation des objets notes selon les experts sélectionnés
         if self.id is not None:
 
