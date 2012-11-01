@@ -74,7 +74,7 @@ DOSSIER_ACTIONS = {
         },
     DOSSIER_ETAT_REJETE: {
         'nom': DOSSIER_ETATS[DOSSIER_ETAT_REJETE],
-        'etat_initial': (DOSSIER_ETAT_RECEVABLE, ),
+        'etat_initial': (DOSSIER_ETAT_RECEVABLE, DOSSIER_ETAT_ATTENTE, ),
         'etat_final': DOSSIER_ETAT_REJETE,
         },
     DOSSIER_ETAT_RETENU: {
