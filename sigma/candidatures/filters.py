@@ -41,11 +41,8 @@ class AppelFilter(admin.SimpleListFilter):
         region_ids = get_rules().filter_queryset(
             request.user, 'manage', ref.Region.objects.all()
         ).values_list('id', flat=True)
-        return [
-            (unicode(a), b)
-            for (a, b) in Appel.objects.filter(region__in=region_ids)
-            .values_list('id', 'nom')
-        ]
+        return [(a.id, unicode(a)) for a in \
+                Appel.objects.filter(region__in=region_ids) ]
 
     def queryset(self, request, queryset):
         if self.value():
