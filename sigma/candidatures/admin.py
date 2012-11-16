@@ -349,6 +349,13 @@ affecter_dossiers_expert.short_description = \
 
 
 class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
+    """
+    Attention : L'ordre des champs et leur nombre est important, car il est
+    utilisé pour organisé les champs dans le formulaire.
+    """
+    add_form_template = "admin/candidatures/dossier/change_form.html"
+    change_form_template = "admin/candidatures/dossier/change_form.html"
+
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline,
                DossierAccueilInline, DossierMobiliteInline,
                DossierConformiteAdmin)
@@ -383,7 +390,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
             (None, {'fields': ('appel',) },
             ),
         ('État du dossier', {
-            'fields': ('etat', 'experts'),
+            'fields': ('experts', 'etat', ),
         }),
         ('Situation universitaire', {
             'fields': ('candidat_statut', 'candidat_fonction', ),

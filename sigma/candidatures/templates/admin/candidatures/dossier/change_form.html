@@ -1,4 +1,4 @@
-{% extends "admin/change_form.html" %}
+{% extends "admin/custom_change_form.html" %}
 {% load i18n admin_modify adminmedia %}
 
 {% block content %}<div id="content-main">
@@ -23,15 +23,64 @@
     {{ adminform.form.non_field_errors }}
 {% endif %}
 
-{% comment %}Candidats{% endcomment %}{% with inline_admin_formsets.0 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
-{% comment %}Situation universitaire{% endcomment %}{% for fieldset in adminform %}{% if forloop.counter == 2 %}{% include "admin/includes/fieldset.html" %}{% endif %}{% endfor %}
-{% comment %}Diplômes{% endcomment %}{% with inline_admin_formsets.1 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
-{% comment %}Origine{% endcomment %}{% with inline_admin_formsets.2 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
-{% comment %}Accueil{% endcomment %}{% with inline_admin_formsets.3 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
-{% comment %}Mobilité{% endcomment %}{% with inline_admin_formsets.4 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
-{% comment %}Lien avec l'AUF{% endcomment %}{% for fieldset in adminform %}{% if forloop.counter == 3 %}{% include "admin/includes/fieldset.html" %}{% endif %}{% endfor %}
-{% comment %}Conformité{% endcomment %}{% with inline_admin_formsets.5 as inline_admin_formset %}{% include inline_admin_formset.opts.template %}{% endwith %}
-{% comment %}État du dossier{% endcomment %}{% for fieldset in adminform %}{% if forloop.counter == 1 %}{% include "admin/includes/fieldset.html" %}{% endif %}{% endfor %}
+{% comment %}État du dossier{% endcomment %}
+{% for fieldset in adminform %}
+    {% if forloop.counter == 1 %}
+        {% include "admin/includes/fieldset.html" %}
+    {% endif %}
+{% endfor %}
+
+
+{% comment %}Candidats{% endcomment %}
+{% with inline_admin_formsets.0 as inline_admin_formset %}
+    {% include inline_admin_formset.opts.template %}
+{% endwith %}
+
+{% comment %}Situation universitaire{% endcomment %}
+{% for fieldset in adminform %}
+    {% if forloop.counter == 3 %}
+        {% include "admin/includes/fieldset.html" %}
+    {% endif %}
+{% endfor %}
+
+{% comment %}Diplômes{% endcomment %}
+{% with inline_admin_formsets.1 as inline_admin_formset %}
+    {% include inline_admin_formset.opts.template %}
+{% endwith %}
+
+{% comment %}Origine{% endcomment %}
+{% with inline_admin_formsets.2 as inline_admin_formset %}
+    {% include inline_admin_formset.opts.template %}
+{% endwith %}
+
+{% comment %}Accueil{% endcomment %}
+{% with inline_admin_formsets.3 as inline_admin_formset %}
+    {% include inline_admin_formset.opts.template %}
+{% endwith %}
+
+{% comment %}Mobilité{% endcomment %}
+{% with inline_admin_formsets.4 as inline_admin_formset %}
+    {% include inline_admin_formset.opts.template %}
+{% endwith %}
+
+{% comment %}Lien avec l'AUF{% endcomment %}
+{% for fieldset in adminform %}
+    {% if forloop.counter == 4 %}
+        {% include "admin/includes/fieldset.html" %}
+    {% endif %}
+{% endfor %}
+
+{% comment %}Conformité{% endcomment %}
+{% with inline_admin_formsets.5 as inline_admin_formset %}
+    {% include inline_admin_formset.opts.template %}
+{% endwith %}
+
+{% comment %}État du dossier{% endcomment %}
+{% for fieldset in adminform %}
+    {% if forloop.counter == 2 %}
+        {% include "admin/includes/fieldset.html" %}
+    {% endif %}
+{% endfor %}
 
 {% submit_row %}
 
