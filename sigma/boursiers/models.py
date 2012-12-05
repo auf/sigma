@@ -2,11 +2,14 @@
 
 from django.db import models
 from django.db.models.signals import post_save
+from django.conf import settings
 
 import auf.django.references.models as ref
 
 from sigma.candidatures.models import Dossier
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
+
+ENABLE_FILTERED_QUERYSETS = getattr(settings, 'ENABLE_FILTERED_QUERYSETS', True)
 
 
 class BoursierManager(models.Manager):
@@ -16,16 +19,20 @@ class BoursierManager(models.Manager):
        pas qu'ils sont boursiers."""
 
     def get_query_set(self):
-        qs = super(BoursierManager, self).get_query_set()
-        return qs.filter(dossier__etat=DOSSIER_ETAT_RETENU)
+        base_qs = super(BoursierManager, self).get_query_set()
+        if not ENABLE_FILTERED_QUERYSETS:
+            return base_qs
+        return base_qs.filter(dossier__etat=DOSSIER_ETAT_RETENU)
 
 
 class BoursierInactifManager(models.Manager):
     """Manager pour les boursiers inactifs."""
 
     def get_query_set(self):
-        qs = super(BoursierInactifManager, self).get_query_set()
-        return qs.exclude(dossier__etat=DOSSIER_ETAT_RETENU)
+        base_qs = super(BoursierInactifManager, self).get_query_set()
+        if not ENABLE_FILTERED_QUERYSET:
+            return base_qs
+        return base_qs.exclude(dossier__etat=DOSSIER_ETAT_RETENU)
 
 
 class Boursier(models.Model):

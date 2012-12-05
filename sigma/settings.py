@@ -113,6 +113,7 @@ INSTALLED_APPS = (
     'form_utils',
     'south',
     'raven.contrib.django',
+    'sigma.management',
     'sigma.core',
     'sigma.boursiers',
     'sigma.candidatures',

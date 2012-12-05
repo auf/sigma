@@ -3,7 +3,6 @@
 from auf.django.references import models as ref
 from django.test import TestCase
 from django.contrib.auth.models import User
-
 from sigma.candidatures import models as candidatures
 
 
@@ -16,15 +15,23 @@ class AnonymousTestCase(TestCase):
 
 
 class SuperuserTestCase(TestCase):
-
     def setUp(self):
         region = ref.Region.objects.create(code='MO', nom='Moyen-Orient')
         appel = candidatures.Appel.objects.create(
-            id=1, nom='Appel test', region=region
+            id=1,
+            nom='Appel test',
+            region=region,
+            annee=2012,
         )
-        candidatures.Dossier.objects.create(
-            id=1, nom='Test', prenom='Bob', appel=appel
+        dossier = candidatures.Dossier.objects.create(
+            id=1,
+            appel=appel
         )
+        candidat = candidatures.Candidat(
+            dossier=dossier,
+            nom='Jiang',
+            prenom='Qing',
+            )
         User.objects.create_user('superman', password='superman')
         self.client.login(username='superman', password='superman')
 
