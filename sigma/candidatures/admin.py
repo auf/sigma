@@ -388,8 +388,14 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                DossierAccueilInline, DossierMobiliteInline,
                DossierConformiteAdmin)
     list_display = (
-        'nom', 'prenom', 'naissance_date', 'etat', 'moyenne_votes',
-        'a_verifier', 'action_column'
+        'nom',
+        'prenom',
+        '_age',
+        'naissance_date',
+        'etat',
+        'moyenne_votes',
+        'a_verifier',
+        'action_column'
     )
     list_display_links = ('nom', 'prenom')
     list_editable = ('a_verifier', )
@@ -443,6 +449,10 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                 ):
             return True
         return super(DossierAdmin, self).lookup_allowed(key, value)
+
+    def _age(self, obj):
+        return obj.candidat.age()
+    _age.short_description = u'Âge'
 
     def _naissance_date(self, obj):
         return obj.candidat.naissance_date

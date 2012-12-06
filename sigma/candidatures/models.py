@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 import re
+import datetime
 
 from auf.django.references import models as ref
 from django.core.exceptions import ValidationError
@@ -302,6 +303,22 @@ class Candidat(models.Model):
     courriel = models.EmailField(
         max_length=255, verbose_name=u"Adresse électronique", blank=True
     )
+
+    def age(self):
+        if not self.naissance_date:
+            return None
+        today = datetime.date.today()
+        try:
+            birthday = self.naissance_date.replace(
+                year=today.year)
+        except ValueError:
+            birthday = self.naissance_date.replace(
+                year=today.year,
+                day=self.naissance_date.day-1)
+        if birthday > today:
+            return today.year - self.naissance_date.year - 1
+        else:
+            return today.year - self.naissance_date.year
 
     def __unicode__(self):
         return u"%s %s" % (self.nom.upper(), self.prenom)
