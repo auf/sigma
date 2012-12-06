@@ -9,6 +9,7 @@ from auf.django.workflow.admin import WorkflowAdmin
 from django import forms
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url
+from django.contrib import messages
 from django.contrib import admin
 from django.contrib.auth.admin import \
         UserAdmin as DjangoUserAdmin, GroupAdmin as DjangoGroupAdmin
@@ -272,16 +273,43 @@ class TypeConformiteAdmin(ModelAdmin):
     form = TypeConformiteForm
 
 
+def faire_copie(modeladmin, request, queryset):
+    """
+    Action pour copier une entrée "Appel"
+    """
+
+    copies = []
+    for item in queryset:
+        name = item.__unicode__()
+        pieces_attendues = item.pieces_attendues.all()
+        conformites = item.conformites.all()
+        item.id = None
+        item.save()
+        item.conformites.add(*conformites)
+        item.pieces_attendues.add(*pieces_attendues)
+        copies.append(name)
+
+    messages.success(
+        request,
+        u'Les appels suivants ont été copiés: %s' % ', '.join(copies))
+
+faire_copie.short_description = u'Faire une copie'
+
+
 class AppelAdmin(GuardedModelAdmin):
-    list_display = ('_nom',
-            'region_code',
-            'annee',
-            'type_bourse',
-            'code_budgetaire',
-            'date_debut_appel',
-            'date_fin_appel',
-            '_actions',
+    list_display = (
+        '_nom',
+        'id',
+        'region_code',
+        'annee',
+        'type_bourse',
+        'code_budgetaire',
+
+        'date_debut_appel',
+        'date_fin_appel',
+        '_actions',
     )
+    actions = [faire_copie]
     list_filter = (RegionFilter, 'annee', 'type_bourse', )
     search_fields = ('nom', 'code_budgetaire')
     fieldsets = ((None, {
