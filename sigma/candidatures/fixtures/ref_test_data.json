@@ -1,0 +1,115 @@
+[
+  {
+    "pk": 1,
+    "model": "references.pays",
+    "fields": {
+      "nom": "Canada",
+      "code": "CA",
+      "region": 1,
+      "nord_sud": "Nord",
+      "monnaie": null,
+      "developpement": "Faible",
+      "code_bureau": "BACGL",
+      "actif": true,
+      "code_iso3": "CAN"
+    }
+  },
+  {
+    "pk": "ACGL",
+    "model": "references.zoneadministrative",
+    "fields": {
+      "nom": "Afrique centrale et des Grands-Lacs",
+      "actif": true
+    }
+  },
+  {
+    "pk": 1,
+    "model": "references.region",
+    "fields": {
+      "nom": "Afrique centrale et des Grands-Lacs",
+      "implantation_bureau": 1,
+      "code": "ACGL",
+      "actif": true
+    }
+  },
+  {
+    "pk": 1,
+    "model": "references.implantation",
+    "fields": {
+      "adresse_postale_precision": "",
+      "date_inauguration": "2011-03-23",
+      "date_extension": null,
+      "date_ouverture": "2011-02-01",
+      "adresse_postale_bureau": "",
+      "adresse_physique_precision": "",
+      "code_meteo": "",
+      "adresse_postale_region": "",
+      "nom_long": "Antenne Afrique",
+      "adresse_physique_region": "",
+      "adresse_physique_pays": "CA",
+      "adresse_postale_rue": "Rue Principale",
+      "hebergement_convention": true,
+      "remarque": "",
+      "modif_date": "2012-10-02",
+      "adresse_postale_code_postal": "H2T1N1",
+      "fax_interne": "",
+      "adresse_physique_rue": "Rue Principale",
+      "adresse_postale_pays": "CA",
+      "bureau_rattachement": 1,
+      "adresse_physique_code_postal_avant_ville": true,
+      "hebergement_convention_date": "2010-11-25",
+      "actif": true,
+      "adresse_physique_precision_avant": "",
+      "nom": "Antenne Afrique",
+      "fax": "",
+      "adresse_postale_ville": "Grande-Ville",
+      "statut": 1,
+      "adresse_postale_code_postal_avant_ville": true,
+      "hebergement_etablissement": "10 Test",
+      "telephone_interne": "+01 514 555 5555",
+      "date_fermeture": null,
+      "telephone": "+01 514 555 5555",
+      "adresse_postale_boite_postale": "",
+      "adresse_postale_precision_avant": "Test test",
+      "adresse_physique_code_postal": "H2T1N1",
+      "responsable_implantation": 1,
+      "adresse_physique_ville": "Grande-Ville",
+      "nom_court": "A Grande Ville",
+      "commentaire": "",
+      "adresse_physique_no": "400",
+      "adresse_postale_no": "400",
+      "type": "Antenne",
+      "region": 1,
+      "fuseau_horaire": "",
+      "url": "http://www.google.com/",
+      "courriel_interne": "user@localhost",
+      "adresse_physique_bureau": "",
+      "courriel": "user@localhost",
+      "zone_administrative": "ACGL"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "references.bureau",
+    "fields": {
+      "nom": "Bureau Afrique centrale et des Grands-Lacs",
+      "code": "BACGL",
+      "implantation": 1,
+      "region": 1,
+      "nom_long": "Bureau Afrique centrale et des Grands-Lacs",
+      "nom_court": "Afrique centrale et des Grands-Lacs",
+      "actif": true
+    }
+  },
+  {
+    "pk": 1,
+    "model": "references.discipline",
+    "fields": {
+      "nom": "Administration publique",
+      "nom_court": "",
+      "code": "D100",
+      "actif": true,
+      "nom_long": ""
+    }
+  }
+]

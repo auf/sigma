@@ -35,6 +35,7 @@ from sigma.custom_admin import ModelAdmin, GuardedModelAdmin
 
 # Forms
 
+
 class DossierMobiliteForm(forms.ModelForm):
 
     class Meta:
@@ -175,7 +176,45 @@ class DossierMobiliteInline(admin.StackedInline):
     can_delete = False
     verbose_name = verbose_name_plural = "Mobilité"
 
+    readonly_fields = (
+        'duree_origine',
+        'duree_accueil',
+        'duree_totale',
+        )
+
+    def duree_any(self, inst, suffix):
+        duree = getattr(inst, 'duree_%s' % suffix)
+        res = u'%s mois (%s jours)' % (
+            duree.mois,
+            duree.jours,
+            )
+        if duree.jours:
+            res += u' du %s au %s' % (
+                duree.debut,
+                duree.fin
+                )
+        return res
+
+    def duree_origine(self, inst):
+        return self.duree_any(inst, 'origine')
+    duree_origine.short_description = u'Durée à l\'origine'
+
+    def duree_accueil(self, inst):
+        return self.duree_any(inst, 'accueil')
+    duree_accueil.short_description = u'Durée à l\'accueil'
+
+    def duree_totale(self, inst):
+        return self.duree_any(inst, 'totale')
+    duree_totale.short_description = u'Durée totale'
+
     fieldsets = (
+        ("Apperçu de la mobilité", {
+                'fields': (
+                    'duree_origine',
+                    'duree_accueil',
+                    'duree_totale',
+                    ),
+        }),
         ("Période de mobilité à l'origine", {
             'fields': (('date_debut_origine', 'date_fin_origine'),)
         }),
@@ -223,10 +262,23 @@ class DossierCandidatInline(admin.StackedInline):
     can_delete = False
     template = "admin/candidatures/edit_inline/single-stack.html"
 
+    def _age(self, obj):
+        return obj.age()
+    _age.short_description = u'Âge'
+
+    readonly_fields = (
+        '_age',
+        )
+
     fieldsets = (
         (None, {
-            'fields': ('civilite', ('nom', 'prenom'), 'nom_jeune_fille',
-                       'nationalite', 'naissance_date',)
+            'fields': (
+                    'civilite', ('nom', 'prenom'),
+                    'nom_jeune_fille',
+                    'nationalite',
+                    'naissance_date',
+                    '_age',
+                    )
         }),
         ('Coordonnées', {
             'fields': (

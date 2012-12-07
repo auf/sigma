@@ -34,3 +34,6 @@ django.wsgi
 /uploads
 /sitestatic
 /project/wcs/_cache
+
+# Virtualenv
+env/

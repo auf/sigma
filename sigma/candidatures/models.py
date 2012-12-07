@@ -2,6 +2,7 @@
 
 import re
 import datetime
+import calendar
 
 from auf.django.references import models as ref
 from django.core.exceptions import ValidationError
@@ -668,6 +669,68 @@ class DossierAccueil(DossierFaculte):
 class DossierMobilite(models.Model):
     """Informations sur la mobilité demandée par le candidat.
     """
+    class Periode(object):
+        def __init__(self, debut, fin, mois=None):
+            self.debut = debut
+            self.fin = fin
+            self.mois = mois or self.calc_mois()
+
+        def days_in_month(self, date):
+            # Retourne le nombre de jours dans un mois.
+            return calendar.monthrange(
+                date.year,
+                date.month,
+                )[1]
+
+        def calc_mois(self):
+            if not self.debut or not self.fin:
+                return 0
+
+            calc_debut = datetime.date(
+                self.debut.year,
+                self.debut.month,
+                1,
+                )
+
+            calc_fin = datetime.date(
+                self.fin.year,
+                self.fin.month,
+                1,
+                )
+
+            if self.debut.day > 20:
+                calc_debut += datetime.timedelta(
+                    days=self.days_in_month(calc_debut)
+                    )
+
+            if (self.fin.day < 20 and
+                calc_fin - datetime.timedelta(1) >= calc_debut):
+                calc_fin -= datetime.timedelta(1)
+
+            # + 1 parce que inclusif
+            return (((calc_fin.year - calc_debut.year) * 12)
+                    + calc_fin.month
+                    - (calc_debut.month)
+                    + 1
+                    )
+
+        @property
+        def jours(self):
+            # +1 parce que c'est inclusif.
+            if not self.fin or not self.debut:
+                return 0
+            return (self.fin - self.debut).days + 1
+
+        def __add__(self, periode):
+            return DossierMobilite.Periode(
+                self.debut or periode.debut or None,
+                (
+                    self.fin + datetime.timedelta(days=periode.jours)
+                    if self.debut else periode.fin or None
+                 ),
+                mois=self.mois + periode.mois,
+                )
+
     TYPE_THESE_CHOICES = (
         ('CT', "Co-tutelle"),
         ('CD', "Co-direction"),
@@ -780,6 +843,24 @@ class DossierMobilite(models.Model):
             )
         periodes.sort(key=lambda x: x[1])
         return periodes
+
+    @property
+    def duree_origine(self):
+        return self.Periode(
+            self.date_debut_origine,
+            self.date_fin_origine,
+            )
+
+    @property
+    def duree_accueil(self):
+        return self.Periode(
+            self.date_debut_accueil,
+            self.date_fin_accueil,
+            )
+
+    @property
+    def duree_totale(self):
+        return self.duree_origine + self.duree_accueil
 
 
 class Diplome(models.Model):
