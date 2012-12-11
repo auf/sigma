@@ -16,6 +16,8 @@ from django.contrib.auth.admin import \
 from django.contrib.auth.forms import UserChangeForm as DjangoUserForm
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.forms.widgets import RadioSelect
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext, defaultfilters
@@ -40,6 +42,9 @@ class DossierMobiliteForm(forms.ModelForm):
 
     class Meta:
         model = DossierMobilite
+        widgets = {
+            'cofinancement': forms.RadioSelect
+        }
 
     def clean_date_fin_origine(self):
         date_debut = self.cleaned_data.get('date_debut_origine')
@@ -244,6 +249,9 @@ class DossierMobiliteInline(admin.StackedInline):
         ('Programme de mission', {
             'fields': ('type_intervention', 'public_vise', 'autres_publics')
         }),
+        ('Co-financement', {
+            'fields': ('cofinancement', 'cofinancement_source', 'cofinancement_montant')
+        }),
     )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
@@ -427,12 +435,20 @@ def affecter_dossiers_expert(modeladmin, request, queryset):
 affecter_dossiers_expert.short_description = \
         'Assigner expert(s) au(x) dossier(s)'
 
+class DossierAdminForm(forms.ModelForm):
+    class Meta:
+        model = Dossier
+        widgets = {
+            'dernier_projet_toggle': forms.RadioSelect,
+            'derniere_bourse_toggle': forms.RadioSelect
+        }
 
 class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     """
     Attention : L'ordre des champs et leur nombre est important, car il est
     utilisé pour organisé les champs dans le formulaire.
     """
+    form = DossierAdminForm
     add_form_template = "admin/candidatures/dossier/change_form.html"
     change_form_template = "admin/candidatures/dossier/change_form.html"
 
@@ -482,7 +498,9 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
             'fields': ('candidat_statut', 'candidat_fonction', ),
         }),
         ('Lien avec l\'AUF', {
-            'fields': ('dernier_projet_description', 'dernier_projet_annee',
+            'fields': ('dernier_projet_toggle',
+                       'dernier_projet_description', 'dernier_projet_annee',
+                       'derniere_bourse_toggle',
                        'derniere_bourse_categorie',
                        'derniere_bourse_annee',),
         }),

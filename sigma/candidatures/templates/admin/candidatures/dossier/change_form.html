@@ -48,6 +48,13 @@
     {% include inline_admin_formset.opts.template %}
 {% endwith %}
 
+{% comment %}Lien avec l'AUF{% endcomment %}
+{% for fieldset in adminform %}
+    {% if forloop.counter == 4 %}
+        {% include "admin/includes/fieldset.html" %}
+    {% endif %}
+{% endfor %}
+
 {% comment %}Origine{% endcomment %}
 {% with inline_admin_formsets.2 as inline_admin_formset %}
     {% include inline_admin_formset.opts.template %}
@@ -63,12 +70,6 @@
     {% include inline_admin_formset.opts.template %}
 {% endwith %}
 
-{% comment %}Lien avec l'AUF{% endcomment %}
-{% for fieldset in adminform %}
-    {% if forloop.counter == 4 %}
-        {% include "admin/includes/fieldset.html" %}
-    {% endif %}
-{% endfor %}
 
 {% comment %}Conformité{% endcomment %}
 {% with inline_admin_formsets.5 as inline_admin_formset %}
