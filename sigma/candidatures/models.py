@@ -40,6 +40,11 @@ BAREME = (
     ('allocation', "Allocation unique"),
 )
 
+BOOLEAN_RADIO_OPTIONS = (
+    (1, 'Oui'),
+    (0, 'Non')
+)
+
 NOTE_MIN = 1
 NOTE_MAX = 20
 
@@ -308,10 +313,10 @@ class Appel(MetaModel, models.Model):
 
     def __unicode__(self):
         if self.nom != u"":
-            return self.nom
+            return u"%s %s" % (self.nom, self.code_budgetaire)
         else:
-            return u"%s %s %s" % (self.type_bourse, self.annee,
-                    self.region.nom)
+            return u"%s %s %s %s" % (self.type_bourse, self.annee,
+                    self.region.nom, self.code_budgetaire)
 
     def clean(self):
         if not self.nom and self.type_bourse is None:
@@ -372,7 +377,7 @@ class Candidat(models.Model):
         max_length=255, verbose_name=u"Ville", blank=True
     )
     region = models.CharField(
-        max_length=255, verbose_name=u"Région", blank=True
+        max_length=255, verbose_name=u"Région / Province / État", blank=True
     )
     code_postal = models.CharField(
         max_length=255, verbose_name=u"Code postal", blank=True
@@ -462,6 +467,18 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         ('5', 'Post-doc'),
     )
 
+    DERNIERE_MOBILITE_TYPE = (
+        ('stage_professionel', 'Stage professionnel (SP)'),
+        ('mission', 'Mission d\'appui et d\'enseignement (ME)'),
+        ('doctorat', 'Doctorat (Formation à la Recherche - FR)'),
+        ('contribution', 'Contribution à manifestation scientifique (BX)'),
+        ('master', 'Master/Maitrise (Formation Initiale - FX)'),
+        ('perfectionnement_formation', 'Perfectionnement en formation (PF)'),
+        ('perfectionnement_recherche', 'Perfectionnement en recherche (hors post-doc) (PR)'),
+        ('post_doctorat', 'Post-doctorat (PP)'),
+        ('stage_culturel', 'Stage culturel (SC)')
+    )
+
     a_verifier = models.BooleanField(verbose_name=u"À vérifier", default=False)
 
     appel = models.ForeignKey(
@@ -474,7 +491,8 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         choices=CANDIDAT_STATUT_CHOICES, blank=True
     )
     candidat_fonction = models.CharField(
-        max_length=255, verbose_name=u"Fonction", blank=True
+        max_length=255, verbose_name=u"Fonction", blank=True,
+        help_text="ignorer si candidat est étudiant"
     )
 
     # Utilisé lors des appels internationaux pour définir le bureau (région)
@@ -487,20 +505,33 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     )
 
     # Tentative pour récupérer de l'information passée
-    dernier_projet_description = models.TextField(
-        verbose_name=u"Description du dernier projet ou programme",
-        blank=True
-    )
-    dernier_projet_annee = models.CharField(
-        max_length=4, verbose_name=u"Année du dernier projet ou programme",
-        blank=True
+
+    derniere_bourse_toggle = models.BooleanField(
+        verbose_name=u"Avez-vous déjà bénéficié d'une mobilité de l'AUF ?",
+        choices=BOOLEAN_RADIO_OPTIONS,
+        default=0
     )
     derniere_bourse_categorie = models.CharField(
-        max_length=100, verbose_name=u"Catégorie de la dernière bourse",
+        max_length=100, verbose_name=u"Si oui, précisez le type",
+        choices=DERNIERE_MOBILITE_TYPE,
         blank=True
     )
     derniere_bourse_annee = models.CharField(
-        max_length=4, verbose_name=u"Année de la dernière bourse",
+        max_length=4, verbose_name=u"Précisez l'année",
+        blank=True
+    )
+
+    dernier_projet_toggle = models.BooleanField(
+        verbose_name=u"Avez-vous déjà bénéficié d'un autre programme de l'AUF ?",
+        choices=BOOLEAN_RADIO_OPTIONS,
+        default=0
+    )
+    dernier_projet_description = models.TextField(
+        verbose_name=u"Si oui, précisez lequel",
+        blank=True
+    )
+    dernier_projet_annee = models.CharField(
+        max_length=4, verbose_name=u"Précisez l'année",
         blank=True
     )
 
@@ -626,7 +657,7 @@ class DossierFaculte(models.Model):
         max_length=255, verbose_name=u"Ville", blank=True
     )
     autre_etablissement_region = models.CharField(
-        max_length=255, verbose_name=u"Région", blank=True
+        max_length=255, verbose_name=u"Région / Province / État", blank=True
     )
 
     # responsable scientifique (Accord scientifique)
@@ -820,6 +851,12 @@ class DossierMobilite(models.Model):
         ('CD', "Co-direction"),
         ('AU', "Autre"),
     )
+    NIVEAU_DETUDES_CHOICES = (
+        ('licence', 'Licence'),
+        ('master1', 'Master 1'),
+        ('master2', 'Master 2'),
+        ('doctorat', 'Doctorat')
+    )
 
     dossier = models.OneToOneField(
         Dossier, verbose_name=u"Dossier", related_name="mobilite"
@@ -861,7 +898,8 @@ class DossierMobilite(models.Model):
         max_length=255, verbose_name=u"Intitulé du diplôme", blank=True
     )
     formation_en_cours_niveau = models.CharField(
-        max_length=100, verbose_name=u"Niveau d'études", blank=True
+        max_length=100, verbose_name=u"Niveau d'études", blank=True,
+        choices=NIVEAU_DETUDES_CHOICES
     )
 
     # Diplôme demandé
@@ -869,7 +907,8 @@ class DossierMobilite(models.Model):
         max_length=255, verbose_name=u"Diplôme demandé", blank=True
     )
     diplome_demande_niveau = models.CharField(
-        max_length=100, verbose_name=u"Niveau d'études", blank=True
+        max_length=100, verbose_name=u"Niveau d'études", blank=True,
+        choices=NIVEAU_DETUDES_CHOICES
     )
 
     # Thèse
@@ -901,6 +940,25 @@ class DossierMobilite(models.Model):
     )
     autres_publics = models.CharField(
         u"Autres publics", max_length=255, blank=True
+    )
+
+    # Co-financement
+
+    cofinancement = models.BooleanField(
+        verbose_name=u"Votre mobilité sera-t-elle partiellement financée par un autre organisme ?",
+        choices=BOOLEAN_RADIO_OPTIONS,
+        default=0
+    )
+    cofinancement_source = models.TextField(
+        verbose_name=u"Source du cofinancement",
+        blank=True,
+        null=True
+    )
+    cofinancement_montant = models.DecimalField(
+        max_digits=17, decimal_places=2,
+        verbose_name=u"Montant du cofinancement",
+        blank=True,
+        null=True
     )
 
     def save(self, *args, **kwargs):
