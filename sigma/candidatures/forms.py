@@ -105,6 +105,8 @@ class ExpertChoiceField(forms.ModelMultipleChoiceField):
 
 
 class ExpertForm(forms.Form):
+    filter_horizontal = ['experts']
+
     def __init__(self, *args, **kwargs):
         self.dossiers = kwargs.pop('dossiers')
         req = kwargs.pop('request', None)
@@ -127,6 +129,13 @@ class ExpertForm(forms.Form):
                     get_rules().filter_queryset(
                         req.user, 'assign', Expert.objects.all()
                         )))
+            self.fields['experts'].widget = (
+                admin.widgets.FilteredSelectMultiple(
+                'Experts',
+                True,
+                choices=self.fields['experts'].choices,
+                ))
+
 
     def clean_experts(self):
         etabs = Etablissement.objects.filter(

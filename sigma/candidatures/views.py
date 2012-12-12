@@ -76,15 +76,17 @@ def evaluer(request, dossier_id):
         commentaireForm = CommentaireForm()
         evaluationForm = EvaluationForm(instance=dossier)
 
-    return render_to_response("admin/candidatures/evaluer.html", {
-        'dossier': dossier,
-        'NOTE_MIN': NOTE_MIN,
-        'NOTE_MAX': NOTE_MAX,
-        'expert_form': expert_form,
-        'notes_formset': notes_formset,
-        'commentaireForm': commentaireForm,
-        'evaluationForm': evaluationForm,
-    }, context_instance=RequestContext(request))
+    return render_to_response(
+        "admin/candidatures/evaluer.html", {
+            'dossier': dossier,
+            'NOTE_MIN': NOTE_MIN,
+            'NOTE_MAX': NOTE_MAX,
+            'expert_form': expert_form,
+            'notes_formset': notes_formset,
+            'commentaireForm': commentaireForm,
+            'evaluationForm': evaluationForm,
+            },
+        context_instance=RequestContext(request))
 
 
 @login_required
