@@ -44,7 +44,91 @@ NOTE_MIN = 1
 NOTE_MAX = 20
 
 
+# Sql query to find experts and match discipline
+EXP_TPL = """SELECT
+  *,
+  SUM(DMATCH) AS DMATCH_S
+  FROM (
+    SELECT
+      *,
+      (
+        CASE WHEN ced.discipline_id IN (
+        -- Dossiers for which you're looking for experts.
+          SELECT discipline_id FROM candidatures_dossiermobilite
+          WHERE dossier_id IN (%(dossiers)s)
+        )
+        THEN 1
+        ELSE 0
+        END
+      ) as DMATCH
+    FROM candidatures_expert ce
+    JOIN candidatures_expert_disciplines ced ON ce.id = ced.expert_id
+    JOIN ref_discipline rf ON rf.id = ced.discipline_id
+%(subset_cond)s
+  )
+  GROUP BY id
+  ORDER BY -DMATCH_S;"""
+
+# Used if we are working on a subset of experts.
+EXP_SUBSET_TPL = """    -- IDs gotten from get_rules() in forms.py
+    WHERE ce.id IN (%(experts)s)"""
+
+
 class ExpertManager(models.Manager):
+
+    def get_discipline_match(self, dossiers, qs=None):
+        """
+        Chaque expert retournée par cette méthode a un attribut
+        "DMATCH_S" qui indique le nombre de disciplines
+        correspondantes au(x) DossierMobilite relié au(x) dossiers
+        passés commen argument.
+
+        Les experts sont triés par correspondance de discipline.
+
+        At least we're not doing 1 query with joins per Expert :P
+        This may require optimization.
+        """
+
+        # If no qs is supplied, get default QS and don't get expert
+        # subset. Else, pass a where .. in clause to get the subset.
+        if not qs:
+            qs = self.get_query_set()
+            subset_cond = ''
+        else:
+            e_ids = [str(x[0]) for x in qs.values_list('id')]
+            e_ids = ','.join(e_ids)
+            subset_cond = EXP_SUBSET_TPL % {
+                'experts': e_ids
+                }
+        # Get dossier IDs, from either queryset or iterable.
+        try:
+            d_ids = [str(x[0]) for x in dossiers.values_list('id')]
+        except AttributeError:
+            d_ids = [str(x.id) for x in dossiers]
+        d_ids = ','.join(d_ids)
+
+        # Build query.
+        query = EXP_TPL % {
+            'dossiers': d_ids,
+            'subset_cond': subset_cond,
+            }
+
+        # Add a dumb all method
+        raw = self.raw(query)
+        raw.all = lambda: raw
+
+        # Add a filter method (Makes a new query because we can't
+        # .filter on a raw query)
+        def _outer_filter(raw_q):
+            def _filter(*a, **kw):
+                return Expert.objects.filter(
+                    id__in=[x.id for x in raw_q]).filter(*a, **kw)
+            return _filter
+
+        raw.filter = _outer_filter(raw)
+
+        # Return query.
+        return raw
 
     def get_query_set(self):
         fkeys = ('region', )
@@ -381,7 +465,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     a_verifier = models.BooleanField(verbose_name=u"À vérifier", default=False)
 
     appel = models.ForeignKey(
-        Appel, related_name="appel", verbose_name=u"appel"
+        Appel, related_name="dossier", verbose_name=u"appel"
     )
     appel.admin_filter_select = True
 

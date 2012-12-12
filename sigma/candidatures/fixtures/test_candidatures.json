@@ -35,6 +35,34 @@
     }
   },
   {
+    "pk": 2,
+    "model": "candidatures.appel",
+    "fields": {
+      "periode": "civile",
+      "montant_perdiem_sud": 0,
+      "montant_mensuel_accueil_sud": 0,
+      "prime_installation_sud": 0,
+      "type_bourse": 1,
+      "date_fin_appel": null,
+      "date_debut_appel": null,
+      "montant_mensuel_origine_nord": 0,
+      "bareme": "",
+      "date_debut_mobilite": "2012-10-30",
+      "nom": "",
+      "conformites": [],
+      "date_fin_mobilite": null,
+      "pieces_attendues": [],
+      "montant_allocation_unique": 0,
+      "montant_mensuel_origine_sud": 0,
+      "annee": 2012,
+      "code_budgetaire": "12345UP",
+      "region": 2,
+      "montant_mensuel_accueil_nord": 0,
+      "montant_perdiem_nord": 0,
+      "prime_installation_nord": 0
+    }
+  },
+  {
     "pk": 1,
     "model": "candidatures.dossier",
     "fields": {
@@ -176,6 +204,142 @@
       "public_vise": "",
       "diplome_demande_nom": "",
       "date_debut_origine": null
+    }
+  },
+  {
+    "pk": 3,
+    "model": "candidatures.dossier",
+    "fields": {
+      "etat": "NOUVEAU",
+      "moyenne_academique": null,
+      "opportunite_regionale": "",
+      "derniere_bourse_categorie": "",
+      "derniere_bourse_annee": "",
+      "candidat_fonction": "Etudiante",
+      "annotations": [],
+      "moyenne_votes": 0.0,
+      "dernier_projet_annee": "",
+      "appel": 2,
+      "experts": [],
+      "discipline": 1,
+      "bureau_rattachement": null,
+      "candidat_statut": "",
+      "a_verifier": false,
+      "dernier_projet_description": ""
+    }
+  },
+  {
+    "pk": 3,
+    "model": "candidatures.candidat",
+    "fields": {
+      "nom": "Test",
+      "code_postal": "H1H 1H1",
+      "prenom": "Carole",
+      "telephone_portable": "514-555-1212",
+      "ville": "Montr\u00e9al",
+      "dossier": 3,
+      "pays": 2,
+      "region": "Qu\u00e9bec",
+      "courriel": "user@localhost",
+      "naissance_date": "1983-05-06",
+      "telephone": "514-123-4567",
+      "nom_jeune_fille": "Petit-test",
+      "adresse_complement": "",
+      "civilite": "MR",
+      "adresse": "2 rue de la Rue",
+      "date_modification": "2011-10-27",
+      "date_creation": "2011-10-27",
+      "nationalite": 2
+    }
+  },
+  {
+    "pk": 3,
+    "model": "candidatures.dossiermobilite",
+    "fields": {
+      "discipline": 1,
+      "these_soutenance_pays": 2,
+      "intitule_projet": "POUTINE AU FROMAGE",
+      "type_intervention": "",
+      "these_soutenance_date": "2013-11-27",
+      "mots_clefs": "ACTIF SANS RISQUE",
+      "dossier": 3,
+      "these_type": "",
+      "diplome_demande_niveau": "",
+      "date_fin_accueil": "2013-03-31",
+      "these_date_inscription": "2010-12-15",
+      "sous_discipline": "",
+      "autres_publics": "",
+      "date_debut_accueil": "2012-09-01",
+      "formation_en_cours_niveau": "8 ans",
+      "formation_en_cours_diplome": "Doctorat (Bac+8)",
+      "date_fin_origine": "2012-08-01",
+      "public_vise": "",
+      "diplome_demande_nom": "",
+      "date_debut_origine": "2012-01-01"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "candidatures.expert",
+    "fields": {
+      "nom": "Tournesol",
+      "prenom": "Professeur",
+      "disciplines": [
+        1
+      ],
+      "commentaire": "",
+      "region": 1,
+      "etablissement": null,
+      "courriel": "professeur@example.com",
+      "actif": true
+    }
+  },
+  {
+    "pk": 2,
+    "model": "candidatures.expert",
+    "fields": {
+      "nom": "Einstein",
+      "prenom": "Albert",
+      "disciplines": [
+        1
+      ],
+      "commentaire": "",
+      "region": 2,
+      "etablissement": null,
+      "courriel": "albert.einstein@auf.org",
+      "actif": true
+    }
+  },
+  {
+    "pk": 3,
+    "model": "candidatures.expert",
+    "fields": {
+      "nom": "Richard",
+      "prenom": "Martineau",
+      "disciplines": [
+        1
+      ],
+      "commentaire": "",
+      "region": 1,
+      "etablissement": null,
+      "courriel": "richard.martineau@example.com",
+      "actif": false
+    }
+  },
+  {
+    "pk": 4,
+    "model": "candidatures.expert",
+    "fields": {
+      "nom": "Celine",
+      "prenom": "Dion",
+      "disciplines": [
+        1
+      ],
+      "commentaire": "",
+      "region": 2,
+      "etablissement": null,
+      "courriel": "celine.dion@auf.org",
+      "actif": false
     }
   }
 ]

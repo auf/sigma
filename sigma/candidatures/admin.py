@@ -476,7 +476,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
             (None, {'fields': ('appel',) },
             ),
         ('État du dossier', {
-            'fields': ('experts', 'etat', ),
+            'fields': ('etat', ),
         }),
         ('Situation universitaire', {
             'fields': ('candidat_statut', 'candidat_fonction', ),

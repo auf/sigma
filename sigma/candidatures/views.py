@@ -33,9 +33,22 @@ def evaluer(request, dossier_id):
     dossier = Dossier.objects.get(id=dossier_id)
 
     if request.method == "POST":
+        expert_form = ExpertForm(
+            request.POST,
+            dossiers=[dossier],
+            request=request,
+            )
         notes_formset = NoteFormSet(instance=dossier, data=request.POST)
         commentaireForm = CommentaireForm(data=request.POST)
         evaluationForm = EvaluationForm(data=request.POST, instance=dossier)
+
+        if expert_form.is_valid():
+            expert_form.save()
+            messages.success(request, "Les experts ont été affectés.")
+        else:
+            for key in expert_form.errors.keys():
+                for err in expert_form.errors[key]:
+                    messages.error(request, err)
 
         if notes_formset.is_valid():
             notes_formset.save()
@@ -56,15 +69,18 @@ def evaluer(request, dossier_id):
 
         if notes_formset.is_valid():
             return redirect(reverse('evaluer', args=[dossier.id]))
+
     else:
+        expert_form = ExpertForm(dossiers=[dossier], request=request)
         notes_formset = NoteFormSet(instance=dossier)
         commentaireForm = CommentaireForm()
         evaluationForm = EvaluationForm(instance=dossier)
-    
+
     return render_to_response("admin/candidatures/evaluer.html", {
         'dossier': dossier,
         'NOTE_MIN': NOTE_MIN,
         'NOTE_MAX': NOTE_MAX,
+        'expert_form': expert_form,
         'notes_formset': notes_formset,
         'commentaireForm': commentaireForm,
         'evaluationForm': evaluationForm,
@@ -88,18 +104,14 @@ def affecter_experts_dossiers(request):
     dossiers = Dossier.objects.filter(id__in=dossier_ids)
 
     if request.method == "POST":
-        form = ExpertForm(request.POST, dossiers=dossiers)
+        form = ExpertForm(request.POST, dossiers=dossiers, request=request)
         if form.is_valid():
             form.save()
             messages.success(request,
                              "Les experts ont été affectés aux dossiers.")
             return redirect("admin:candidatures_dossier_changelist")
     else:
-        form = ExpertForm(dossiers=dossiers)
-
-    form.fields['experts'].queryset = get_rules().filter_queryset(
-        request.user, 'assign', Expert.objects.all()
-    )
+        form = ExpertForm(dossiers=dossiers, request=request)
 
     return render_to_response("admin/candidatures/affecter_experts.html", {
         'form': form,

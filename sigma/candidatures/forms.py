@@ -2,10 +2,14 @@
 
 from django import forms
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
+from django.db.models.query import QuerySet
+from django.db.models import Q
 from form_utils.forms import BetterModelForm
 from django.forms import ModelForm
-from auf.django.references.models import Discipline
+from auf.django.permissions import get_rules
+from auf.django.references.models import Discipline, Etablissement
 
 from sigma.candidatures.models import \
         UserProfile, Piece, Note, Dossier, Commentaire, Expert, Conformite, \
@@ -88,22 +92,79 @@ class EvaluationForm(BetterModelForm):
 
 
 class ExpertChoiceField(forms.ModelMultipleChoiceField):
+    def __init__(self, *a, **kw):
+        self.dossiers = kw.pop('dossiers', None)
+        super(ExpertChoiceField, self).__init__(*a, **kw)
+
     def label_from_instance(self, obj):
-        disciplines = ', '.join([d.code for d in obj.disciplines.all()])
-        return "%s, %s (%s)" % (obj.nom, obj.prenom, disciplines)
+        match_str = ''
+        if obj.DMATCH_S > 0:
+            match_str = '*'
+        disciplines = ', '.join([d.nom for d in obj.disciplines.all()])
+        return "%s%s, %s (%s)" % (match_str, obj.nom, obj.prenom, disciplines)
 
 
 class ExpertForm(forms.Form):
-    experts = ExpertChoiceField(
-        queryset=Expert.objects.all(),
-        help_text="Maintenez appuyé « Ctrl », ou " \
-        "« Commande (touche pomme) » sur un Mac, pour en sélectionner " \
-        "plusieurs."
-    )
-
     def __init__(self, *args, **kwargs):
         self.dossiers = kwargs.pop('dossiers')
+        req = kwargs.pop('request', None)
         super(ExpertForm, self).__init__(*args, **kwargs)
+        self.fields['experts'] = ExpertChoiceField(
+            'Experts',
+            dossiers=self.dossiers,
+            help_text=(
+                'Maintenez appuyé « Ctrl », ou « Commande (touche '
+                'pomme) » sur un Mac, pour en sélectionner '
+                'plusieurs. N-B: l\'astérisque (*) devant les saisies '
+                'd\'experts signifie une correspondance de la '
+                'discipline de l\'applicant avec celle de l\'expert.'
+                )
+            )
+        if req:
+            self.fields['experts'].queryset = (
+                Expert.objects.get_discipline_match(
+                    self.dossiers,
+                    get_rules().filter_queryset(
+                        req.user, 'assign', Expert.objects.all()
+                        )))
+
+    def clean_experts(self):
+        etabs = Etablissement.objects.filter(
+            dossierorigine__dossier__in=self.dossiers)
+
+        ex_check = Expert.objects.filter(
+            etablissement__in=etabs,
+            id__in=self.cleaned_data.get('experts', []))
+        if ex_check.count() > 0:
+
+            ex_str = ', '.join([
+                    ('%s %s' % (x.prenom, x.nom)).encode('utf8')
+                 for x in ex_check])
+
+            if isinstance(self.dossiers, QuerySet):
+                d_str_qs = self.dossiers
+            else:
+                d_str_qs = Dossier.objects.filter(
+                    id__in=[x.id for x in self.dossiers]
+                    )
+            d_str_qs = d_str_qs.filter(origine__etablissement__in=etabs)
+
+            d_str = ', '.join([
+                    str(x) for x in
+                    d_str_qs
+                    ])
+
+            err = mark_safe(
+                'Impossible d\'assigner un expert du même '
+                'établissement que le l\'établissement '
+                'd\'origine du candidat: Le ou les experts %s '
+                'travaillent dans les établissements d\'origine des '
+                'dossiers %s.' % (
+                    ex_str,
+                    d_str)
+                )
+            raise forms.ValidationError(mark_safe(err))
+        return self.cleaned_data.get('experts')
 
     def save(self):
         for d in self.dossiers:
