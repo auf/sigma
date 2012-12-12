@@ -229,10 +229,10 @@ class Appel(MetaModel, models.Model):
 
     def __unicode__(self):
         if self.nom != u"":
-            return self.nom
+            return u"%s %s" % (self.nom, self.code_budgetaire)
         else:
-            return u"%s %s %s" % (self.type_bourse, self.annee,
-                    self.region.nom)
+            return u"%s %s %s %s" % (self.type_bourse, self.annee,
+                    self.region.nom, self.code_budgetaire)
 
     def clean(self):
         if not self.nom and self.type_bourse is None:
@@ -293,7 +293,7 @@ class Candidat(models.Model):
         max_length=255, verbose_name=u"Ville", blank=True
     )
     region = models.CharField(
-        max_length=255, verbose_name=u"Région", blank=True
+        max_length=255, verbose_name=u"Région / Province / État", blank=True
     )
     code_postal = models.CharField(
         max_length=255, verbose_name=u"Code postal", blank=True
@@ -407,7 +407,8 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         choices=CANDIDAT_STATUT_CHOICES, blank=True
     )
     candidat_fonction = models.CharField(
-        max_length=255, verbose_name=u"Fonction", blank=True
+        max_length=255, verbose_name=u"Fonction", blank=True,
+        help_text="ignorer si candidat est étudiant"
     )
 
     # Utilisé lors des appels internationaux pour définir le bureau (région)
@@ -572,7 +573,7 @@ class DossierFaculte(models.Model):
         max_length=255, verbose_name=u"Ville", blank=True
     )
     autre_etablissement_region = models.CharField(
-        max_length=255, verbose_name=u"Région", blank=True
+        max_length=255, verbose_name=u"Région / Province / État", blank=True
     )
 
     # responsable scientifique (Accord scientifique)
