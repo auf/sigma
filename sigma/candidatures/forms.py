@@ -189,6 +189,8 @@ class ConformiteForm(PropertyForm):
     """
     Dans l'admin inline, on préserve le type défini par l'appel.
     """
+    conforme = forms.NullBooleanField(widget=forms.RadioSelect(choices=((True, 'Oui'),
+    (False, 'Non'))))
 
     class Meta:
         exclude = ('type', 'value', )
