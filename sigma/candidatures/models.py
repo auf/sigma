@@ -59,7 +59,7 @@ EXP_TPL = """SELECT
       (
         CASE WHEN ced.discipline_id IN (
         -- Dossiers for which you're looking for experts.
-          SELECT discipline_id FROM candidatures_dossiermobilite
+          SELECT discipline_id FROM (candidatures_dossiermobilite) AS D_SUBSET
           WHERE dossier_id IN (%(dossiers)s)
         )
         THEN 1
@@ -70,7 +70,7 @@ EXP_TPL = """SELECT
     JOIN candidatures_expert_disciplines ced ON ce.id = ced.expert_id
     JOIN ref_discipline rf ON rf.id = ced.discipline_id
 %(subset_cond)s
-  )
+  ) AS GROUPED_EXPERTS
   GROUP BY id
   ORDER BY -DMATCH_S;"""
 
