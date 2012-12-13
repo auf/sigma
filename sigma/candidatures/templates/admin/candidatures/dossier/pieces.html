@@ -31,9 +31,9 @@
     {% for piece in info.pieces %}
     <tr>
       <td>{{ info.nom }}</td>
-      <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-yes.gif" /></td>
+      <td align="center"><img src="{{ STATIC_URL }}admin/img/icon-yes.gif" /></td>
       <td align="center">
-        <img src="{% admin_media_prefix %}img/admin/icon-{{ piece.conforme|yesno:"yes,no,unknown" }}.gif" />
+        <img src="{{ STATIC_URL }}admin/img/icon-{{ piece.conforme|yesno:"yes,no,unknown" }}.gif" />
       </td>
       <td>
         {% if piece.fichier %}
@@ -56,7 +56,7 @@
     {% empty %}
     <tr>
       <td>{{ info.nom }}</td>
-      <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-no.gif" /></td>
+      <td align="center"><img src="{{ STATIC_URL }}admin/img/icon-no.gif" /></td>
       <td></td>
       <td></td>
       <td>
@@ -78,7 +78,7 @@
       <td>{{ piece.identifiant }}</td>
       <td align="center"><img src="{% admin_media_prefix %}img/admin/icon-yes.gif" /></td>
       <td align="center">
-        <img src="{% admin_media_prefix %}img/admin/icon-{{ piece.conforme|yesno:"yes,no,unknown" }}.gif" />
+        <img src="{{ STATIC_URL }}admin/img/icon-{{ piece.conforme|yesno:"yes,no,unknown" }}.gif" />
       </td>
       <td>
         {% if piece.fichier %}
