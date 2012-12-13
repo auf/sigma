@@ -38,26 +38,26 @@ class BoursierInactifManager(models.Manager):
 class Boursier(models.Model):
     """La fiche de suivi d'un boursier."""
     dossier = models.OneToOneField(
-        Dossier, verbose_name='dossier de candidature',
+        Dossier, verbose_name='Candidature',
         related_name='boursier', primary_key=True, editable=False
     )
     code_operation = models.CharField(
-        max_length=11, verbose_name="code d'opération CODA", blank=True,
+        max_length=11, verbose_name="Code d'opération CODA", blank=True,
         db_index=True
     )
     numero_police_assurance = models.CharField(
-        max_length=100, verbose_name="numéro de police d'assurance",
+        max_length=100, verbose_name="Numéro de police d'assurance",
         blank=True, default=''
     )
     responsable_budgetaire = models.ForeignKey(ref.Employe,
-        verbose_name="responsable budgétaire",
+        verbose_name="Responsable budgétaire",
         blank=True, null=True
     )
     date_debut = models.DateField(
-        verbose_name="date de début", blank=True, null=True
+        verbose_name="Date de début", blank=True, null=True
     )
     date_fin = models.DateField(
-        verbose_name="date de fin", blank=True, null=True
+        verbose_name="Date de fin", blank=True, null=True
     )
 
     # Managers
@@ -65,8 +65,8 @@ class Boursier(models.Model):
     inactifs = BoursierInactifManager()
 
     class Meta:
-        verbose_name = 'Boursier'
-        verbose_name_plural = 'Boursiers'
+        verbose_name = 'Allocataire'
+        verbose_name_plural = 'Allocataires'
 
     def __unicode__(self):
         return self.nom_complet()
@@ -156,18 +156,18 @@ class DepensePrevisionnelle(models.Model):
     boursier = models.ForeignKey(
         Boursier, related_name="depenses_previsionnelles"
     )
-    numero = models.IntegerField(null=True, blank=True, verbose_name='numéro')
+    numero = models.IntegerField(null=True, blank=True, verbose_name='Numéro')
     date = models.DateField()
     description = models.CharField(max_length=36)
     montant_eur = models.DecimalField(max_digits=17, decimal_places=2,
-                                      verbose_name='montant (EUR)')
+                                      verbose_name='Montant (EUR)')
     implantation = models.CharField(max_length=1,
                                     choices=IMPLANTATION_CHOICES, null=True,
                                     blank=True)
 
     class Meta:
-        verbose_name = "dépense prévisionnelle"
-        verbose_name_plural = "dépenses prévisionnelles"
+        verbose_name = "Dépense prévisionnelle"
+        verbose_name_plural = "Dépenses prévisionnelles"
 
     def __unicode__(self):
         return self.description
