@@ -218,7 +218,7 @@ class Appel(MetaModel, models.Model):
     objects = AppelManager()
 
     nom = models.CharField(u"nom", max_length=255, blank=True,
-            help_text=u"À défaut d'un type de bourse qui convienne, expliquez la nature de votre appel")
+            help_text=u"À défaut d'un type de bourse qui convienne, expliquez la nature de votre appel.")
     type_bourse = models.ForeignKey(TypeBourse,
             verbose_name=u"Type de bourse",
             blank=True, null=True)
@@ -227,7 +227,7 @@ class Appel(MetaModel, models.Model):
 
     code_budgetaire = models.CharField(
         u"Code budgétaire", max_length=72,
-        help_text=u"Le code budgétaire est composé de 5 chiffres + 2 lettres",
+        help_text=u"Le code budgétaire est composé de 5 chiffres + 2 lettres.",
         validators=[validateur_code_budgetaire, ]
     )
     date_debut_appel = models.DateField(
@@ -255,47 +255,47 @@ class Appel(MetaModel, models.Model):
     montant_mensuel_origine_sud = models.IntegerField(
         u"Montant mensuel pays origine Sud", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     montant_mensuel_origine_nord = models.IntegerField(
         u"Montant mensuel pays origine Nord", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     montant_mensuel_accueil_sud = models.IntegerField(
         u"Montant mensuel pays accueil Sud", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     montant_mensuel_accueil_nord = models.IntegerField(
         u"Montant mensuel pays accueil Nord", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     prime_installation_sud = models.IntegerField(
         u"Prime d'installation (pays du Sud)", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     prime_installation_nord = models.IntegerField(
         u"Prime d'installation (pays du Nord)", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     montant_perdiem_sud = models.IntegerField(
         u"Montant jour (perdiem) pays Sud ", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     montant_perdiem_nord = models.IntegerField(
         u"Montant jour (perdiem) pays Nord", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     montant_allocation_unique = models.IntegerField(
         u"Montant allocation unique", 
         blank=True, null=True,
-        help_text=u"Indiquer 0 dans les champs non-pertinents",
+        help_text=u"En euro (EUR). Indiquer 0 dans les champs non-pertinents",
     )
     conformites = models.ManyToManyField(
         "TypeConformite", verbose_name=u"Conformités à demander",
@@ -492,7 +492,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     )
     candidat_fonction = models.CharField(
         max_length=255, verbose_name=u"Fonction", blank=True,
-        help_text="ignorer si candidat est étudiant"
+        help_text="À ignorer si candidat est étudiant.
     )
 
     # Utilisé lors des appels internationaux pour définir le bureau (région)
@@ -884,7 +884,7 @@ class DossierMobilite(models.Model):
     intitule_projet = models.TextField(u"Intitulé du projet", blank=True)
     mots_clefs = models.CharField(
         max_length=255, verbose_name=u"Mots clefs", blank=True,
-        help_text="séparés par des virgules, 3 maximum"
+        help_text="Séparés par des virgules, 3 maximum."
     )
 
     # Disciplines
@@ -958,7 +958,8 @@ class DossierMobilite(models.Model):
         max_digits=17, decimal_places=2,
         verbose_name=u"Montant du cofinancement",
         blank=True,
-        null=True
+        null=True,
+        help_text=u"En euro (EUR)."
     )
 
     def save(self, *args, **kwargs):
