@@ -53,10 +53,12 @@ class DisciplineForm(BetterModelForm):
 
 class PieceForm(ModelForm):
 
+    conforme = forms.NullBooleanField(widget=forms.RadioSelect(choices=((True, 'Oui'),
+    (False, 'Non'))))
+
     class Meta:
         model = Piece
         fields = ('identifiant', 'fichier', 'conforme')
-
 
 # DOSSIER - EVALUATION
 
