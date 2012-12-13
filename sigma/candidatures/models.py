@@ -41,8 +41,8 @@ BAREME = (
 )
 
 BOOLEAN_RADIO_OPTIONS = (
-    (1, 'Oui'),
-    (0, 'Non')
+    (True, 'Oui'),
+    (False, 'Non')
 )
 
 NOTE_MIN = 1
@@ -1097,7 +1097,10 @@ class Conformite(ValueProperty, models.Model):
     dossier = models.ForeignKey(Dossier)
     type = models.ForeignKey("TypeConformite")
     conforme = models.NullBooleanField(verbose_name=u"Conforme?",
+                        choices=BOOLEAN_RADIO_OPTIONS,
                         blank=True, null=True)
+    commentaire = models.CharField(blank=True, null=True,
+        max_length=255)
 
     class Meta:
         verbose_name = u"Conformité"
