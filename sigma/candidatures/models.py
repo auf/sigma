@@ -41,8 +41,8 @@ BAREME = (
 )
 
 BOOLEAN_RADIO_OPTIONS = (
-    (1, 'Oui'),
-    (0, 'Non')
+    (True, 'Oui'),
+    (False, 'Non')
 )
 
 NOTE_MIN = 1
@@ -170,10 +170,10 @@ class Expert(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile', primary_key=True)
     regions = models.ManyToManyField(
-        ref.Region, verbose_name=u"régions", blank=True, null=True
+        ref.Region, verbose_name=u"Régions", blank=True, null=True
     )
     disciplines = models.ManyToManyField(
-        ref.Discipline, verbose_name=u"disciplines", blank=True, null=True
+        ref.Discipline, verbose_name=u"Disciplines", blank=True, null=True
     )
 
 
@@ -220,9 +220,9 @@ class Appel(MetaModel, models.Model):
     nom = models.CharField(u"nom", max_length=255, blank=True,
             help_text=u"À défaut d'un type de bourse qui convienne, expliquez la nature de votre appel")
     type_bourse = models.ForeignKey(TypeBourse,
-            verbose_name=u"type de bourse",
+            verbose_name=u"Type de bourse",
             blank=True, null=True)
-    region = models.ForeignKey(ref.Region, verbose_name=u"région")
+    region = models.ForeignKey(ref.Region, verbose_name=u"Région")
     annee = models.IntegerField(u"année", validators=[validateur_annee, ])
 
     code_budgetaire = models.CharField(
@@ -482,7 +482,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     a_verifier = models.BooleanField(verbose_name=u"À vérifier", default=False)
 
     appel = models.ForeignKey(
-        Appel, related_name="dossier", verbose_name=u"appel"
+        Appel, related_name="dossier", verbose_name=u"Appel"
     )
     appel.admin_filter_select = True
 
@@ -500,7 +500,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     # (normalement équivalent de dossier.origine.etablissement) Maintenant,
     # on spécifie la valeur avec la région où est fait l'appel
     bureau_rattachement = models.ForeignKey(
-        ref.Bureau, verbose_name=u"bureau de rattachement", blank=True,
+        ref.Bureau, verbose_name=u"Bureau de rattachement", blank=True,
         null=True
     )
 
@@ -552,7 +552,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     # ce champs est système, il est saisi dans la partie mobilité mais il
     # est copié ici pour pouvoir être filtré
     discipline = models.ForeignKey(
-        ref.Discipline, verbose_name=u"discipline", blank=True, null=True
+        ref.Discipline, verbose_name=u"Discipline", blank=True, null=True
     )
     experts = models.ManyToManyField(
         Expert, verbose_name=u'Experts', related_name="dossiers",
@@ -563,8 +563,8 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
     class Meta:
         ordering = ['appel__nom', 'candidat__nom', 'candidat__prenom']
-        verbose_name = u"Dossier de candidature"
-        verbose_name_plural = u"Dossiers de candidature"
+        verbose_name = u"Candidature"
+        verbose_name_plural = u"Candidatures"
 
     def __unicode__(self, ):
         try:
@@ -674,7 +674,7 @@ class DossierFaculte(models.Model):
         max_length=255, verbose_name=u"Fonction", blank=True
     )
     resp_sc_courriel = models.CharField(
-        max_length=255, verbose_name=u"Courriel", blank=True
+        max_length=255, verbose_name=u"Adresse électronique", blank=True
     )
     resp_sc_telephone = models.CharField(
         max_length=255, verbose_name=u"Téléphone", blank=True
@@ -710,7 +710,7 @@ class DossierFaculte(models.Model):
         max_length=255, verbose_name=u"Prénom", blank=True
     )
     dir_courriel = models.CharField(
-        max_length=255, verbose_name=u"adresse électronique", blank=True
+        max_length=255, verbose_name=u"Adresse électronique", blank=True
     )
     dir_telephone = models.CharField(
         max_length=255, verbose_name=u"Téléphone", blank=True
@@ -756,7 +756,7 @@ class DossierOrigine(DossierFaculte):
         max_length=255, verbose_name=u"Fonction", blank=True
     )
     resp_inst_courriel = models.CharField(
-        max_length=255, verbose_name=u"Courriel", blank=True
+        max_length=255, verbose_name=u"Adresse électronique", blank=True
     )
     resp_inst_telephone = models.CharField(
         max_length=255, verbose_name=u"Téléphone", blank=True
@@ -1044,8 +1044,8 @@ class TypePiece(models.Model):
         return u"%s (%s)" % (self.nom, self.identifiant, )
 
     class Meta:
-        verbose_name = 'type de pièce'
-        verbose_name_plural = 'types de pièces'
+        verbose_name = 'Type de pièce'
+        verbose_name_plural = 'Types de pièces'
         ordering = ['nom']
 
 
@@ -1086,8 +1086,8 @@ class TypeConformite(TypeProperty, models.Model):
     Lié à l'appel
     """
     class Meta:
-        verbose_name = u"type de conformité"
-        verbose_name_plural = u"types de conformités"
+        verbose_name = u"Type de conformité"
+        verbose_name_plural = u"Types de conformités"
 
 
 class Conformite(ValueProperty, models.Model):
@@ -1097,7 +1097,10 @@ class Conformite(ValueProperty, models.Model):
     dossier = models.ForeignKey(Dossier)
     type = models.ForeignKey("TypeConformite")
     conforme = models.NullBooleanField(verbose_name=u"Conforme?",
+                        choices=BOOLEAN_RADIO_OPTIONS,
                         blank=True, null=True)
+    commentaire = models.CharField(blank=True, null=True,
+        max_length=255)
 
     class Meta:
         verbose_name = u"Conformité"

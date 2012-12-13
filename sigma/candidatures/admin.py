@@ -16,8 +16,6 @@ from django.contrib.auth.admin import \
 from django.contrib.auth.forms import UserChangeForm as DjangoUserForm
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
-from django.db import models
-from django.forms.widgets import RadioSelect
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext, defaultfilters
@@ -489,7 +487,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                      'mobilite__diplome_demande_nom',
     )
     fieldsets = (
-            (None, {'fields': ('appel',) },
+            (None, {'fields': ('appel',)},
             ),
         ('État du dossier', {
             'fields': ('etat', ),
@@ -633,7 +631,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                 )
         else:
             form = PieceForm(instance=piece)
-        return render_to_response('admin/sigma/dossier/piece_form.html', {
+        return render_to_response('admin/candidatures/dossier/piece_form.html', {
                 'dossier': piece.dossier,
                 'form': form
             }, context_instance=RequestContext(request))

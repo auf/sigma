@@ -33,14 +33,22 @@ for perm in ['add', 'delete', 'change']:
     for model in ['appel', 'dossier', 'expert']:
         rules.allow_global(
             'candidatures.%s_%s' % (perm, model),
-            has_global_perm('global.gerer_%ss' % model)
-        )
-    rules.allow_global(
-        'boursiers.%s_boursier' % perm,
-        has_global_perm('global.gerer_boursiers')
-    )
+            has_global_perm('global.gerer_%ss' % model))
+    # Add perms for DossierAdmin inlines
+    for model in ['candidat', 'diplome', 'conformite',
+                  'dossierorigine', 'dossieraccueil', 'dossiermobilite']:
+        rules.allow_global(
+            'candidatures.%s_%s' % (perm, model),
+            has_global_perm('global.gerer_dossiers'))
     for model in ['niveauetude', 'public', 'typeconformite', 'typepiece']:
         rules.allow_global(
             'candidatures.%s_%s' % (perm, model),
-            has_global_perm('global.configurer_sigma')
-        )
+            has_global_perm('global.configurer_sigma'))
+
+    rules.allow_global(
+        'boursiers.%s_boursier' % perm,
+        has_global_perm('global.gerer_boursiers'))
+    rules.allow_global(
+        'boursiers.%s_depenseprevisionnelle' % perm,
+        has_global_perm('global.gerer_boursiers'))
+
