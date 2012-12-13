@@ -35,6 +35,13 @@ for perm in ['add', 'delete', 'change']:
             'candidatures.%s_%s' % (perm, model),
             has_global_perm('global.gerer_%ss' % model)
         )
+    # Add perms for DossierAdmin inlines
+    for model in ['candidat', 'diplome', 'conformite',
+                  'dossierorigine', 'dossieraccueil', 'dossiermobilite']:
+        rules.allow_global(
+            'candidatures.%s_%s' % (perm, model),
+            has_global_perm('global.gerer_dossiers')
+        )
     rules.allow_global(
         'boursiers.%s_boursier' % perm,
         has_global_perm('global.gerer_boursiers')
