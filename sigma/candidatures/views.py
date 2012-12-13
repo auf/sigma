@@ -37,6 +37,9 @@ def evaluer(request, dossier_id):
             request.POST,
             dossiers=[dossier],
             request=request,
+            initial={
+                'experts': dossier.experts.all()
+                },
             )
         notes_formset = NoteFormSet(instance=dossier, data=request.POST)
         commentaireForm = CommentaireForm(data=request.POST)
@@ -71,7 +74,13 @@ def evaluer(request, dossier_id):
             return redirect(reverse('evaluer', args=[dossier.id]))
 
     else:
-        expert_form = ExpertForm(dossiers=[dossier], request=request)
+        expert_form = ExpertForm(
+            dossiers=[dossier],
+            request=request,
+            initial={
+                'experts': dossier.experts.all()
+                },
+            )
         notes_formset = NoteFormSet(instance=dossier)
         commentaireForm = CommentaireForm()
         evaluationForm = EvaluationForm(instance=dossier)

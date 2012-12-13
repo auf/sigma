@@ -30,7 +30,7 @@ class BoursierInactifManager(models.Manager):
 
     def get_query_set(self):
         base_qs = super(BoursierInactifManager, self).get_query_set()
-        if not ENABLE_FILTERED_QUERYSET:
+        if not ENABLE_FILTERED_QUERYSETS:
             return base_qs
         return base_qs.exclude(dossier__etat=DOSSIER_ETAT_RETENU)
 
