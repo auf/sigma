@@ -114,6 +114,7 @@ class ExpertForm(forms.Form):
         self.fields['experts'] = ExpertChoiceField(
             'Experts',
             dossiers=self.dossiers,
+            required=False,
             help_text=(
                 'Maintenez appuyé « Ctrl », ou « Commande (touche '
                 'pomme) » sur un Mac, pour en sélectionner '
