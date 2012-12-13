@@ -50,33 +50,53 @@ NOTE_MAX = 20
 
 
 # Sql query to find experts and match discipline
+
 EXP_TPL = """SELECT
-  *,
-  SUM(DMATCH) AS DMATCH_S
+* FROM (
+  SELECT
+    *,
+    SUM(DMATCH) AS DMATCH_S
   FROM (
     SELECT
-      *,
-      (
-        CASE WHEN ced.discipline_id IN (
-        -- Dossiers for which you're looking for experts.
-          SELECT discipline_id FROM (candidatures_dossiermobilite) AS D_SUBSET
+      candidatures_expert_disciplines.discipline_id as ced_did,
+      candidatures_expert_disciplines.expert_id as ced_eid,
+      candidatures_expert.id,
+      candidatures_expert.prenom,
+      candidatures_expert.nom,
+      candidatures_expert.courriel,
+      candidatures_expert.region_id,
+      candidatures_expert.etablissement_id,
+      candidatures_expert.commentaire,
+      candidatures_expert.actif, (
+      CASE WHEN
+        candidatures_expert_disciplines.discipline_id IN (
+          -- Dossiers for which you're looking for experts.
+          SELECT
+            discipline_id
+          FROM
+            candidatures_dossiermobilite
           WHERE dossier_id IN (%(dossiers)s)
         )
-        THEN 1
-        ELSE 0
-        END
-      ) as DMATCH
-    FROM candidatures_expert ce
-    JOIN candidatures_expert_disciplines ced ON ce.id = ced.expert_id
-    JOIN ref_discipline rf ON rf.id = ced.discipline_id
-%(subset_cond)s
-  ) AS GROUPED_EXPERTS
-  GROUP BY id
+      THEN 1
+      ELSE 0
+      END
+    ) as DMATCH
+    FROM
+      candidatures_expert
+    JOIN candidatures_expert_disciplines ON
+      candidatures_expert.id =
+      candidatures_expert_disciplines.expert_id
+    JOIN ref_discipline rf ON
+      rf.id =
+      candidatures_expert_disciplines.discipline_id
+    %(subset_cond)s
+    ) AS GROUPED_EXPERTS
+  GROUP BY id) AS SUPER_EXPERTS
   ORDER BY -DMATCH_S;"""
 
 # Used if we are working on a subset of experts.
 EXP_SUBSET_TPL = """    -- IDs gotten from get_rules() in forms.py
-    WHERE ce.id IN (%(experts)s)"""
+    WHERE candidatures_expert.id IN (%(experts)s)"""
 
 
 class ExpertManager(models.Manager):
