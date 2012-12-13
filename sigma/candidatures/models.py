@@ -492,7 +492,7 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     )
     candidat_fonction = models.CharField(
         max_length=255, verbose_name=u"Fonction", blank=True,
-        help_text="À ignorer si candidat est étudiant.
+        help_text="À ignorer si candidat est étudiant."
     )
 
     # Utilisé lors des appels internationaux pour définir le bureau (région)
