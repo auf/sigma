@@ -369,7 +369,13 @@ class AppelAdmin(GuardedModelAdmin):
     )
     actions = [faire_copie]
     list_filter = (RegionFilter, 'annee', 'type_bourse', )
-    search_fields = ('nom', 'code_budgetaire')
+    search_fields = (
+        'nom', 
+        'code_budgetaire', 
+        'region__nom', 
+        'type_bourse__nom',
+        'annee',
+    )
     fieldsets = ((None, {
         'fields': (
             'region',
@@ -683,7 +689,13 @@ class ExpertAdmin(GuardedModelAdmin):
     list_display = ('nom', 'prenom', '_region', '_disciplines')
     list_display_links = ('nom', 'prenom')
     list_filter = (RegionFilter, 'disciplines')
-    search_fields = ('nom', 'prenom', 'courriel')
+    search_fields = (
+        'nom', 
+        'prenom', 
+        'courriel', 
+        'region__nom',
+        'disciplines__nom',
+    )
     fieldsets = (
         (None, {
             'fields': (
