@@ -197,9 +197,9 @@ class Boursier(models.Model):
                     montant_eur=self.montant('origine') or Decimal('0'),
                     implantation='O'
                     )
-        elif self.dossier.bareme == 'perdiem':
+        elif self.bareme() == 'perdiem':
             pass
-        elif self.dossier.bareme == 'allocation':
+        elif self.bareme() == 'allocation':
             pass
 
     def creer_vues_ensemble(self):

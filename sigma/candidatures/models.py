@@ -816,8 +816,10 @@ class DossierMobilite(models.Model):
         def __reset(self):
             if self.debut and self.fin:
                 self.__current_month = self.premier_mois
+                self.__current_day = self.debut
             else:
                 self.__current_month = None
+                self.__current_day = None
             self.__iter_index = 0
 
         def days_in_month(self, date):
@@ -827,10 +829,12 @@ class DossierMobilite(models.Model):
                 date.month,
                 )[1]
 
+        @property
         def month_iterator(self):
             self.__iter_by = 'month'
             return self
 
+        @property
         def days_iterator(self):
             self.__iter_by = 'days'
             return self
@@ -852,11 +856,17 @@ class DossierMobilite(models.Model):
                 if not self.debut or not self.fin:
                     raise StopIteration()
                 if self.__iter_index > self.mois:
-                    self.__reset()
                     raise StopIteration()
                 return self.__current_month
             elif self.__iter_by == 'days':
-                raise NotImplemented('Cannot yet iter by days')
+                if self.__iter_index > 1:
+                    # Start adding after first iteration.
+                    self.__current_day += datetime.timedelta(1)
+                if not self.debut or not self.fin:
+                    raise StopIteration()
+                if self.__current_day > self.fin:
+                    raise StopIteration()
+                return self.__current_day
 
         def calc_mois(self):
             if not self.debut or not self.fin:

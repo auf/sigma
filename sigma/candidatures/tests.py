@@ -75,8 +75,42 @@ class CandidatTestCase(TestCase):
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 30)
         self.assertEquals(
-            [x for x in p],
+            [x for x in p.month_iterator],
             [datetime.date(2012, 11, 1)],
+            )
+        self.assertEquals(
+            [x for x in p.days_iterator],
+            [datetime.date(2012, 11, 20),
+             datetime.date(2012, 11, 21),
+             datetime.date(2012, 11, 22),
+             datetime.date(2012, 11, 23),
+             datetime.date(2012, 11, 24),
+             datetime.date(2012, 11, 25),
+             datetime.date(2012, 11, 26),
+             datetime.date(2012, 11, 27),
+             datetime.date(2012, 11, 28),
+             datetime.date(2012, 11, 29),
+             datetime.date(2012, 11, 30),
+             datetime.date(2012, 12, 1),
+             datetime.date(2012, 12, 2),
+             datetime.date(2012, 12, 3),
+             datetime.date(2012, 12, 4),
+             datetime.date(2012, 12, 5),
+             datetime.date(2012, 12, 6),
+             datetime.date(2012, 12, 7),
+             datetime.date(2012, 12, 8),
+             datetime.date(2012, 12, 9),
+             datetime.date(2012, 12, 10),
+             datetime.date(2012, 12, 11),
+             datetime.date(2012, 12, 12),
+             datetime.date(2012, 12, 13),
+             datetime.date(2012, 12, 14),
+             datetime.date(2012, 12, 15),
+             datetime.date(2012, 12, 16),
+             datetime.date(2012, 12, 17),
+             datetime.date(2012, 12, 18),
+             datetime.date(2012, 12, 19),
+             ],
             )
 
         # 2 mois, novembre compte, decembre aussi.
