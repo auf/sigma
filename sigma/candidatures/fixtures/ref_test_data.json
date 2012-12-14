@@ -213,6 +213,43 @@
       "actif": true,
       "nom_long": ""
     }
+  },
+  {
+    "pk": 1,
+    "model": "references.etablissement",
+    "fields": {
+      "qualite": "ESR",
+      "responsable_genre": "M",
+      "ville": "Auckland Park",
+      "implantation": 1,
+      "pays": "CA",
+      "telephone": "+55 55 555 1234",
+      "responsable_fonction": "Pr\u00e9sident",
+      "historique": "L'Universite de la galaxie",
+      "responsable_nom": "BEEBLEBROX",
+      "date_modification": "2012-07-13",
+      "sigle": "",
+      "actif": true,
+      "province": "",
+      "nom": "Universit\u00e9 de Galaxie",
+      "fax": "+55 55 555 1234",
+      "description": "42",
+      "statut": "A",
+      "adresse": "PO Box 524",
+      "membre_adhesion_date": "2010-01-01",
+      "membre": true,
+      "responsable_courriel": "alice.beeblebrox@aol.com",
+      "nombre_etudiants": 49315,
+      "nombre_membres": null,
+      "code_postal": "2006",
+      "nombre_enseignants": 3243,
+      "url": "http://www.google.com",
+      "commentaire": "",
+      "region": 1,
+      "cedex": "",
+      "nombre_chercheurs": 900,
+      "responsable_prenom": "Alice"
+    }
   }
 ]
 

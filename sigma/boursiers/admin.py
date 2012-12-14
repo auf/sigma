@@ -10,11 +10,14 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.html import conditional_escape
 from django.db import models
-
-from sigma.boursiers.models import (
-    Boursier, DepensePrevisionnelle, EcritureCODA
-)
+from .models import (
+    Boursier,
+    DepensePrevisionnelle,
+    VueEnsemble,
+    EcritureCODA
+    )
 from sigma.custom_admin import GuardedModelAdmin
+
 
 class BoursierAdminForm(ModelForm):
 
@@ -73,12 +76,70 @@ class BoursierAdminForm(ModelForm):
         return code_operation
 
 
-class DepensePrevisionnelleInline(admin.TabularInline):
+class DeviseMixin(object):
+    def _devise(self, obj):
+        return '€'
+    _devise.short_description = 'Devise'
+
+
+class DepensePrevisionnelleInline(admin.TabularInline, DeviseMixin):
     model = DepensePrevisionnelle
+    template = 'admin/edit_inline/tabular_compact.html'
+    ordering = ('mois', 'date')
+    extra = 0
+    formfield_overrides = {
+        models.DecimalField: {'localize': True},
+    }
+    fields = (
+        'commentaires',
+        'mois',
+        'date',
+        'montant_eur',
+        '_devise',
+        )
+    readonly_fields = (
+        '_devise',
+        )
+
+
+class VueEnsembleInline(admin.TabularInline, DeviseMixin):
+    model = VueEnsemble
     template = 'admin/edit_inline/tabular_compact.html'
     formfield_overrides = {
         models.DecimalField: {'localize': True},
     }
+    extra = 0
+
+    fields = (
+        '_description',
+        'code_document',
+        'code_sigma',
+        '_montant',
+        '_devise',
+        )
+    readonly_fields = [
+        '_description',
+        'vue_type',
+        'code_document',
+        '_montant',
+        '_devise',
+        ]
+
+    def _description(self, obj):
+        return obj.get_vue_type_display()
+    _description.short_description = 'Description'
+
+    def _montant(self, obj):
+        return obj.montant
+    _montant.short_description = 'Montant'
+
+    def has_add_permission(self, request):
+        if request.user.is_superuser:
+            return True
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
 
 
 class BoursierAdmin(GuardedModelAdmin):
@@ -99,7 +160,7 @@ class BoursierAdmin(GuardedModelAdmin):
             )
         }),
     )
-    inlines = [DepensePrevisionnelleInline]
+    inlines = [VueEnsembleInline, DepensePrevisionnelleInline]
 
     # Champs calculés
 
