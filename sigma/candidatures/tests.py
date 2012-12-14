@@ -33,6 +33,25 @@ class CandidatTestCase(TestCase):
             24,
             )
 
+    # def test_period_iter(self):
+    #     from .models import DossierMobilite
+
+    #     p = DossierMobilite.Periode(
+    #         datetime.date(2012, 11, 20),
+    #         datetime.date(2013, 12, 19),
+    #         )
+    #     # self.assertEquals(p.mois, 13)
+    #     # self.assertEquals(p.jours, 395)
+
+    #     months = [x for x in p]
+    #     self.assertEquals(
+    #         months[0],
+    #         datetime.date(year=2012, month=12, day=1))
+    #     self.assertEquals(
+    #         months[-1:][0],
+    #         datetime.date(year=2013, month=12, day=1))
+    #     self.assertEquals(len(months), 13)
+
     def test_periode(self):
         # Specs:
         # on arrondit au 20e jour.
@@ -55,6 +74,10 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 30)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1)],
+            )
 
         # 2 mois, novembre compte, decembre aussi.
         p = DossierMobilite.Periode(
@@ -63,6 +86,16 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 2)
         self.assertEquals(p.jours, 31)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1),
+             datetime.date(2012, 12, 1)],
+            )
+
+        # self.assertEquals(
+        #     [x for x in p],
+        #     [datetime.date(2012, 12, 1)],
+        #     )
 
         # 1 mois, novembre ne compte pas, decembre oui.
         p = DossierMobilite.Periode(
@@ -71,6 +104,10 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 30)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 12, 1)],
+            )
 
         # Edge cases.
         p = DossierMobilite.Periode(
@@ -79,6 +116,10 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 10)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1)],
+            )
 
         p = DossierMobilite.Periode(
             datetime.date(2012, 11, 20),
@@ -86,6 +127,10 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 1)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1)],
+            )
 
         p = DossierMobilite.Periode(
             datetime.date(2012, 11, 18),
@@ -93,6 +138,10 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 2)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1)],
+            )
 
         p = DossierMobilite.Periode(
             datetime.date(2012, 11, 19),
@@ -100,6 +149,10 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 2)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1)],
+            )
 
         p = DossierMobilite.Periode(
             datetime.date(2012, 11, 20),
@@ -107,6 +160,10 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 2)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1)],
+            )
 
         p = DossierMobilite.Periode(
             datetime.date(2012, 11, 20),
@@ -114,6 +171,10 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 1)
         self.assertEquals(p.jours, 2)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1)],
+            )
 
         # Long periods
         p = DossierMobilite.Periode(
@@ -122,6 +183,23 @@ class CandidatTestCase(TestCase):
             )
         self.assertEquals(p.mois, 13)
         self.assertEquals(p.jours, 367)
+        self.assertEquals(
+            [x for x in p],
+            [datetime.date(2012, 11, 1),
+             datetime.date(2012, 12, 1),
+             datetime.date(2013, 1, 1),
+             datetime.date(2013, 2, 1),
+             datetime.date(2013, 3, 1),
+             datetime.date(2013, 4, 1),
+             datetime.date(2013, 5, 1),
+             datetime.date(2013, 6, 1),
+             datetime.date(2013, 7, 1),
+             datetime.date(2013, 8, 1),
+             datetime.date(2013, 9, 1),
+             datetime.date(2013, 10, 1),
+             datetime.date(2013, 11, 1),
+             ],
+            )
 
         # Long periods
         p = DossierMobilite.Periode(

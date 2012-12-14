@@ -652,6 +652,7 @@ def experts_changed(sender, **kwargs):
     dossier.prepopuler_notes()
 m2m_changed.connect(experts_changed, sender=Dossier.experts.through)
 
+
 class DossierFaculte(models.Model):
     # Etablissement connu de l'AUF
     etablissement = models.ForeignKey(
@@ -755,12 +756,6 @@ class DossierOrigine(DossierFaculte):
         Dossier, verbose_name=u"Dossier", related_name="origine"
     )
 
-    # Pour le champ de sélection Etablissement
-    pays = models.ForeignKey(
-        ref.Pays, to_field="code", related_name="origine_pays",
-        verbose_name=u"Pays", blank=True, null=True
-    )
-
     # responsable institutionnel à l'origine
     resp_inst_civilite = models.CharField(
         max_length=2, verbose_name=u"Civilité", choices=CIVILITE,
@@ -794,21 +789,36 @@ class DossierAccueil(DossierFaculte):
         Dossier, verbose_name=u"Dossier", related_name="accueil"
     )
 
-    # Pour le champ de sélection Etablissement
-    pays = models.ForeignKey(
-        ref.Pays, to_field="code", related_name="accueil_pays",
-        verbose_name=u"Pays", blank=True, null=True
-    )
-
 
 class DossierMobilite(models.Model):
     """Informations sur la mobilité demandée par le candidat.
     """
     class Periode(object):
-        def __init__(self, debut, fin, mois=None):
+        def __init__(self, debut, fin, mois=None, iter_by='month'):
             self.debut = debut
             self.fin = fin
-            self.mois = mois or self.calc_mois()
+            self.mois, self.premier_mois = self.calc_mois()
+            self.__iter_by = 'month'
+            if mois:
+                self.mois = mois
+
+        def __repr__(self):
+            return self.__str__()
+
+        def __str__(self):
+            return '<Periode: %s - %s, %s mois, %s jours>' % (
+                self.debut,
+                self.fin,
+                self.mois,
+                self.jours
+                )
+
+        def __reset(self):
+            if self.debut and self.fin:
+                self.__current_month = self.premier_mois
+            else:
+                self.__current_month = None
+            self.__iter_index = 0
 
         def days_in_month(self, date):
             # Retourne le nombre de jours dans un mois.
@@ -817,9 +827,40 @@ class DossierMobilite(models.Model):
                 date.month,
                 )[1]
 
+        def month_iterator(self):
+            self.__iter_by = 'month'
+            return self
+
+        def days_iterator(self):
+            self.__iter_by = 'days'
+            return self
+
+        def __iter__(self):
+            self.__reset()
+            self.__return_first = True
+            return self
+
+        def next(self):
+            self.__iter_index += 1
+            if self.__iter_by == 'month':
+                if self.__iter_index > 1:
+                    # Start adding after first iteration.
+                    self.__current_month += datetime.timedelta(
+                        self.days_in_month(self.__current_month)
+                        )
+
+                if not self.debut or not self.fin:
+                    raise StopIteration()
+                if self.__iter_index > self.mois:
+                    self.__reset()
+                    raise StopIteration()
+                return self.__current_month
+            elif self.__iter_by == 'days':
+                raise NotImplemented('Cannot yet iter by days')
+
         def calc_mois(self):
             if not self.debut or not self.fin:
-                return 0
+                return 0, None
 
             calc_debut = datetime.date(
                 self.debut.year,
@@ -837,6 +878,7 @@ class DossierMobilite(models.Model):
                 calc_debut += datetime.timedelta(
                     days=self.days_in_month(calc_debut)
                     )
+            first_month = calc_debut
 
             if (self.fin.day < 20 and
                 calc_fin - datetime.timedelta(1) >= calc_debut):
@@ -847,7 +889,7 @@ class DossierMobilite(models.Model):
                     + calc_fin.month
                     - (calc_debut.month)
                     + 1
-                    )
+                    ), first_month
 
         @property
         def jours(self):
@@ -980,7 +1022,7 @@ class DossierMobilite(models.Model):
         blank=True,
         null=True,
         help_text=u"En euro (EUR)."
-    )
+ )
 
     def save(self, *args, **kwargs):
 

@@ -1,7 +1,11 @@
 # -*- encoding: utf-8 -*-
 
+import datetime
+from decimal import Decimal
+
 from django.db import models
 from django.db.models.signals import post_save
+from django.db.models import Sum
 from django.conf import settings
 
 import auf.django.references.models as ref
@@ -54,10 +58,14 @@ class Boursier(models.Model):
         blank=True, null=True
     )
     date_debut = models.DateField(
-        verbose_name="Date de début", blank=True, null=True
+        verbose_name="Date de début",
+        blank=True,
+        null=True,
     )
     date_fin = models.DateField(
-        verbose_name="Date de fin", blank=True, null=True
+        verbose_name="Date de fin",
+        blank=True,
+        null=True,
     )
 
     # Managers
@@ -112,7 +120,9 @@ class Boursier(models.Model):
             return None
 
     def montant(self, lieu):
-        pays = getattr(self.dossier, lieu).pays
+        dossier_lieu = getattr(self.dossier, lieu)
+        pays = getattr(dossier_lieu, 'pays', None)
+
         if pays is None:
             return None
         nord_sud = pays.nord_sud.lower()
@@ -128,16 +138,77 @@ class Boursier(models.Model):
         else:
             return None
 
+    def _abonnement(self, qs):
+        return (
+            qs.aggregate(total=Sum('montant_eur'))['total']
+            or Decimal('0')
+            )
+
+    @property
+    def depenses_totales(self):
+        return self.abonnement_total + self.prime_installation
+
+    @property
+    def abonnement_total(self):
+        return self._abonnement(self.depenses_previsionnelles.all())
+
+    @property
+    def abonnement_total_origine(self):
+        return self._abonnement(
+            self.depenses_previsionnelles.filter(implantation='O'))
+
+    @property
+    def abonnement_total_accueil(self):
+        return self._abonnement(
+            self.depenses_previsionnelles.filter(implantation='A'))
+
+    @property
     def prime_installation(self):
         pays = self.dossier.accueil.pays
         if pays is None:
-            return None
+            return Decimal('0')
         nord_sud = pays.nord_sud.lower()
-        return getattr(self.dossier.appel, 'prime_installation_%s' % nord_sud)
+        return Decimal(str(getattr(
+                self.dossier.appel, 'prime_installation_%s' %
+                nord_sud
+                )))
 
     def nom_complet(self):
         return self.prenom() + ' ' + self.nom()
     nom_complet.short_description = 'Nom'
+
+    def creer_depenses_previsionelles(self):
+        duree_accueil = self.dossier.mobilite.duree_accueil
+        duree_origine = self.dossier.mobilite.duree_origine
+        if self.bareme() == 'mensuel':
+            for m in duree_accueil:
+                DepensePrevisionnelle.objects.create(
+                    boursier=self,
+                    description='Abonnement mensuel (Accueil)',
+                    mois=m,
+                    montant_eur=self.montant('accueil') or Decimal('0'),
+                    implantation='A'
+                    )
+            for m in duree_origine:
+                DepensePrevisionnelle.objects.create(
+                    boursier=self,
+                    description='Abonnement mensuel (Origine)',
+                    mois=m,
+                    montant_eur=self.montant('origine') or Decimal('0'),
+                    implantation='O'
+                    )
+        elif self.dossier.bareme == 'perdiem':
+            pass
+        elif self.dossier.bareme == 'allocation':
+            pass
+
+    def creer_vues_ensemble(self):
+        for t in VueEnsemble.TYPE_CHOICES:
+            VueEnsemble.objects.create(
+                vue_type=t[0],
+                code_document=VueEnsemble.CODE_DOCUMENT_DEFAULTS[t[0]],
+                boursier=self,
+                )
 
     def save(self, *args, **kwargs):
         # Assurons-nous que les codes opération sont uniques
@@ -145,6 +216,54 @@ class Boursier(models.Model):
                 .filter(code_operation=self.code_operation) \
                 .update(code_operation='')
         super(Boursier, self).save(*args, **kwargs)
+
+
+class VueEnsemble(models.Model):
+    CODE_DOCUMENT_DEFAULTS = {
+        'EA': 'F-BOURSE-ENG',
+        'AO': 'F-BOURSE-ABT',
+        'AA': 'F-BOURSE-ABT',
+        'II': 'F-FAC',
+        }
+
+    TYPE_CHOICES = (
+        ('EA', 'Engagement de l\'allocation'),
+        ('AO', 'Abonnement - Origine'),
+        ('AA', 'Abonnement - Accueil'),
+        ('II', 'Indemnité d\'installation'),
+        )
+
+    vue_type = models.CharField(
+        max_length=2,
+        choices=TYPE_CHOICES,
+        )
+    code_document = models.CharField(
+        max_length=32,
+        )
+    code_sigma = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        )
+    boursier = models.ForeignKey(
+        'Boursier',
+        related_name='vue_ensemble',
+        )
+
+    class Meta:
+        verbose_name ='Engagement d\'allocations'
+        verbose_name_plural ='Engagements d\'allocations'
+
+    @property
+    def montant(self):
+        if self.vue_type == 'EA':
+            return self.boursier.abonnement_total
+        elif self.vue_type == 'AO':
+            return self.boursier.abonnement_total_origine
+        elif self.vue_type == 'AA':
+            return self.boursier.abonnement_total_accueil
+        elif self.vue_type == 'II':
+            return self.boursier.prime_installation
 
 
 class DepensePrevisionnelle(models.Model):
@@ -157,13 +276,37 @@ class DepensePrevisionnelle(models.Model):
         Boursier, related_name="depenses_previsionnelles"
     )
     numero = models.IntegerField(null=True, blank=True, verbose_name='Numéro')
-    date = models.DateField()
     description = models.CharField(max_length=36)
-    montant_eur = models.DecimalField(max_digits=17, decimal_places=2,
-                                      verbose_name='Montant (EUR)')
-    implantation = models.CharField(max_length=1,
-                                    choices=IMPLANTATION_CHOICES, null=True,
-                                    blank=True)
+    commentaires = models.CharField(
+        max_length=1024,
+        null=True,
+        blank=True,
+        )
+
+    # Si perdiem, ajouter une date.
+    date = models.DateField(
+        null=True,
+        blank=True,
+        )
+
+    # Si mensuel, ajouter une date, au début du mois, et afficher le
+    # mois / année.
+    mois = models.DateField(
+        null=True,
+        blank=True,
+        )
+
+    montant_eur = models.DecimalField(
+        max_digits=17,
+        decimal_places=2,
+        verbose_name='Montant (EUR)',
+        )
+    implantation = models.CharField(
+        max_length=1,
+        choices=IMPLANTATION_CHOICES,
+        null=True,
+        blank=True,
+        )
 
     class Meta:
         verbose_name = "Dépense prévisionnelle"
@@ -219,5 +362,11 @@ class EcritureCODA(models.Model):
 
 def dossier_post_save(sender, instance=None, **kwargs):
     if instance and instance.etat == DOSSIER_ETAT_RETENU:
-        Boursier.objects.get_or_create(dossier=instance)
+        # Creer boursier
+        b, created = Boursier.objects.get_or_create(dossier=instance)
+        if created:
+            # Creer vues d'ensemble et depenses previsionnelles
+            b.creer_vues_ensemble()
+            b.creer_depenses_previsionelles()
+
 post_save.connect(dossier_post_save, sender=Dossier)
