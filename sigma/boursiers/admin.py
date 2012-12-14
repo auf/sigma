@@ -16,7 +16,7 @@ from .models import (
     VueEnsemble,
     EcritureCODA
     )
-from sigma.custom_admin import GuardedModelAdmin
+from sigma.custom_admin.util import GuardedModelAdmin
 
 
 class BoursierAdminForm(ModelForm):
