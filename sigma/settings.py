@@ -120,6 +120,7 @@ INSTALLED_APPS = (
     'sigma.candidatures',
     'sigma.wcs',
     'sigma.dynamo',
+    'sigma.custom_admin',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -152,8 +153,8 @@ TEMPLATE_DIRS = (
 
 SOUTH_TESTS_MIGRATE = False
 
-ADMIN_TOOLS_MENU = 'sigma.menu.CustomMenu'
-ADMIN_TOOLS_INDEX_DASHBOARD = 'sigma.dashboard.CustomIndexDashboard'
+ADMIN_TOOLS_MENU = 'sigma.custom_admin.menu.CustomMenu'
+ADMIN_TOOLS_INDEX_DASHBOARD = 'sigma.custom_admin.dashboard.CustomIndexDashboard'
 
 HELP_TEXT_DATE = "format: jj/mm/aaaa"
 

@@ -31,7 +31,7 @@ from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 from sigma.candidatures.filters import RegionFilter, AppelFilter, \
         RegionOrigineFilter, RegionAccueilFilter, \
         PaysOrigineFilter, PaysAccueilFilter
-from sigma.custom_admin import ModelAdmin, GuardedModelAdmin
+from sigma.custom_admin.util import ModelAdmin, GuardedModelAdmin
 
 # Forms
 

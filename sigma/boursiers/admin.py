@@ -14,7 +14,7 @@ from django.db import models
 from sigma.boursiers.models import (
     Boursier, DepensePrevisionnelle, EcritureCODA
 )
-from sigma.custom_admin import GuardedModelAdmin
+from sigma.custom_admin.util import GuardedModelAdmin
 
 class BoursierAdminForm(ModelForm):
 

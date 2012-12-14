@@ -194,7 +194,7 @@ class UserProfile(models.Model):
     )
     disciplines = models.ManyToManyField(
         ref.Discipline, verbose_name=u"Disciplines", blank=True, null=True
-    )
+    ) # TODO potentially obsolete, Davin says this is probably for Expert
 
 
 @receiver(post_save, sender=User)
