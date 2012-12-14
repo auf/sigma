@@ -479,6 +479,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom',
                      'candidat__nom_jeune_fille', 'discipline__code',
+                     'discipline__nom',
                      'discipline__nom_court', 'discipline__nom_long',
                      'origine__resp_inst_nom', 'origine__resp_inst_prenom',
                      'origine__resp_inst_courriel', 'origine__resp_sc_nom',
@@ -695,6 +696,7 @@ class ExpertAdmin(GuardedModelAdmin):
         'courriel', 
         'region__nom',
         'disciplines__nom',
+        'disciplines__code',
     )
     fieldsets = (
         (None, {
