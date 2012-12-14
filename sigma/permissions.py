@@ -51,6 +51,5 @@ for perm in ['add', 'delete', 'change']:
     # Add perms for BoursierAdmin inlines
     for model in ['vueensemble', 'depenseprevisionnelle']:
         rules.allow_global(
-            'boursiers.%s_depenseprevisionnelle' % perm,
+            'boursiers.%s_%s' % (perm, model),
             has_global_perm('global.gerer_boursiers'))
-
