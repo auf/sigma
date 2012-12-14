@@ -9,6 +9,7 @@ from auf.django.permissions import get_rules
 from sigma.candidatures.models import Appel, DossierOrigine, DossierAccueil
 
 NULL = u'null'
+NOT_NULL = u'not_null'
 
 # Filtres
 
@@ -111,22 +112,65 @@ class RegionAccueilFilter(_RegionFilter):
 class _PaysFilter(_NullFKFilter):
     model = None
 
+    def queryset(self, request, queryset, implantation=None):
+        pcode = request.GET.get('pays_%s' % implantation, None)
+        if pcode:
+            if pcode == NULL:
+                return queryset.filter(
+                    Q(**{'%s__etablissement__pays__isnull' %
+                         implantation: True}) and
+                    Q(**{'%s__autre_etablissement_pays__isnull' %
+                         implantation: True})
+                    )
+            elif pcode == NOT_NULL:
+                return queryset.exclude(
+                    Q(**{'%s__etablissement__pays__isnull' %
+                         implantation: True}) or
+                    Q(**{'%s__autre_etablissement_pays__isnull' %
+                         implantation: True})
+                    )
+            return queryset.filter(
+                Q(**{'%s__etablissement__pays' %
+                     implantation: pcode}) or
+                Q(**{'%s__autre_etablissement_pays' %
+                     implantation: pcode}))
+
     def lookups(self, request, model_admin):
-        pays_existants = set([dic['pays'] for dic in
-                self.model.objects.values('pays')])
+        pays_existants = set(
+            [x[0] for x in
+             self.model.objects.values_list('etablissement__pays')
+             if x[0]
+             ]).union(
+            set([x[0] for x in
+                 self.model.objects.values_list('autre_etablissement_pays')
+                 if x[0]
+                 ]))
+
         pays = ref.Pays.objects.filter(code__in=pays_existants)
-        return [(NULL, u"Sans pays spécifié"), ] + [
+        return [
+            (NULL, u"Sans pays spécifié"),
+            (NOT_NULL, u"Avec pays spécifié"),
+            ] + [
             (unicode(a), b)
             for (a, b) in pays.values_list('code', 'nom')
         ]
 
+
 class PaysOrigineFilter(_PaysFilter):
     title = "pays d'origine"
-    parameter_name = 'origine__pays'
+    parameter_name = 'pays_origine'
     model = DossierOrigine
+
+    def queryset(self, request, queryset):
+        return super(PaysOrigineFilter, self).queryset(
+            request, queryset, 'origine')
 
 
 class PaysAccueilFilter(_PaysFilter):
     title = "pays d'accueil"
-    parameter_name = 'accueil__pays'
+    parameter_name = 'pays_accueil'
     model = DossierAccueil
+
+    def queryset(self, request, queryset):
+        return super(PaysAccueilFilter, self).queryset(
+            request, queryset, 'accueil')
