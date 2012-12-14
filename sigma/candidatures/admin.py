@@ -468,8 +468,7 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     list_filter = (
         AppelFilter, 'etat', 'a_verifier', 'discipline', 
         RegionOrigineFilter, RegionAccueilFilter,
-        PaysOrigineFilter, PaysAccueilFilter,
-
+        # PaysOrigineFilter, PaysAccueilFilter,
     )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom',
                      'candidat__nom_jeune_fille', 'discipline__code',
