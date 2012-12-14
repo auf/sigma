@@ -103,6 +103,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'apptemplates',
     'auf.django.auth',
     'auf.django.admingroup',
     'auf.django.export',
@@ -142,6 +143,7 @@ AUTH_PROFILE_MODULE = "candidatures.userprofile"
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
+    'apptemplates.Loader', # so we can use {% extends "module:template.html" %}
 )
 
 TEMPLATE_DIRS = (
