@@ -10,7 +10,7 @@ from django.conf import settings
 
 import auf.django.references.models as ref
 
-from sigma.candidatures.models import Dossier
+from sigma.candidatures.models import Dossier, DossierMobilite
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 
 ENABLE_FILTERED_QUERYSETS = getattr(settings, 'ENABLE_FILTERED_QUERYSETS', True)
@@ -100,8 +100,19 @@ class Boursier(models.Model):
     appel.admin_order_field = 'dossier__appel__nom'
 
     def debut_mobilite(self):
-        return min(self.dossier.mobilite.date_debut_origine,
-                   self.dossier.mobilite.date_debut_accueil)
+        try:
+            if (self.dossier.mobilite.date_debut_origine and
+                self.dossier.mobilite.date_debut_accueil):
+                return min(
+                    self.dossier.mobilite.date_debut_origine,
+                    self.dossier.mobilite.date_debut_accueil,
+                    )
+            else:
+                return (self.dossier.mobilite.date_debut_accueil or
+                        self.dossier.mobilite.date_debut_origine or
+                        None)
+        except DossierMobilite.DoesNotExist:
+            return None
     debut_mobilite.short_description = 'Début de la mobilité'
     # XXX: Trouver comment ordonner par la plus petite des date de début
     debut_mobilite.admin_order_field = 'dossier__mobilite__date_debut_origine'

@@ -143,8 +143,13 @@ class VueEnsembleInline(admin.TabularInline, DeviseMixin):
 
 class BoursierAdmin(GuardedModelAdmin):
     list_display = (
-        'nom', 'prenom', 'code_operation', 'naissance_date', 'appel',
-        'debut_mobilite', 'field_actions'
+        'nom',
+        'prenom',
+        'code_operation',
+        'naissance_date',
+        'appel',
+        'debut_mobilite',
+        # 'field_actions',
     )
     list_display_links = ('nom', 'prenom')
     list_filter = ('dossier__appel',)
