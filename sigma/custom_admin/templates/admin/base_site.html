@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% load i18n staticfiles admin_tools_menu_tags %}
+
+{% block title %}{{ title }} | Sigma{% endblock %}
+
+{% block coltype %}sigmaCols{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "css/common.css" %}" media="screen, projection"/>
+<link rel="stylesheet" type="text/css" href="{% static "css/dashboard.css" %}" media="screen, projection"/>
+{% if not is_popup %}
+    {# we need the menu CSS even if user not logged in #}
+    {% admin_tools_render_menu_css %}
+{% endif %}
+{% endblock %}
+
+{% block content_menu %}
+{% if user.is_active and user.is_staff and not is_popup %}
+    {% admin_tools_render_menu %}
+{% else %}
+    <ul id="navigation-menu">
+      <li>
+        <a href="{% url admin:index %}">Accueil</a>
+      </li>
+    </ul>
+{% endif %}
+{% endblock %}
+
+{% block footer %}{% endblock %}

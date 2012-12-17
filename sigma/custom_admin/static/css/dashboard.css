@@ -1,0 +1,69 @@
+.simple_module {
+  width: 380px;
+  margin-left: 40px;
+  }
+  .actions_module {
+    margin-left: 20px;
+    }
+
+.simple_module .dashboard-module-content {
+  border: none;
+  }
+
+
+.simple_module li {
+  display: block;
+  clear: both;
+  margin-bottom: 20px;
+  }
+  .simple_module h2 {
+    margin-bottom: 20px;
+    font-size: 18pt;
+    font-weight: 400;
+    }
+  .simple_module p {
+    font-size: 10pt;
+    }
+    .simple_module p.name {
+      margin: 2px 0 0 0;
+      }
+    .simple_module p.details {
+      margin: 0 0 2px 0;
+      }
+      .simple_module p.details .status {
+        color: #8ecc0c;
+        }
+
+
+.icon_list_module h2 {
+  margin-left: 50px;
+  }
+  .appels_module_icon {
+    float: left;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    }
+    .appels_module_icon.icon_appels {
+      background-image: url(/static/img/icon_appel.png);
+      }
+
+
+.actions_module .dashboard-module-content {
+  margin-top: -10px;
+  }
+.actions_module li {
+  padding: 10px;
+  margin-bottom: 0;
+  }
+  .actions_module li:hover {
+    background-color: #f0f0f0;
+    }
+  .actions_module p.details {
+    color: #a2a3a5;
+    }
+  .actions_module p.date {
+    float: right;
+    margin: 0;
+    color: #8ecc0c;
+    }

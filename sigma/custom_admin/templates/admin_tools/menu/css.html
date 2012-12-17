@@ -1,0 +1,8 @@
+{% load staticfiles %}
+<!-- heehee -->
+<link rel="stylesheet" href="{% static "admin_tools/css/menu.css" %}" type="text/css" media="screen, projection"/>
+<!--[if lt IE 8]>
+<link rel="stylesheet" href="{% static "admin_tools/css/menu-ie.css" %}" type="text/css" media="screen, projection"/>
+<![endif]-->
+{% for css in css_files %}
+<link rel="stylesheet" href="{% static css %}" type="text/css" media="screen, projection"/>{% endfor %}

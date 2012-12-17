@@ -14,31 +14,26 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 
-class CustomMenu(Menu):
+class MainMenu(Menu):
     """
     Custom Menu for SIGMA admin site.
     """
-    mon_compte = MenuItem(_('Mon compte'), reverse('admin:index'))
-
-    def __init__(self, **kwargs):
-        Menu.__init__(self, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(MainMenu, self).__init__(*args, **kwargs)
         self.children += [
-            MenuItem(_('Dashboard'), reverse('admin:index')),
-            Bookmarks(),
-            MenuItem('Sigma', children=[
-                MenuItem(
-                    'Appels', reverse('admin:candidatures_appel_changelist')
-                ),
-                MenuItem(
-                    'Dossiers de candidature',
-                    reverse('admin:candidatures_dossier_changelist')
-                ),
-                MenuItem(
-                    'Boursiers', reverse('admin:boursiers_boursier_changelist')
-                ),
-                MenuItem(
-                    'Experts', reverse('admin:candidatures_expert_changelist')
-                ),
-                MenuItem('Formulaire WCS', reverse('wcs-formulaire_wcs')),
-            ])
+            MenuItem('Accueil', reverse('admin:index')),
+            MenuItem('Appels', reverse('admin:candidatures_appel_changelist')),
+            MenuItem('Candidats', reverse('admin:candidatures_dossier_changelist')),
+            MenuItem('Allocataires', reverse('admin:boursiers_boursier_changelist')),
+            MenuItem('Experts', reverse('admin:candidatures_expert_changelist')),
         ]
+
+    def init_with_context(self, context):
+        super(MainMenu, self).init_with_context(context)
+        if context['request'].user.is_superuser:
+            # Added here because these superuser options are no longer
+            # available on the dashboard
+            self.children += [
+                MenuItem('-- Configuration', reverse('admin:app_list', kwargs={'app_label': 'candidatures'})),
+                MenuItem('-- Utilisateurs', reverse('admin:app_list', kwargs={'app_label': 'auth'})),
+            ]

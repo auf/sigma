@@ -94,6 +94,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'sigma.urls'
 
 INSTALLED_APPS = (
+    'sigma.custom_admin',
     'admin_tools',
     'admin_tools.menu',
     'admin_tools.dashboard',
@@ -120,7 +121,6 @@ INSTALLED_APPS = (
     'sigma.candidatures',
     'sigma.wcs',
     'sigma.dynamo',
-    'sigma.custom_admin',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -153,8 +153,8 @@ TEMPLATE_DIRS = (
 
 SOUTH_TESTS_MIGRATE = False
 
-ADMIN_TOOLS_MENU = 'sigma.custom_admin.menu.CustomMenu'
-ADMIN_TOOLS_INDEX_DASHBOARD = 'sigma.custom_admin.dashboard.CustomIndexDashboard'
+ADMIN_TOOLS_MENU = 'sigma.custom_admin.menu.MainMenu'
+ADMIN_TOOLS_INDEX_DASHBOARD = 'sigma.custom_admin.dashboard.IndexDashboard'
 
 HELP_TEXT_DATE = "format: jj/mm/aaaa"
 

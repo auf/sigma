@@ -1,0 +1,166 @@
+/*
+Header
+======
+*/
+
+.top_ribbon {
+  position: relative;
+  font-family: serif; /* Wat? sans-serif makes a weird 1px white line above it */
+  font-size: 4px;
+  line-height: 4px;
+  }
+  .top_ribbon .color_block {
+    display: inline-block;
+    width: 50%;
+    height: 5px;
+    }
+    .color_block.blue { background-color: #0198e9; }
+    .color_block.red { background-color: #e40001; }
+    .color_block.yellow { background-color: #fcd83f; }
+    .color_block.green { background-color: #7eb301; }
+    .color_block.purple { background-color: #5d0073; }
+  .top_ribbon .ribbon_overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    }
+    .ribbon_overlay .color_blocks { width: 960px; margin: 0 auto; }
+    .ribbon_overlay .color_block { width: 320px; }
+
+#header_content {
+  position: relative;
+  width: 960px;
+  height: 152px;
+  margin: 0 auto;
+  }
+
+  #branding {
+    float: left;
+    width: 170px;
+    height: 127px;
+    padding-top: 25px;
+    }
+
+  #site_name {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 42pt;
+    font-weight: 700;
+    color: black;
+    }
+
+  #settings_menu {
+    float: right;
+    margin-right: 5px;
+    margin-top: 30px;
+    cursor: pointer;
+    }
+
+#search_box {
+  position: relative;
+  width: 500px;
+  margin: 15px auto 65px auto;
+  }
+  #search_box input {
+    width: 470px;
+    height: 45px;
+    border: 1px solid #e9e9ea;
+    -webkit-border-radius: 6px;
+       -moz-border-radius: 6px;
+            border-radius: 6px;
+    padding: 0 15px;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16pt;
+    font-weight: 300;
+    letter-spacing: 1px;
+    color: black;
+    }
+    #search_box input::-webkit-input-placeholder {
+      font-family: "Open Sans", sans-serif;
+      font-size: 16pt; font-weight: 300; letter-spacing: 1px; color: #cdced1; }
+    #search_box input:-moz-placeholder {
+      font-family: "Open Sans", sans-serif;
+      font-size: 16pt; font-weight: 300; letter-spacing: 1px; color: #cdced1; }
+    #search_box input::-moz-placeholder {
+      font-family: "Open Sans", sans-serif;
+      font-size: 16pt; font-weight: 300; letter-spacing: 1px; color: #cdced1; }
+    #search_box input:-ms-input-placeholder {
+      font-family: "Open Sans", sans-serif;
+      font-size: 16pt; font-weight: 300; letter-spacing: 1px; color: #cdced1; }
+  #search_box img {
+    position: absolute;
+    right: 10px;
+    top: 11px;
+    cursor: pointer;
+    }
+
+
+/*
+Content
+=======
+*/
+
+#content {
+  position: relative;
+  min-height: 75%;
+}
+#left_column, #right_column {
+  width: 50%; /* to provide a baseline down the middle */
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  }
+#left_column {
+  position: absolute; /* to make it go all the way to the bottom */
+  top: 0; bottom: 0;
+  background: url(/static/img/bg.png) repeat;
+  }
+#right_column {
+  margin-left: 50%; /* because left_column is absolute so it gets pulled from the flow */
+  }
+
+.menu_panel {
+  /* The grid is 960px wide and centered on the page. Half the grid width is 480px.
+  We want the menu to be 180px wide, but left-aligned in the grid. So there are 300px
+  between the right border of the menu and the center of the grid (this center is also
+  the center of the screen, and the right border of #left_column).
+  So we absolute-ly align the menu to the right of the column then give it a 300px right
+  margin. We make it a white border instead to cover #left_column's background pattern.
+  */
+  position: absolute;
+  right: 0;
+  top: 0; bottom: 0; /* extend to the bottom of #content */
+  width: 180px;
+  border-right: 300px solid white;
+  vertical-align: top;
+  }
+.content_panel {
+  position: relative;
+  display: inline-block;
+  min-width: 760px;
+  margin-left: -300px;
+  /* border-left: 1px solid e9e9ea;
+  border-right: 1px solid #e9e9ea;*/
+  padding: 27px 0 40px 12px;
+  vertical-align: top;
+  background-color: white;
+  }
+
+
+#footer {
+  border-top: 1px solid #e9e9ea;
+  background-color: #f9f9fa;
+  }
+
+
+/*
+Clearfix
+========
+Django Admin has its own <br class="clear" />
+*/
+.clearfix:before, .clearfix:after { content: ""; display: table; }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; } /* For IE 6/7 (trigger hasLayout) */
