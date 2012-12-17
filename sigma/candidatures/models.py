@@ -1020,19 +1020,19 @@ class DossierMobilite(models.Model):
         verbose_name=u"Votre mobilité sera-t-elle partiellement financée par un autre organisme ?",
         choices=BOOLEAN_RADIO_OPTIONS,
         default=0
-    )
+        )
     cofinancement_source = models.TextField(
         verbose_name=u"Source du cofinancement",
         blank=True,
         null=True
-    )
+        )
     cofinancement_montant = models.DecimalField(
         max_digits=17, decimal_places=2,
         verbose_name=u"Montant du cofinancement",
         blank=True,
         null=True,
         help_text=u"En euro (EUR)."
- )
+        )
 
     def save(self, *args, **kwargs):
 

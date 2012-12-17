@@ -185,7 +185,7 @@ class Boursier(models.Model):
                 DepensePrevisionnelle.objects.create(
                     boursier=self,
                     description='Abonnement mensuel (Accueil)',
-                    mois=m,
+                    date=m,
                     montant_eur=self.montant('accueil') or Decimal('0'),
                     implantation='A'
                     )
@@ -193,14 +193,35 @@ class Boursier(models.Model):
                 DepensePrevisionnelle.objects.create(
                     boursier=self,
                     description='Abonnement mensuel (Origine)',
-                    mois=m,
+                    date=m,
                     montant_eur=self.montant('origine') or Decimal('0'),
                     implantation='O'
                     )
         elif self.bareme() == 'perdiem':
-            pass
+            for m in duree_accueil.days_iterator:
+                DepensePrevisionnelle.objects.create(
+                    boursier=self,
+                    description='Abonnement perdiem (Accueil)',
+                    date=m,
+                    montant_eur=self.montant('accueil') or Decimal('0'),
+                    implantation='A'
+                    )
+            for m in duree_origine.days_iterator:
+                DepensePrevisionnelle.objects.create(
+                    boursier=self,
+                    description='Abonnement perdiem (Origine)',
+                    date=m,
+                    montant_eur=self.montant('origine') or Decimal('0'),
+                    implantation='O'
+                    )
         elif self.bareme() == 'allocation':
-            pass
+            DepensePrevisionnelle.objects.create(
+                boursier=self,
+                description='Allocation unique (Acueil)',
+                date=self.dossier.mobilite.date_debut_accueil,
+                montant_eur=self.montant('accueil') or Decimal('0'),
+                implantation='A'
+                )
 
     def creer_vues_ensemble(self):
         for t in VueEnsemble.TYPE_CHOICES:
@@ -285,13 +306,6 @@ class DepensePrevisionnelle(models.Model):
 
     # Si perdiem, ajouter une date.
     date = models.DateField(
-        null=True,
-        blank=True,
-        )
-
-    # Si mensuel, ajouter une date, au début du mois, et afficher le
-    # mois / année.
-    mois = models.DateField(
         null=True,
         blank=True,
         )

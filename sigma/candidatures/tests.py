@@ -33,25 +33,6 @@ class CandidatTestCase(TestCase):
             24,
             )
 
-    # def test_period_iter(self):
-    #     from .models import DossierMobilite
-
-    #     p = DossierMobilite.Periode(
-    #         datetime.date(2012, 11, 20),
-    #         datetime.date(2013, 12, 19),
-    #         )
-    #     # self.assertEquals(p.mois, 13)
-    #     # self.assertEquals(p.jours, 395)
-
-    #     months = [x for x in p]
-    #     self.assertEquals(
-    #         months[0],
-    #         datetime.date(year=2012, month=12, day=1))
-    #     self.assertEquals(
-    #         months[-1:][0],
-    #         datetime.date(year=2013, month=12, day=1))
-    #     self.assertEquals(len(months), 13)
-
     def test_periode(self):
         # Specs:
         # on arrondit au 20e jour.

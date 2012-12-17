@@ -85,14 +85,13 @@ class DeviseMixin(object):
 class DepensePrevisionnelleInline(admin.TabularInline, DeviseMixin):
     model = DepensePrevisionnelle
     template = 'admin/edit_inline/tabular_compact.html'
-    ordering = ('mois', 'date')
+    ordering = ('date',)
     extra = 0
     formfield_overrides = {
         models.DecimalField: {'localize': True},
     }
     fields = (
         'commentaires',
-        'mois',
         'date',
         'montant_eur',
         '_devise',
