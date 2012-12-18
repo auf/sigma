@@ -18,6 +18,29 @@ from sigma.dynamo.forms import PropertyForm
 from sigma.dynamo.fields import TEXT
 
 
+class NoteInlineFormSet(BaseInlineFormSet):
+    def __init__(self,
+                 data=None,
+                 files=None,
+                 instance=None,
+                 save_as_new=False,
+                 prefix=None,
+                 queryset=None,
+                 **kwargs):
+        if not queryset:
+            queryset = Note.objects.filter(
+                expert__in=instance.experts.all(),
+                )
+        super(NoteInlineFormSet, self).__init__(
+            data,
+            files,
+            instance,
+            save_as_new,
+            prefix,
+            queryset,
+            **kwargs)
+
+
 class RequiredInlineFormSet(BaseInlineFormSet):
     """
     Generates an inline formset that is required
@@ -79,7 +102,15 @@ class NoteForm(BetterModelForm):
 
         return note
     
-NoteFormSet = inlineformset_factory(Dossier, Note, form=NoteForm, extra=1)
+
+NoteFormSet = inlineformset_factory(
+    Dossier,
+    Note,
+    form=NoteForm,
+    extra=1,
+    formset=NoteInlineFormSet,
+    )
+
 
 class CommentaireForm(BetterModelForm):
     class Meta:

@@ -602,12 +602,8 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
 
     def calculer_moyenne(self,):
         if self.id:
-            notes = [note.note for note in self.notes.all()
-                     if note.note is not None]
-            if len(notes) > 0:
-                self.moyenne_votes = float(sum(notes)) / len(notes)
-            else:
-                self.moyenne_votes = 0
+            self.moyenne_votes = (self.notes.filter(expert__in=self.experts.all()).
+                   aggregate(avg=models.Avg('note'))['avg'])
 
     def prepopuler_notes(self, *args, **kwargs):
         """
