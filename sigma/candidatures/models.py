@@ -446,6 +446,11 @@ class Note(models.Model):
     """
     dossier = models.ForeignKey("Dossier", related_name="notes")
     expert = models.ForeignKey(Expert, blank=True, null=True)
+    commentaire = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        )
     date = models.DateField(auto_now_add=True)
     note = models.IntegerField(blank=True, null=True)
 
@@ -565,9 +570,6 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
     annotations = models.ManyToManyField(
         Commentaire, verbose_name=u"Commentaires", blank=True, null=True
     )
-    moyenne_votes = models.FloatField(
-        verbose_name=u"Évaluation", blank=True, null=True
-    )
     moyenne_academique = models.FloatField(
         verbose_name=u"Moyenne académique", blank=True, null=True
     )
@@ -600,10 +602,10 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         return u"%s #%s (%sappel %s)" % (self._meta.verbose_name,
                 self.id, candidat, self.appel,)
 
-    def calculer_moyenne(self,):
-        if self.id:
-            self.moyenne_votes = (self.notes.filter(expert__in=self.experts.all()).
-                   aggregate(avg=models.Avg('note'))['avg'])
+    def moyenne_notes(self):
+        return (self.notes.filter(expert__in=self.experts.all()).
+                aggregate(avg=models.Avg('note'))['avg'])
+    moyenne_notes.short_description = 'Moyenne des notes'
 
     def prepopuler_notes(self, *args, **kwargs):
         """
@@ -627,11 +629,6 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
                     note.dossier = self
                     note.expert = expert
                     note.save()
-
-    def save(self, *args, **kwargs):
-        self.calculer_moyenne()
-
-        super(Dossier, self).save(*args, **kwargs)
 
     def nom(self):
         return self.candidat.nom.upper()

@@ -54,6 +54,28 @@ class RequiredInlineFormSet(BaseInlineFormSet):
         form.empty_permitted = False
         return form
 
+# Widgets:
+class ExpertWidget(forms.widgets.Widget):
+
+
+    def render(self, name, value, attrs=None):
+        exp = Expert.objects.get(id=value)
+        nom = '%s %s' % (exp.prenom, exp.nom)
+        return mark_safe(
+            u'<input readonly class="readonly_field" value="%(nom)s"'
+            '/><input type="hidden" name="%(name)s" value="%(value)s"'
+            '/>' % {
+                'value': value,
+                'name': name,
+                'nom': nom,
+                })
+
+class NoteWidget(forms.widgets.Widget):
+    def render(self, name, value, attrs=None):
+        return mark_safe(
+            u'<input readonly class="readonly_field" value="%s"/>' %
+            value)
+
 
 # PROFIL - DISCIPLINES
 
@@ -86,9 +108,25 @@ class PieceForm(ModelForm):
 # DOSSIER - EVALUATION
 
 class NoteForm(BetterModelForm):
+    expert = forms.CharField(
+        max_length=1024,
+        widget=ExpertWidget,
+        )
+
+    def __init__(self, *a, **kw):
+        super(NoteForm, self).__init__(*a, **kw)
+
     class Meta:
         exclude = ('dossier', )
         model = Note
+
+    def clean_expert(self):
+        # Make it readonly.
+        if 'expert' in self.changed_data:
+            raise forms.ValidationError(
+                "Impossible de modifier l'expert"
+                )
+        return Expert.objects.get(id=self.cleaned_data['expert'])
 
     def clean_note(self):
         note = self.cleaned_data['note']
@@ -98,17 +136,27 @@ class NoteForm(BetterModelForm):
             raise forms.ValidationError(
                 "Vous devez spécifier une note entre %s et %s" %
                 (NOTE_MIN, NOTE_MAX)
-            )
-
+                )
         return note
-    
+
+    def clean(self):
+        if (self.instance.id == None and
+            self.instance.dossier.notes.filter(
+                expert=self.cleaned_data['expert']).count() > 0):
+            raise forms.ValidationError(
+                'Une seule note peut être inscrite par expert, par'
+                ' dossier.'
+            )
+        return self.cleaned_data
+
 
 NoteFormSet = inlineformset_factory(
     Dossier,
     Note,
     form=NoteForm,
-    extra=1,
+    extra=0,
     formset=NoteInlineFormSet,
+    can_delete=False,
     )
 
 
@@ -119,8 +167,25 @@ class CommentaireForm(BetterModelForm):
 
 
 class EvaluationForm(BetterModelForm):
+    moyenne_notes = forms.CharField(
+        label='Moyenne des notes',
+        required=False,
+        widget=NoteWidget,
+        )
+
+    def __init__(self, *a, **kw):
+        super(EvaluationForm, self).__init__(*a, **kw)
+        moyenne = float(0)
+        if self.instance.id:
+            moyenne = self.instance.moyenne_notes()
+        self.initial['moyenne_notes'] = moyenne
+
     class Meta:
-        fields = ('moyenne_academique', 'opportunite_regionale', )
+        fields = (
+            'moyenne_academique',
+            'moyenne_notes',
+            'opportunite_regionale',
+            )
         model = Dossier
 
 

@@ -82,6 +82,7 @@ def evaluer(request, dossier_id):
                 },
             )
         notes_formset = NoteFormSet(instance=dossier)
+        
         commentaireForm = CommentaireForm()
         evaluationForm = EvaluationForm(instance=dossier)
 

@@ -460,13 +460,16 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     inlines = (DossierCandidatInline, DiplomeInline, DossierOrigineInline,
                DossierAccueilInline, DossierMobiliteInline,
                DossierConformiteAdmin)
+    readonly_fields = (
+        'moyenne_notes',
+        )
     list_display = (
         'nom',
         'prenom',
         '_age',
         'naissance_date',
         'etat',
-        'moyenne_votes',
+        'moyenne_notes',
         'a_verifier',
         'action_column'
     )
@@ -494,10 +497,10 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
                      'mobilite__diplome_demande_nom',
     )
     fieldsets = (
-            (None, {'fields': ('appel',)},
-            ),
+        (None, {'fields': ('appel', 'moyenne_notes')},
+         ),
         ('État du dossier', {
-            'fields': ('etat', ),
+            'fields': ('etat',),
         }),
         ('Situation universitaire', {
             'fields': ('candidat_statut', 'candidat_fonction', ),

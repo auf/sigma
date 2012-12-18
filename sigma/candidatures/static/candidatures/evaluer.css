@@ -11,3 +11,10 @@
     width: 780px;
 }
 
+
+.readonly_field {
+    font-weight: bold;
+    border:0;
+    width: 200px;
+    padding-left: 10px;
+}
