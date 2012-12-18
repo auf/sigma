@@ -53,20 +53,17 @@ class Boursier(models.Model):
         max_length=100, verbose_name="Numéro de police d'assurance",
         blank=True, default=''
     )
-    responsable_budgetaire = models.ForeignKey(ref.Employe,
-        verbose_name="Responsable budgétaire",
-        blank=True, null=True
-    )
+
     date_debut = models.DateField(
         verbose_name="Date de début",
         blank=True,
         null=True,
-    )
+        )
     date_fin = models.DateField(
         verbose_name="Date de fin",
         blank=True,
         null=True,
-    )
+        )
 
     # Managers
     objects = BoursierManager()
@@ -78,6 +75,20 @@ class Boursier(models.Model):
 
     def __unicode__(self):
         return self.nom_complet()
+
+    def pays_origine(self):
+        origine = self.dossier.origine
+        if origine:
+            return origine.pays
+    pays_origine.short_description = 'Pays d\'origine'
+    pays_origine.admin_order_field = 'dossier__origine__pays__nom'
+            
+    def code_bureau(self):
+        pays = self.pays_origine()
+        if pays:
+            return pays.code_bureau.code
+    code_bureau.short_description = 'Code d\'implantation d\'origine'
+    code_bureau.admin_order_field = 'dossier__origine__pays__code_bureau__nom'
 
     def prenom(self):
         return self.dossier.candidat.prenom
@@ -93,6 +104,14 @@ class Boursier(models.Model):
         return self.dossier.candidat.naissance_date
     naissance_date.short_description = 'Date de naissance'
     naissance_date.admin_order_field = 'dossier__candidat__naissance_date'
+
+    def responsable_budgetaire(self):
+        return '%s %s' % (
+            self.appel().responsable_budgetaire.prenom,
+            self.appel().responsable_budgetaire.nom,
+            )
+    responsable_budgetaire.short_description = 'Responsable Budgétaire'
+    responsable_budgetaire.admin_order_field = 'dossier__appel__responsable_budgetaire__nom'
 
     def appel(self):
         return self.dossier.appel
@@ -156,10 +175,6 @@ class Boursier(models.Model):
             )
 
     @property
-    def depenses_totales(self):
-        return self.abonnement_total + self.prime_installation
-
-    @property
     def abonnement_total(self):
         return self._abonnement(self.depenses_previsionnelles.all())
 
@@ -183,6 +198,23 @@ class Boursier(models.Model):
                 self.dossier.appel, 'prime_installation_%s' %
                 nord_sud
                 )))
+
+    def depenses_totales(self):
+        return self.abonnement_total + self.prime_installation
+    depenses_totales.short_description = (
+        'Total des dépenses prévues')
+
+    def depenses_reelles_totales(self):
+        return (self.get_depenses_reelles()
+                .filter(etat_paiement='P')
+                .aggregate(total=Sum('montant')))['total']
+    depenses_reelles_totales.short_description = (
+        'Total des dépenses CODA payées')
+
+    def get_depenses_reelles(self):
+        return EcritureCODA.objects \
+            .filter(boursier_id=self.code_operation) \
+            .order_by('numero_pcg', 'nom_pcg', '-date_document')
 
     def nom_complet(self):
         return self.prenom() + ' ' + self.nom()
@@ -248,6 +280,12 @@ class Boursier(models.Model):
                 .filter(code_operation=self.code_operation) \
                 .update(code_operation='')
         super(Boursier, self).save(*args, **kwargs)
+
+
+class FicheFinanciere(Boursier):
+
+    class Meta:
+        proxy = True
 
 
 class VueEnsemble(models.Model):
@@ -391,6 +429,11 @@ def dossier_post_save(sender, instance=None, **kwargs):
         b, created = Boursier.objects.get_or_create(dossier=instance)
         if created:
             # Creer vues d'ensemble et depenses previsionnelles
+            mobilite = instance.get_mobilite()
+            if mobilite:
+                b.date_debut = instance.mobilite.duree_totale.debut
+                b.date_fin = instance.mobilite.duree_totale.fin
+                
             b.creer_vues_ensemble()
             b.creer_depenses_previsionelles()
 

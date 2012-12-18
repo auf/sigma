@@ -383,6 +383,7 @@ class AppelAdmin(GuardedModelAdmin):
             'type_bourse',
             'nom',
             'code_budgetaire',
+            'responsable_budgetaire',
             ('date_debut_appel', 'date_fin_appel'),
             ('date_debut_mobilite', 'date_fin_mobilite'),
             'periode',

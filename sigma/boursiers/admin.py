@@ -12,6 +12,7 @@ from django.utils.html import conditional_escape
 from django.db import models
 from .models import (
     Boursier,
+    FicheFinanciere,
     DepensePrevisionnelle,
     VueEnsemble,
     EcritureCODA
@@ -141,33 +142,7 @@ class VueEnsembleInline(admin.TabularInline, DeviseMixin):
             return True
 
 
-class BoursierAdmin(GuardedModelAdmin):
-    list_display = (
-        'nom',
-        'prenom',
-        'code_operation',
-        'naissance_date',
-        'appel',
-        'debut_mobilite',
-        # 'field_actions',
-    )
-    list_display_links = ('nom', 'prenom')
-    list_filter = ('dossier__appel',)
-    form = BoursierAdminForm
-    readonly_fields = ('nom_complet', 'field_dossier')
-    fieldsets = (
-        (None, {
-            'fields': (
-                'nom_complet', 'field_dossier', 'code_operation',
-                'numero_police_assurance', 'responsable_budgetaire',
-                ('date_debut', 'date_fin')
-            )
-        }),
-    )
-    inlines = [VueEnsembleInline, DepensePrevisionnelleInline]
-
-    # Champs calculés
-
+class BoursierAdminMixin(object):
     def field_dossier(self, boursier):
         return '<a href="%s">%s</a>' % (
             reverse('admin:candidatures_dossier_change', args=(boursier.dossier.pk,)),
@@ -176,24 +151,79 @@ class BoursierAdmin(GuardedModelAdmin):
     field_dossier.allow_tags = True
     field_dossier.short_description = 'Dossier de candidature'
 
+
+    def field_fiche(self, boursier):
+        fiche_financiere_info = 'Fiche financière'
+        return '<a href="%s">%s</a>' % (
+            reverse('admin:boursiers_fichefinanciere_change',
+                    args=(boursier.pk,)),
+            fiche_financiere_info,
+            )
+    field_fiche.short_description = 'Fiche financière'
+    field_fiche.allow_tags = True
+
+
     def field_actions(self, obj):
-        return '<a href="%s">Suivi</a>' % \
-                reverse('admin:boursiers_boursier_suivi', args=(obj.pk,))
-    field_actions.short_description = ''
+        return self.field_fiche(obj)
+    field_actions.short_description = 'Actions'
     field_actions.allow_tags = True
 
-    # Vues additionnelles
+    def has_add_permission(self, request):
+        # L'ajout de boursier n'est jamais manuel
+        return False
+    
 
-    def get_urls(self):
-        admin_urls = super(BoursierAdmin, self).get_urls()
-        additional_urls = patterns('',
-            url(r'^(\d+)/suivi/$', self.admin_site.admin_view(self.view_suivi),
-                name='boursiers_boursier_suivi'),
+class FicheFinanciereAdmin(GuardedModelAdmin, BoursierAdminMixin):
+    list_display = (
+        'nom',
+        'prenom',
+        'code_operation',
+        'naissance_date',
+        'appel',
+        'debut_mobilite',
+    )
+    list_display_links = ('nom', 'prenom')
+    list_filter = ('dossier__appel',)
+    form = BoursierAdminForm
+    readonly_fields = (
+        'nom_complet',
+        'field_dossier',
+        'pays_origine',
+        'code_bureau',
+        'responsable_budgetaire',
+        'depenses_reelles_totales',
+        'depenses_totales',
         )
-        return additional_urls + admin_urls
+    fieldsets = (
+        (None, {
+            'fields': (
+                'nom_complet',
+                'pays_origine',
+                'code_bureau',
+                'responsable_budgetaire',
+                'field_dossier',
+                'depenses_reelles_totales',
+                'depenses_totales',
+                'code_operation',
+                ('date_debut', 'date_fin')
+            )
+        }),
+    )
+    inlines = [VueEnsembleInline, DepensePrevisionnelleInline]
+    change_form_template = 'admin/boursiers/fichefinanciere/change_form.html'
 
-    def view_suivi(self, request, id):
-        boursier = Boursier.objects.get(pk=id)
+    def change_view(self,
+                    request,
+                    object_id,
+                    form_url='',
+                    extra_context={}
+                    ):
+
+        boursier = self.model.objects.get(pk=object_id)
+        nb_mois = None
+        dossier_mobilite = boursier.dossier.get_mobilite()
+        if dossier_mobilite:
+            nb_mois = dossier_mobilite.duree_totale.mois
 
         ecritures = EcritureCODA.objects \
                 .filter(boursier_id=boursier.code_operation) \
@@ -205,36 +235,85 @@ class BoursierAdmin(GuardedModelAdmin):
         ):
             lignes = list(lignes)
             groupes_ecritures.append({
-                'pcg': pcg,
-                'lignes': lignes,
-                'sous_total': sum(l.montant for l in lignes)
-            })
+                    'pcg': pcg,
+                    'lignes': lignes,
+                    'sous_total': sum(l.montant for l in lignes)
+                    })
 
         periodes_mobilite = [
             {
                 'lieu': lieu.title(),
                 'debut': debut,
                 'fin': fin,
-                'nb_mois': (fin.month - debut.month +
-                            12 * (fin.year - debut.year)),
+                'nb_mois': nb_mois,
                 'montant': boursier.montant(lieu),
                 'implantation': boursier.implantation(lieu),
             }
             for lieu, debut, fin
-            in boursier.dossier.mobilite.periodes_mobilite()
-        ]
+            in getattr(
+                dossier_mobilite,
+                'periodes_mobilite',
+                lambda: [])()
+            ]
 
-        return render_to_response('admin/boursiers/boursier/suivi.html', {
-            'title': "Suivi de %s" % boursier,
-            'boursier': boursier,
-            'groupes_ecritures': groupes_ecritures,
-            'periodes_mobilite': periodes_mobilite,
-        }, context_instance=RequestContext(request))
+        extra_context.update({
+                'groupes_ecritures': groupes_ecritures,
+                'boursier': boursier,
+                'periodes_mobilite': periodes_mobilite,
+                })
+
+        return super(FicheFinanciereAdmin, self).change_view(
+            request,
+            object_id,
+            form_url,
+            extra_context,
+            )
 
     # Permissions
 
-    def has_add_permission(self, request):
-        # L'ajout de boursier n'est jamais manuel
-        return False
+
+
+class BoursierAdmin(GuardedModelAdmin, BoursierAdminMixin):
+    list_display = (
+        'nom',
+        'prenom',
+        'code_operation',
+        'naissance_date',
+        'appel',
+        'debut_mobilite',
+        'field_actions',
+    )
+    list_display_links = ('nom', 'prenom')
+    list_filter = ('dossier__appel',)
+    form = BoursierAdminForm
+    readonly_fields = (
+        'nom_complet',
+        'field_dossier',
+        'field_fiche',
+        'pays_origine',
+        'code_bureau',
+        'responsable_budgetaire',
+        'depenses_reelles_totales',
+        'depenses_totales',
+        )
+    fieldsets = (
+        (None, {
+            'fields': (
+                'nom_complet',
+                'pays_origine',
+                'code_bureau',
+                'responsable_budgetaire',
+                'field_dossier',
+                'depenses_reelles_totales',
+                'depenses_totales',
+                'code_operation',
+                'numero_police_assurance',
+                ('date_debut', 'date_fin')
+            )
+        }),
+    )
+    change_form_template = 'admin/boursiers/boursier/change_form.html'
+
 
 admin.site.register(Boursier, BoursierAdmin)
+admin.site.register(FicheFinanciere, FicheFinanciereAdmin)

@@ -250,6 +250,12 @@ class Appel(MetaModel, models.Model):
         help_text=u"Le code budgétaire est composé de 5 chiffres + 2 lettres.",
         validators=[validateur_code_budgetaire, ]
     )
+    responsable_budgetaire = models.ForeignKey(
+        ref.Employe,
+        verbose_name="Responsable budgétaire",
+        blank=True,
+        null=True,
+        )
     date_debut_appel = models.DateField(
         u"Début de l'appel", help_text=settings.HELP_TEXT_DATE,
         blank=True, null=True
@@ -645,6 +651,12 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         return self.candidat.naissance_date
     naissance_date.short_description = "Date de naissance"
     naissance_date.admin_order_field = 'candidat__naissance_date'
+
+    def get_mobilite(self):
+        try:
+            return self.mobilite
+        except DossierMobilite.DoesNotExist:
+            return None
 
 # on fait ca au change du m2m des experts dans le dossier
 def experts_changed(sender, **kwargs):
