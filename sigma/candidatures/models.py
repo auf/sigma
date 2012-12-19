@@ -12,16 +12,19 @@ from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
+from sigma.lib.models import (
+    Individu,
+    OrigineAbstract,
+    AccueilAbstract,
+    MobiliteAbstract,
+    CIVILITE,
+    BOOLEAN_RADIO_OPTIONS,
+    )
+from sigma.lib.temps import Periode
 from sigma.dynamo import dynamo_registry
 from sigma.dynamo.models import \
         MetaModel, InstanceModel, TypeProperty, ValueProperty
 from sigma.candidatures.workflow import DossierWorkflow
-
-CIVILITE = (
-    ('MR', "Monsieur"),
-    ('MM', "Madame"),
-    ('ME', "Mademoiselle"),
-)
 
 REPONSE = (
     ('sr', "sr"),
@@ -38,11 +41,6 @@ BAREME = (
     ('mensuel', "Mensuel"),
     ('perdiem', "Perdiem"),
     ('allocation', "Allocation unique"),
-)
-
-BOOLEAN_RADIO_OPTIONS = (
-    (True, 'Oui'),
-    (False, 'Non')
 )
 
 NOTE_MIN = 1
@@ -161,10 +159,7 @@ class ExpertManager(models.Manager):
                 .select_related(*fkeys).all()
 
 
-class Expert(models.Model):
-    nom = models.CharField(max_length=255, verbose_name=u"Nom")
-    prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
-    courriel = models.EmailField(max_length=75, blank=True)
+class Expert(Individu):
     region = models.ForeignKey(ref.Region, verbose_name=u"Région")
     etablissement = models.ForeignKey(
         ref.Etablissement, verbose_name=u"Établissement", blank=True,
@@ -175,6 +170,14 @@ class Expert(models.Model):
     disciplines = models.ManyToManyField(
         ref.Discipline, verbose_name=u"Disciplines", blank=True, null=True
     )
+
+    pays = models.ForeignKey(
+        ref.Pays,
+        related_name="experts",
+        verbose_name=u"Pays de résidence",
+        blank=True,
+        null=True
+        )
 
     objects = ExpertManager()
 
@@ -354,7 +357,7 @@ class Appel(MetaModel, models.Model):
                 self.date_debut_mobilite > self.date_fin_mobilite:
             raise ValidationError(u"La date de fin de mobilité précède la date de début de mobilité")
 
-class Candidat(models.Model):
+class Candidat(Individu):
     """
     Personne qui répond à un appel d'offre.
     """
@@ -371,70 +374,31 @@ class Candidat(models.Model):
                         verbose_name=u"Date de modification")
 
     # identification personne
-    civilite = models.CharField(
-        max_length=2, verbose_name=u"Civilité", choices=CIVILITE,
-        blank=True
-    )
-    nom = models.CharField(max_length=255, verbose_name=u"Nom")
-    prenom = models.CharField(max_length=255, verbose_name=u"Prénom")
     nom_jeune_fille = models.CharField(
-        max_length=255, verbose_name=u"Nom de jeune fille", blank=True
-    )
+        max_length=255,
+        verbose_name=u"Nom de jeune fille",
+        blank=True,
+        )
 
-    # identification avancée personne
+    # identification avancée
     nationalite = models.ForeignKey(
         ref.Pays, verbose_name=u"Nationalité", blank=True, null=True
-    )
-    naissance_date = models.DateField(
-        max_length=255, verbose_name=u"Date de naissance",
-        help_text=settings.HELP_TEXT_DATE, blank=True, null=True
-    )
+        )
 
     # coordonnées
+    # TODO: DRY... Expert.pays, Candidat.Pays.
     pays = models.ForeignKey(
-        ref.Pays, related_name="pays", verbose_name=u"Pays de résidence",
-        blank=True, null=True
-    )
-    adresse = models.TextField(u'Adresse', blank=True)
-    adresse_complement = models.TextField(
-        u"complément d'adresse", blank=True
-    )
-    ville = models.CharField(
-        max_length=255, verbose_name=u"Ville", blank=True
-    )
+        ref.Pays,
+        related_name="candidats",
+        verbose_name=u"Pays de résidence",
+        blank=True,
+        null=True
+        )
+
+    # TODO: Migrer le data et utiliser Individu.province.
     region = models.CharField(
         max_length=255, verbose_name=u"Région / Province / État", blank=True
-    )
-    code_postal = models.CharField(
-        max_length=255, verbose_name=u"Code postal", blank=True
-    )
-    telephone = models.CharField(
-        max_length=255, verbose_name=u"Téléphone fixe", blank=True,
-        help_text=u"(+ code régional)"
-    )
-    telephone_portable = models.CharField(
-        max_length=255, verbose_name=u"Téléphone portable", blank=True,
-        help_text=u"(+ code régional)"
-    )
-    courriel = models.EmailField(
-        max_length=255, verbose_name=u"Adresse électronique", blank=True
-    )
-
-    def age(self):
-        if not self.naissance_date:
-            return None
-        today = datetime.date.today()
-        try:
-            birthday = self.naissance_date.replace(
-                year=today.year)
-        except ValueError:
-            birthday = self.naissance_date.replace(
-                year=today.year,
-                day=self.naissance_date.day-1)
-        if birthday > today:
-            return today.year - self.naissance_date.year - 1
-        else:
-            return today.year - self.naissance_date.year
+        )
 
     def __unicode__(self):
         return u"%s %s" % (self.nom.upper(), self.prenom)
@@ -658,429 +622,35 @@ def experts_changed(sender, **kwargs):
 m2m_changed.connect(experts_changed, sender=Dossier.experts.through)
 
 
-class DossierFaculte(models.Model):
-    # Etablissement connu de l'AUF
-    etablissement = models.ForeignKey(
-        ref.Etablissement,
-        verbose_name=u"Établissement, si membre de l'AUF",
-        blank=True, null=True
-    )
-
-    # Autre établissement
-    autre_etablissement_nom = models.CharField(
-        max_length=255, verbose_name=u"Autre établissement", blank=True
-    )
-    autre_etablissement_pays = models.ForeignKey(
-        ref.Pays, verbose_name=u"Pays", blank=True, null=True
-    )
-    autre_etablissement_adresse = models.CharField(
-        max_length=255, verbose_name=u"Adresse", blank=True
-    )
-    autre_etablissement_code_postal = models.CharField(
-        max_length=255, verbose_name=u"Code postal", blank=True
-    )
-    autre_etablissement_ville = models.CharField(
-        max_length=255, verbose_name=u"Ville", blank=True
-    )
-    autre_etablissement_region = models.CharField(
-        max_length=255, verbose_name=u"Région / Province / État", blank=True
-    )
-
-    # responsable scientifique (Accord scientifique)
-    resp_sc_civilite = models.CharField(
-        max_length=2, verbose_name=u"Civilité", choices=CIVILITE, blank=True
-    )
-    resp_sc_nom = models.CharField(
-        max_length=255, verbose_name=u"Nom", blank=True
-    )
-    resp_sc_prenom = models.CharField(
-        max_length=255, verbose_name=u"Prénom", blank=True
-    )
-    resp_sc_fonction = models.CharField(
-        max_length=255, verbose_name=u"Fonction", blank=True
-    )
-    resp_sc_courriel = models.CharField(
-        max_length=255, verbose_name=u"Adresse électronique", blank=True
-    )
-    resp_sc_telephone = models.CharField(
-        max_length=255, verbose_name=u"Téléphone", blank=True
-    )
-    resp_sc_fax = models.CharField(
-        max_length=255, verbose_name=u"Télécopieur", blank=True
-    )
-
-    # faculté, département ou labo (Accord scientifique)
-    faculte_nom = models.CharField(
-        max_length=255, verbose_name=u"Faculté / Centre / Département",
-        blank=True
-    )
-    faculte_adresse = models.CharField(
-        max_length=255, verbose_name=u"Adresse", blank=True
-    )
-    faculte_ville = models.CharField(
-        max_length=255, verbose_name=u"Ville", blank=True
-    )
-    faculte_code_postal = models.CharField(
-        max_length=255, verbose_name=u"Code postal", blank=True
-    )
-
-    # directeur thèse
-    dir_civilite = models.CharField(
-        max_length=2, verbose_name=u"Civilité", choices=CIVILITE,
-        blank=True
-    )
-    dir_nom = models.CharField(
-        max_length=255, verbose_name=u"Nom", blank=True
-    )
-    dir_prenom = models.CharField(
-        max_length=255, verbose_name=u"Prénom", blank=True
-    )
-    dir_courriel = models.CharField(
-        max_length=255, verbose_name=u"Adresse électronique", blank=True
-    )
-    dir_telephone = models.CharField(
-        max_length=255, verbose_name=u"Téléphone", blank=True
-    )
-
-    class Meta:
-        abstract = True
-
-    @property
-    def pays(self):
-        if self.etablissement:
-            return self.etablissement.pays
-        else:
-            return self.autre_etablissement_pays
-
-
-class DossierOrigine(DossierFaculte):
+class DossierOrigine(OrigineAbstract):
     """
     Informations sur le contexte d'origine du candidat.
     """
     dossier = models.OneToOneField(
-        Dossier, verbose_name=u"Dossier", related_name="origine"
-    )
+        Dossier,
+        verbose_name=u"Dossier",
+        related_name="origine",
+        )
 
-    # responsable institutionnel à l'origine
-    resp_inst_civilite = models.CharField(
-        max_length=2, verbose_name=u"Civilité", choices=CIVILITE,
-        blank=True
-    )
-    resp_inst_nom = models.CharField(
-        max_length=255, verbose_name=u"Nom", blank=True
-    )
-    resp_inst_prenom = models.CharField(
-        max_length=255, verbose_name=u"Prénom", blank=True
-    )
-    resp_inst_fonction = models.CharField(
-        max_length=255, verbose_name=u"Fonction", blank=True
-    )
-    resp_inst_courriel = models.CharField(
-        max_length=255, verbose_name=u"Adresse électronique", blank=True
-    )
-    resp_inst_telephone = models.CharField(
-        max_length=255, verbose_name=u"Téléphone", blank=True
-    )
-    resp_inst_fax = models.CharField(
-        max_length=255, verbose_name=u"Télécopieur", blank=True
-    )
-
-
-class DossierAccueil(DossierFaculte):
+class DossierAccueil(AccueilAbstract):
     """
     Informations sur le contexte d'accueil du candidat.
     """
     dossier = models.OneToOneField(
-        Dossier, verbose_name=u"Dossier", related_name="accueil"
-    )
+        Dossier,
+        verbose_name=u"Dossier",
+        related_name="accueil",
+        )
 
 
-class DossierMobilite(models.Model):
+class DossierMobilite(MobiliteAbstract):
     """Informations sur la mobilité demandée par le candidat.
     """
-    class Periode(object):
-        def __init__(self, debut, fin, mois=None, iter_by='month'):
-            self.debut = debut
-            self.fin = fin
-            self.mois, self.premier_mois = self.calc_mois()
-            self.__iter_by = 'month'
-            if mois:
-                self.mois = mois
-
-        def __repr__(self):
-            return self.__str__()
-
-        def __str__(self):
-            return '<Periode: %s - %s, %s mois, %s jours>' % (
-                self.debut,
-                self.fin,
-                self.mois,
-                self.jours
-                )
-
-        def __reset(self):
-            if self.debut and self.fin:
-                self.__current_month = self.premier_mois
-                self.__current_day = self.debut
-            else:
-                self.__current_month = None
-                self.__current_day = None
-            self.__iter_index = 0
-
-        def days_in_month(self, date):
-            # Retourne le nombre de jours dans un mois.
-            return calendar.monthrange(
-                date.year,
-                date.month,
-                )[1]
-
-        @property
-        def month_iterator(self):
-            self.__iter_by = 'month'
-            return self
-
-        @property
-        def days_iterator(self):
-            self.__iter_by = 'days'
-            return self
-
-        def __iter__(self):
-            self.__reset()
-            self.__return_first = True
-            return self
-
-        def next(self):
-            self.__iter_index += 1
-            if self.__iter_by == 'month':
-                if self.__iter_index > 1:
-                    # Start adding after first iteration.
-                    self.__current_month += datetime.timedelta(
-                        self.days_in_month(self.__current_month)
-                        )
-
-                if not self.debut or not self.fin:
-                    raise StopIteration()
-                if self.__iter_index > self.mois:
-                    raise StopIteration()
-                return self.__current_month
-            elif self.__iter_by == 'days':
-                if self.__iter_index > 1:
-                    # Start adding after first iteration.
-                    self.__current_day += datetime.timedelta(1)
-                if not self.debut or not self.fin:
-                    raise StopIteration()
-                if self.__current_day > self.fin:
-                    raise StopIteration()
-                return self.__current_day
-
-        def calc_mois(self):
-            if not self.debut or not self.fin:
-                return 0, None
-
-            calc_debut = datetime.date(
-                self.debut.year,
-                self.debut.month,
-                1,
-                )
-
-            calc_fin = datetime.date(
-                self.fin.year,
-                self.fin.month,
-                1,
-                )
-
-            if self.debut.day > 20:
-                calc_debut += datetime.timedelta(
-                    days=self.days_in_month(calc_debut)
-                    )
-            first_month = calc_debut
-
-            if (self.fin.day < 20 and
-                calc_fin - datetime.timedelta(1) >= calc_debut):
-                calc_fin -= datetime.timedelta(1)
-
-            # + 1 parce que inclusif
-            return (((calc_fin.year - calc_debut.year) * 12)
-                    + calc_fin.month
-                    - (calc_debut.month)
-                    + 1
-                    ), first_month
-
-        @property
-        def jours(self):
-            # +1 parce que c'est inclusif.
-            if not self.fin or not self.debut:
-                return 0
-            return (self.fin - self.debut).days + 1
-
-        def __add__(self, periode):
-            return DossierMobilite.Periode(
-                self.debut or periode.debut or None,
-                (
-                    self.fin + datetime.timedelta(days=periode.jours)
-                    if self.debut else periode.fin or None
-                 ),
-                mois=self.mois + periode.mois,
-                )
-
-    TYPE_THESE_CHOICES = (
-        ('CT', "Co-tutelle"),
-        ('CD', "Co-direction"),
-        ('AU', "Autre"),
-    )
-    NIVEAU_DETUDES_CHOICES = (
-        ('licence', 'Licence'),
-        ('master1', 'Master 1'),
-        ('master2', 'Master 2'),
-        ('doctorat', 'Doctorat')
-    )
-
     dossier = models.OneToOneField(
-        Dossier, verbose_name=u"Dossier", related_name="mobilite"
-    )
-
-    # Période de mobilité
-    date_debut_origine = models.DateField(
-        verbose_name=u"Date de début souhaitée",
-        help_text=settings.HELP_TEXT_DATE, blank=True, null=True
-    )
-    date_fin_origine = models.DateField(
-        verbose_name=u"Date de fin souhaitée",
-        help_text=settings.HELP_TEXT_DATE, blank=True, null=True
-    )
-    date_debut_accueil = models.DateField(
-        verbose_name=u"Date de début souhaitée",
-        help_text=settings.HELP_TEXT_DATE, blank=True, null=True
-    )
-    date_fin_accueil = models.DateField(
-        verbose_name=u"Date de fin souhaitée",
-        help_text=settings.HELP_TEXT_DATE, blank=True, null=True
-    )
-
-    # Dossier scientifique
-    intitule_projet = models.TextField(u"Intitulé du projet", blank=True)
-    mots_clefs = models.CharField(
-        max_length=255, verbose_name=u"Mots clefs", blank=True,
-        help_text="Séparés par des virgules, 3 maximum."
-    )
-
-    # Disciplines
-    discipline = models.ForeignKey(
-        ref.Discipline, verbose_name=u"Discipline", blank=True, null=True
-    )
-    sous_discipline = models.CharField(max_length=255, blank=True)
-
-    # Formation en cours
-    formation_en_cours_diplome = models.CharField(
-        max_length=255, verbose_name=u"Intitulé du diplôme", blank=True
-    )
-    formation_en_cours_niveau = models.CharField(
-        max_length=100, verbose_name=u"Niveau d'études", blank=True,
-        choices=NIVEAU_DETUDES_CHOICES
-    )
-
-    # Diplôme demandé
-    diplome_demande_nom = models.CharField(
-        max_length=255, verbose_name=u"Diplôme demandé", blank=True
-    )
-    diplome_demande_niveau = models.CharField(
-        max_length=100, verbose_name=u"Niveau d'études", blank=True,
-        choices=NIVEAU_DETUDES_CHOICES
-    )
-
-    # Thèse
-    these_date_inscription = models.DateField(
-        help_text=settings.HELP_TEXT_DATE,
-        verbose_name=u"Date de première inscription en thèse",
-        blank=True, null=True
-    )
-    these_soutenance_pays = models.ForeignKey(
-        ref.Pays, related_name="soutenance_pays",
-        verbose_name=u"Pays de soutenance", blank=True, null=True
-    )
-    these_soutenance_date = models.DateField(
-        help_text=settings.HELP_TEXT_DATE,
-        verbose_name=u"Date de soutenance prévue",
-        blank=True, null=True
-    )
-    these_type = models.CharField(
-        max_length=2, verbose_name=u"Type de thèse",
-        choices=TYPE_THESE_CHOICES, blank=True
-    )
-
-    # Programme de mission
-    type_intervention = models.CharField(
-        u"Type d'intervention", max_length=255, blank=True
-    )
-    public_vise = models.CharField(
-        u"Public visé", max_length=255, blank=True
-    )
-    autres_publics = models.CharField(
-        u"Autres publics", max_length=255, blank=True
-    )
-
-    # Co-financement
-
-    cofinancement = models.BooleanField(
-        verbose_name=u"Votre mobilité sera-t-elle partiellement financée par un autre organisme ?",
-        choices=BOOLEAN_RADIO_OPTIONS,
-        default=0
+        Dossier,
+        verbose_name=u"Dossier",
+        related_name="mobilite",
         )
-    cofinancement_source = models.TextField(
-        verbose_name=u"Source du cofinancement",
-        blank=True,
-        null=True
-        )
-    cofinancement_montant = models.DecimalField(
-        max_digits=17, decimal_places=2,
-        verbose_name=u"Montant du cofinancement",
-        blank=True,
-        null=True,
-        help_text=u"En euro (EUR)."
-        )
-
-    def save(self, *args, **kwargs):
-
-        # Mots clefs en majuscule
-        self.mots_clefs = self.mots_clefs.upper()
-
-        super(DossierMobilite, self).save(*args, **kwargs)
-
-    def periodes_mobilite(self):
-        """
-        Retourne les périodes de mobilité sous forme d'une liste de tuples.
-
-        Les tuples sont de la forme (lieu, date_debut, date_fin)
-        """
-        periodes = []
-        if self.date_debut_origine and self.date_fin_origine:
-            periodes.append(
-                ('origine', self.date_debut_origine, self.date_fin_origine)
-            )
-        if self.date_debut_accueil and self.date_fin_accueil:
-            periodes.append(
-                ('accueil', self.date_debut_accueil, self.date_fin_accueil)
-            )
-        periodes.sort(key=lambda x: x[1])
-        return periodes
-
-    @property
-    def duree_origine(self):
-        return self.Periode(
-            self.date_debut_origine,
-            self.date_fin_origine,
-            )
-
-    @property
-    def duree_accueil(self):
-        return self.Periode(
-            self.date_debut_accueil,
-            self.date_fin_accueil,
-            )
-
-    @property
-    def duree_totale(self):
-        return self.duree_origine + self.duree_accueil
 
 
 class Diplome(models.Model):

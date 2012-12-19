@@ -10,10 +10,111 @@ from django.conf import settings
 
 import auf.django.references.models as ref
 
+from sigma.lib.models import (
+    Individu,
+    OrigineAbstract,
+    AccueilAbstract,
+    MobiliteAbstract,
+    )
 from sigma.candidatures.models import Dossier, DossierMobilite
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 
 ENABLE_FILTERED_QUERYSETS = getattr(settings, 'ENABLE_FILTERED_QUERYSETS', True)
+
+
+class Allocataire(Individu):
+    """
+    Représente un individu unique étant, ou ayant été, receveur d'une
+    bourse.
+    """
+
+    @classmethod
+    def from_dossier(self, dossier):
+        pass
+
+
+class Allocation(models.Model):
+    """
+    Représente l'allocation d'une bourse (unique, ou durant une année universitaire).
+    """
+
+    # Dossier 
+    dossier = models.ForeignKey(
+        Dossier,
+        verbose_name='Candidature',
+        related_name='allocations',
+        )
+
+    # Allocataire.
+    allocataire = models.ForeignKey(
+        Allocataire,
+        )
+
+    # Si c'est un renouvellement, référer l'allocation originale.
+    allocation_originale = models.ForeignKey(
+        'self',
+        blank=True,
+        null=True,
+        )
+
+    # Utilisé pour effectuer les recherches d'écritures CODA.
+    code_operation = models.CharField(
+        max_length=11, verbose_name="Code d'opération CODA", blank=True,
+        db_index=True
+    )
+
+    # Numéro de police d'assurance pour la période.
+    numero_police_assurance = models.CharField(
+        max_length=100, verbose_name="Numéro de police d'assurance",
+        blank=True, default=''
+    )
+
+    # Plus ancienne des date de debut, incluant origine et accueil.
+    date_debut = models.DateField(
+        verbose_name="Date de début",
+        blank=True,
+        null=True,
+        )
+
+    # Plus récente des date de fin, incluant origine et accueil.
+    date_fin = models.DateField(
+        verbose_name="Date de fin",
+        blank=True,
+        null=True,
+        )
+
+
+class AllocationOrigine(OrigineAbstract):
+    """
+    Informations sur le contexte d'origine de l'allocataire.
+    """
+    allocation = models.OneToOneField(
+        Allocation,
+        verbose_name=u"Allocation",
+        related_name="origine",
+        )
+
+
+class AllocationAccueil(AccueilAbstract):
+    """
+    Informations sur le contexte d'accueil de l'allocataire.
+    """
+    allocation = models.OneToOneField(
+        Allocation,
+        verbose_name=u"Allocation",
+        related_name="accueil",
+        )
+
+
+class AllocationMobilite(MobiliteAbstract):
+    """
+    Informations sur la mobilité demandée par le candidat.
+    """
+    allocation = models.OneToOneField(
+        Allocation,
+        verbose_name=u"Allocation",
+        related_name="mobilite",
+        )
 
 
 class BoursierManager(models.Manager):
@@ -314,6 +415,10 @@ class VueEnsemble(models.Model):
         max_length=255,
         null=True,
         blank=True,
+        )
+    allocation = models.ForeignKey(
+        'Allocation',
+        related_name='vue_ensemble',
         )
     boursier = models.ForeignKey(
         'Boursier',
