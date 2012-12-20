@@ -99,8 +99,11 @@ class Individu(models.Model):
         null=True,
         )
 
+    def __unicode__(self):
+        return self.nom_complet()
+
     def nom_complet(self):
-        return ' '.join((self.prenom(), self.nom()))
+        return ' '.join((self.prenom, self.nom))
     nom_complet.short_description = 'Nom complet'
 
     def age(self):

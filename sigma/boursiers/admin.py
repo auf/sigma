@@ -5,12 +5,24 @@ from itertools import groupby
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm, ValidationError
+from django.forms import (
+    ModelForm,
+    ValidationError,
+    MediaDefiningClass,
+    )
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.html import conditional_escape
 from django.db import models
+from .forms import (
+    NouvelleAllocation,
+    )    
+from sigma.candidatures.models import (
+    Dossier,
+    )
 from .models import (
+    Allocation,
+    Allocataire,
     Boursier,
     FicheFinanciere,
     DepensePrevisionnelle,
@@ -18,6 +30,7 @@ from .models import (
     EcritureCODA
     )
 from sigma.custom_admin.util import GuardedModelAdmin
+from sigma.lib.views import bad_request
 
 
 class BoursierAdminForm(ModelForm):
@@ -269,8 +282,55 @@ class FicheFinanciereAdmin(GuardedModelAdmin, BoursierAdminMixin):
             extra_context,
             )
 
-    # Permissions
 
+class AllocationAdmin(GuardedModelAdmin):
+    form = NouvelleAllocation
+
+    fieldsets = ((
+            'Sélection de l\'allocataire', {
+                'fields': (
+                    'creer_nouvel_allocataire',
+                    'allocataire',
+                    )}), (
+            'Détails', {
+                'fields': (
+                    'dossier',
+                    'allocation_originale',
+                    'code_operation',
+                    'numero_police_assurance',
+                    'date_debut',
+                    'date_fin',
+                    )
+                }),
+        )
+
+    def add_view(self, request, form_url='', extra_context={}):
+        if (request.method == 'GET' and (
+                'dossier' not in request.GET or
+                Dossier.objects.filter(id=request.GET.get('dossier')).count()
+                == 0)):
+            return bad_request(request, 'Dossier manquant, ou invalide')
+        return super(AllocationAdmin, self).add_view(
+            request, form_url='', extra_context={})
+
+
+class AllocataireAdmin(GuardedModelAdmin):
+    search_fields = (
+        'nom',
+        'prenom',
+        'courriel',
+        )
+    list_filter = (
+        'civilite',
+        'pays',
+        'nationalite',
+        )
+    list_display = (
+        'nom_complet',
+        'age',
+        'pays',
+        'nationalite',
+        )
 
 
 class BoursierAdmin(GuardedModelAdmin, BoursierAdminMixin):
@@ -315,5 +375,7 @@ class BoursierAdmin(GuardedModelAdmin, BoursierAdminMixin):
     change_form_template = 'admin/boursiers/boursier/change_form.html'
 
 
+admin.site.register(Allocation, AllocationAdmin)
+admin.site.register(Allocataire, AllocataireAdmin)
 admin.site.register(Boursier, BoursierAdmin)
 admin.site.register(FicheFinanciere, FicheFinanciereAdmin)

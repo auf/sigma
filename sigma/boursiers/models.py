@@ -28,9 +28,65 @@ class Allocataire(Individu):
     bourse.
     """
 
+    # identification avancée
+    nationalite = models.ForeignKey(
+        ref.Pays,
+        verbose_name=u"Nationalité",
+        blank=True,
+        null=True
+        )
+
+    # coordonnées
+    # TODO: DRY... Expert.pays, Candidat.Pays.
+    pays = models.ForeignKey(
+        ref.Pays,
+        related_name="allocataires",
+        verbose_name=u"Pays de résidence",
+        blank=True,
+        null=True
+        )
+
+    @staticmethod
+    def copy_model(source, dest):
+        fields = [x.attname for x in dest()._meta.fields
+                  if hasattr(source, x.attname)]
+        data = dict([(x, getattr(source, x)) for x in fields])
+        return dest(**data)
+
     @classmethod
-    def from_dossier(self, dossier):
-        pass
+    def from_dossier(cls, dossier):
+        if not dossier.est_allouable():
+            raise ValueError(
+                'Le dossier est incomplet, ou invalide. '
+                'Impossible d\'allouer une bourse à ce candidat.')
+        
+
+        # Creer une copie du modele
+        candidat = dossier.candidat
+        alloc = cls.copy_model(candidat, Allocataire)
+
+        # TODO: Changer lorsque qu'on change le champ de
+        # candidat.region pour candidat.province.
+        alloc.province = candidat.province or candidat.region
+
+        # Save
+        alloc.save()
+
+        origine = dossier.origine
+        if origine:
+            origine = cls.copy_model(
+                dossier.origine, AllocationOrigine)
+            # origine.allocation = alloc
+            # origine.save()
+
+        accueil = dossier.accueil
+        if accueil:
+            accueil = cls.copy_model(
+                dossier.origine, AllocationAccueil)
+            # accueil.allocation = alloc
+            # accueil.save()
+
+        return alloc
 
 
 class Allocation(models.Model):

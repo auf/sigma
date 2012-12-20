@@ -615,6 +615,15 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         except DossierMobilite.DoesNotExist:
             return None
 
+    def est_allouable(self):
+        """
+        Retourne True si le dossier est complet et si l'appel et le
+        dossier sont dans les etats necessaire pour pouvoir allouer
+        une bourse au candidat.
+        """
+        # TODO: Produce validation here.
+        return True
+
 # on fait ca au change du m2m des experts dans le dossier
 def experts_changed(sender, **kwargs):
     dossier = kwargs['instance']
