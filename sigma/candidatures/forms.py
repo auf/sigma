@@ -57,7 +57,6 @@ class RequiredInlineFormSet(BaseInlineFormSet):
 # Widgets:
 class ExpertWidget(forms.widgets.Widget):
 
-
     def render(self, name, value, attrs=None):
         exp = Expert.objects.get(id=value)
         nom = '%s %s' % (exp.prenom, exp.nom)
@@ -228,12 +227,16 @@ class ExpertForm(forms.Form):
                     get_rules().filter_queryset(
                         req.user, 'assign', Expert.objects.all()
                         )))
+            # import pdb; pdb.set_trace()
             self.fields['experts'].widget = (
-                admin.widgets.FilteredSelectMultiple(
-                'Experts',
-                True,
-                choices=self.fields['experts'].choices,
-                ))
+                admin.widgets.RelatedFieldWidgetWrapper(
+                    admin.widgets.FilteredSelectMultiple(
+                            'Experts',
+                            True,
+                            choices=self.fields['experts'].choices,),
+                    Dossier._meta._name_map['experts'][0].rel,
+                    admin.site,
+                    ))
 
 
     def clean_experts(self):

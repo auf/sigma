@@ -113,7 +113,9 @@ class ExpertManager(models.Manager):
 
         # If no qs is supplied, get default QS and don't get expert
         # subset. Else, pass a where .. in clause to get the subset.
-        if not qs:
+        if qs != None and qs.count() == 0:
+            return qs
+        elif not qs:
             qs = self.get_query_set()
             subset_cond = ''
         else:

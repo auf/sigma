@@ -6,6 +6,7 @@
 <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 <script type="text/javascript" src="{{STATIC_URL}}admin/js/jquery.js"></script>
 <script type="text/javascript" src="{{STATIC_URL}}admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
 {{ media }}
 {{ form.media }}
 {{ expert_form.media }}
@@ -34,7 +35,7 @@
     <div class="module">
       <h2>Experts</h2>
       <div class="form-row field-experts">
-	{{ expert_form }}
+	{{ expert_form.experts }}
       </div>
     </div>
 
