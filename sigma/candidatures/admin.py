@@ -688,6 +688,25 @@ class ExpertAdmin(GuardedModelAdmin):
     list_display = ('nom', 'prenom', '_region', '_disciplines')
     list_display_links = ('nom', 'prenom')
     list_filter = (RegionFilter, 'disciplines')
+    actions = []
+
+    def get_actions(self, request):
+        actions = super(ExpertAdmin, self).get_actions(request)
+        for region in get_rules().filter_queryset(
+            request.user,
+            'manage',
+            ref.Region.objects.all()
+            ):
+            def assign_experts(modeladmin, request, qs):
+                qs.update(region=region)
+            action_name = 'assigner_experts_a_region_%s' % region.code
+            actions[action_name] = (
+                assign_experts,
+                action_name,
+                u'Assigner les expert à la région %s' % region.nom,
+                )
+            return actions
+
     search_fields = (
         'nom', 
         'prenom', 
