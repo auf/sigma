@@ -20,11 +20,10 @@ from sigma.lib.models import (
     CIVILITE,
     BOOLEAN_RADIO_OPTIONS,
     )
-from sigma.lib.temps import Periode
 from sigma.dynamo import dynamo_registry
 from sigma.dynamo.models import \
         MetaModel, InstanceModel, TypeProperty, ValueProperty
-from sigma.candidatures.workflow import DossierWorkflow
+from sigma.candidatures.workflow import DossierWorkflow, DOSSIER_ETAT_RETENU
 
 REPONSE = (
     ('sr', "sr"),
@@ -570,6 +569,9 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         return (self.notes.filter(expert__in=self.experts.all()).
                 aggregate(avg=models.Avg('note'))['avg'])
     moyenne_notes.short_description = 'Moyenne des notes'
+
+    def is_retainable(self):
+        return self.etat == DOSSIER_ETAT_RETENU
 
     def prepopuler_notes(self, *args, **kwargs):
         """

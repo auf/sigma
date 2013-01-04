@@ -24,7 +24,7 @@ class MainMenu(Menu):
             MenuItem('Accueil', reverse('admin:index')),
             MenuItem('Appels', reverse('admin:candidatures_appel_changelist')),
             MenuItem('Candidats', reverse('admin:candidatures_dossier_changelist')),
-            MenuItem('Allocataires', reverse('admin:boursiers_boursier_changelist')),
+            MenuItem('Allocataires', reverse('admin:boursiers_allocataire_changelist')),
             MenuItem('Experts', reverse('admin:candidatures_expert_changelist')),
         ]
 

@@ -9,13 +9,15 @@ from django.forms import (
     ModelForm,
     ValidationError,
     MediaDefiningClass,
+    TextInput,
+    DateInput,
     )
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.html import conditional_escape
 from django.db import models
 from .forms import (
-    NouvelleAllocation,
+    allocation_form_factory,
     )    
 from sigma.candidatures.models import (
     Dossier,
@@ -23,72 +25,30 @@ from sigma.candidatures.models import (
 from .models import (
     Allocation,
     Allocataire,
-    Boursier,
     FicheFinanciere,
     DepensePrevisionnelle,
     VueEnsemble,
     EcritureCODA
     )
 from sigma.custom_admin.util import GuardedModelAdmin
+from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 from sigma.lib.views import bad_request
 
 
-class BoursierAdminForm(ModelForm):
+class AllocationAdminMixin(object):
+    def field_dossier(self, allocation):
+        return '<a href="%s">%s</a>' % (
+            reverse('admin:candidatures_dossier_change', args=(allocation.dossier.pk,)),
+            conditional_escape(allocation.dossier)
+        )
+    field_dossier.allow_tags = True
+    field_dossier.short_description = 'Dossier de candidature'
 
-    class Meta:
-        model = Boursier
 
-    def __init__(self, *args, **kwargs):
-        super(BoursierAdminForm, self).__init__(*args, **kwargs)
-        if self.instance is not None and \
-           self.instance.dossier.appel.code_budgetaire:
-            code_budgetaire = self.instance.dossier.appel.code_budgetaire
-            max_code_boursier = Boursier.objects \
-                    .filter(code_operation__startswith=code_budgetaire) \
-                    .order_by('-code_operation')[:1]
-            if len(max_code_boursier) > 0:
-                max_code = max_code_boursier[0].code_operation
-                numero = max_code[len(code_budgetaire):-1]
-            else:
-                numero = 0
-            try:
-                numero_int = int(numero)
-            except ValueError:
-                pass
-            else:
-                prochain_numero = '%03d' % (numero_int + 1)
-                prochain_code = code_budgetaire + prochain_numero + 'L'
-                self.fields['code_operation'].help_text = \
-                        u"Prochain code disponible: %s" % prochain_code
-
-    def clean_code_operation(self):
-        code_operation = self.cleaned_data['code_operation']
-        boursier = self.instance
-        if boursier and code_operation and \
-           self.instance.dossier.appel.code_budgetaire:
-            code_budgetaire = boursier.dossier.appel.code_budgetaire
-
-            # Vérifier le format du code opération
-            if not code_operation.startswith(code_budgetaire) or \
-               not code_operation.endswith('L'):
-                raise ValidationError(
-                    u"Code d'opération invalide: "
-                    u"il devrait avoir la forme %sXXXL" %
-                    code_budgetaire
-                )
-
-            # Vérifier que ce code d'opération n'est pas déjà utilisé
-            conflits = Boursier.objects \
-                    .filter(code_operation=code_operation) \
-                    .exclude(pk=boursier.pk)
-            if len(conflits) > 0:
-                raise ValidationError(
-                    u"Code d'opération déjà attribué au boursier %s." %
-                    conflits[0]
-                )
-
-        return code_operation
-
+    def has_add_permission(self, request):
+        # L'ajout de allocation n'est jamais manuel
+        return False
+    
 
 class DeviseMixin(object):
     def _devise(self, obj):
@@ -155,38 +115,7 @@ class VueEnsembleInline(admin.TabularInline, DeviseMixin):
             return True
 
 
-class BoursierAdminMixin(object):
-    def field_dossier(self, boursier):
-        return '<a href="%s">%s</a>' % (
-            reverse('admin:candidatures_dossier_change', args=(boursier.dossier.pk,)),
-            conditional_escape(boursier.dossier)
-        )
-    field_dossier.allow_tags = True
-    field_dossier.short_description = 'Dossier de candidature'
-
-
-    def field_fiche(self, boursier):
-        fiche_financiere_info = 'Fiche financière'
-        return '<a href="%s">%s</a>' % (
-            reverse('admin:boursiers_fichefinanciere_change',
-                    args=(boursier.pk,)),
-            fiche_financiere_info,
-            )
-    field_fiche.short_description = 'Fiche financière'
-    field_fiche.allow_tags = True
-
-
-    def field_actions(self, obj):
-        return self.field_fiche(obj)
-    field_actions.short_description = 'Actions'
-    field_actions.allow_tags = True
-
-    def has_add_permission(self, request):
-        # L'ajout de boursier n'est jamais manuel
-        return False
-    
-
-class FicheFinanciereAdmin(GuardedModelAdmin, BoursierAdminMixin):
+class FicheFinanciereAdmin(GuardedModelAdmin, AllocationAdminMixin):
     list_display = (
         'nom',
         'prenom',
@@ -197,13 +126,15 @@ class FicheFinanciereAdmin(GuardedModelAdmin, BoursierAdminMixin):
     )
     list_display_links = ('nom', 'prenom')
     list_filter = ('dossier__appel',)
-    form = BoursierAdminForm
     readonly_fields = (
         'nom_complet',
         'field_dossier',
         'pays_origine',
         'code_bureau',
         'responsable_budgetaire',
+        'code_operation',
+        'date_debut',
+        'date_fin',
         'depenses_reelles_totales',
         'depenses_totales',
         )
@@ -232,14 +163,14 @@ class FicheFinanciereAdmin(GuardedModelAdmin, BoursierAdminMixin):
                     extra_context={}
                     ):
 
-        boursier = self.model.objects.get(pk=object_id)
+        allocation = self.model.objects.get(pk=object_id)
         nb_mois = None
-        dossier_mobilite = boursier.dossier.get_mobilite()
+        dossier_mobilite = allocation.dossier.get_mobilite()
         if dossier_mobilite:
             nb_mois = dossier_mobilite.duree_totale.mois
 
         ecritures = EcritureCODA.objects \
-                .filter(boursier_id=boursier.code_operation) \
+                .filter(boursier_id=allocation.code_operation) \
                 .order_by('numero_pcg', 'nom_pcg', '-date_document')
 
         groupes_ecritures = []
@@ -259,8 +190,8 @@ class FicheFinanciereAdmin(GuardedModelAdmin, BoursierAdminMixin):
                 'debut': debut,
                 'fin': fin,
                 'nb_mois': nb_mois,
-                'montant': boursier.montant(lieu),
-                'implantation': boursier.implantation(lieu),
+                'montant': allocation.montant(lieu),
+                'implantation': allocation.implantation(lieu),
             }
             for lieu, debut, fin
             in getattr(
@@ -271,7 +202,7 @@ class FicheFinanciereAdmin(GuardedModelAdmin, BoursierAdminMixin):
 
         extra_context.update({
                 'groupes_ecritures': groupes_ecritures,
-                'boursier': boursier,
+                'allocation': allocation,
                 'periodes_mobilite': periodes_mobilite,
                 })
 
@@ -284,98 +215,131 @@ class FicheFinanciereAdmin(GuardedModelAdmin, BoursierAdminMixin):
 
 
 class AllocationAdmin(GuardedModelAdmin):
-    form = NouvelleAllocation
 
-    fieldsets = ((
-            'Sélection de l\'allocataire', {
-                'fields': (
-                    'creer_nouvel_allocataire',
-                    'allocataire',
-                    )}), (
+    change_form_template = 'admin/boursiers/allocation/change_form.html'
+
+    readonly_fields = ()
+
+    fieldsets = [(
             'Détails', {
                 'fields': (
                     'dossier',
                     'allocation_originale',
-                    'code_operation',
-                    'numero_police_assurance',
-                    'date_debut',
-                    'date_fin',
+                    ('code_operation', 'numero_police_assurance'),
+                    ('date_debut', 'date_fin'),
                     )
-                }),
-        )
+                })]
+
+    def get_form(self, request, obj=None, **kw):
+        return allocation_form_factory(request, obj)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return (
+                'dossier',
+                'allocation_originale',
+                )
 
     def add_view(self, request, form_url='', extra_context={}):
+        dossier_qs = Dossier.objects.filter(id=request.GET.get('dossier'))
         if (request.method == 'GET' and (
                 'dossier' not in request.GET or
-                Dossier.objects.filter(id=request.GET.get('dossier')).count()
+                dossier_qs.count()
                 == 0)):
             return bad_request(request, 'Dossier manquant, ou invalide')
-        return super(AllocationAdmin, self).add_view(
+        elif (request.method == 'GET'
+              and 'dossier' in request.GET
+              and dossier_qs.get().etat != DOSSIER_ETAT_RETENU):
+            return bad_request(request, 'Le dossier doit être retenu '
+                               'pour créer une allocation.')
+        res = super(AllocationAdmin, self).add_view(
             request, form_url='', extra_context={})
+        return res
+
+    def get_fieldsets(self, request, obj=None):
+        if not obj:
+            return [(
+                'Sélection de l\'allocataire', {
+                    'fields': (
+                        'creer_nouvel_allocataire',
+                        'allocataire',
+                        )}
+                )] + list(self.fieldsets)
+        else:
+            return super(AllocationAdmin, self).get_fieldsets(request, obj)
 
 
-class AllocataireAdmin(GuardedModelAdmin):
+class AllocataireAdmin(GuardedModelAdmin, AllocationAdminMixin):
     search_fields = (
         'nom',
         'prenom',
         'courriel',
         )
+    readonly_fields = (
+        '_age',
+        )
+    list_display_links = ('nom', 'prenom')
     list_filter = (
         'civilite',
         'pays',
         'nationalite',
+        'allocations__dossier__appel',
         )
-    list_display = (
-        'nom_complet',
-        'age',
-        'pays',
-        'nationalite',
-        )
-
-
-class BoursierAdmin(GuardedModelAdmin, BoursierAdminMixin):
     list_display = (
         'nom',
         'prenom',
-        'code_operation',
         'naissance_date',
-        'appel',
-        'debut_mobilite',
-        'field_actions',
     )
-    list_display_links = ('nom', 'prenom')
-    list_filter = ('dossier__appel',)
-    form = BoursierAdminForm
-    readonly_fields = (
-        'nom_complet',
-        'field_dossier',
-        'field_fiche',
-        'pays_origine',
-        'code_bureau',
-        'responsable_budgetaire',
-        'depenses_reelles_totales',
-        'depenses_totales',
-        )
     fieldsets = (
         (None, {
             'fields': (
-                'nom_complet',
-                'pays_origine',
-                'code_bureau',
-                'responsable_budgetaire',
-                'field_dossier',
-                'depenses_reelles_totales',
-                'depenses_totales',
-                'code_operation',
-                'numero_police_assurance',
-                ('date_debut', 'date_fin')
-            )
+                    'civilite', ('nom', 'prenom'),
+                    'nationalite',
+                    'naissance_date',
+                    '_age',
+                    )
         }),
-    )
-    change_form_template = 'admin/boursiers/boursier/change_form.html'
+        ('Coordonnées', {
+            'fields': (
+                'adresse',
+                'adresse_complement',
+                ('ville', 'code_postal'),
+                'pays',
+                ('telephone', 'telephone_portable'),
+                'courriel')
+            }),
+        )
+
+    def _age(self, obj):
+        return obj.candidat.age()
+    _age.short_description = u'Âge'
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name in ('adresse', 'adresse_complement'):
+            kwargs['widget'] = TextInput(attrs={'size': 80})
+        elif db_field.name == 'naissance_date':
+            kwargs['widget'] = DateInput(format='%d/%m/%Y')
+        return super(AllocataireAdmin, self) \
+                .formfield_for_dbfield(db_field, **kwargs)
+
+    change_form_template = (
+        'admin/boursiers/allocataire/change_form.html')
+
+    def change_view(self,
+                    request,
+                    object_id,
+                    form_url='',
+                    extra_context={}
+                    ):
+        res = super(AllocataireAdmin, self).change_view(
+            request,
+            object_id,
+            form_url,
+            extra_context=extra_context,
+            )
+        return res
 
 
 admin.site.register(Allocation, AllocationAdmin)
 admin.site.register(Allocataire, AllocataireAdmin)
-admin.site.register(Boursier, BoursierAdmin)
 admin.site.register(FicheFinanciere, FicheFinanciereAdmin)

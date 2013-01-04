@@ -4,7 +4,7 @@
 {% block object-tools %}
 {% if change and not is_popup %}
 <ul class="object-tools">
-    <li><a href="{% url admin:boursiers_boursier_change object_id %}">Fiche allocataire</a></li>
+    <li><a href="{% url admin:boursiers_allocation_change object_id %}">Fiche allocation</a></li>
 </ul>
 {% endif %}
 {% endblock %}
@@ -29,16 +29,16 @@
               <th>Date</th>
               <th>Implantation</th>
               <th>Nombre de mois</th>
-              {% if boursier.bareme == 'mensuel' %}
+              {% if allocation.bareme == 'mensuel' %}
               <th>Montant mensuel</th>
               {% endif %}
-              {% if boursier.bareme == 'perdiem' %}
+              {% if allocation.bareme == 'perdiem' %}
               <th>Perdiem</th>
               {% endif %}
-              {% if boursier.bareme == 'allocation' %}
+              {% if allocation.bareme == 'allocation' %}
               <th>Allocation</th>
               {% endif %}
-              {% if boursier.prime_installation %}
+              {% if allocation.prime_installation %}
               <th>Prime d'installation</th>
               {% endif %}
             </tr>
@@ -56,15 +56,15 @@
                 {% endif %}
               </td>
               <td>{{ periode.nb_mois|default_if_none:"" }}</td>
-              {% if boursier.bareme %}
+              {% if allocation.bareme %}
               <td>
                 {% if periode.montant %}
                 {{ periode.montant|floatformat:2 }} €
                 {% endif %}
               </td>
               {% endif %}
-              {% if boursier.prime_installation %}
-              <td>{{ boursier.prime_installation|floatformat:2 }} €</td>
+              {% if allocation.prime_installation %}
+              <td>{{ allocation.prime_installation|floatformat:2 }} €</td>
               {% endif %}
             </tr>
             {% endfor %}

@@ -4,7 +4,7 @@ from auf.django.references import models as ref
 from django.db.models import Q
 
 from sigma.candidatures.models import Appel, Dossier, Expert
-from sigma.boursiers.models import Boursier
+from sigma.boursiers.models import Allocation
 
 
 def is_in_region(attr='pk'):
@@ -25,8 +25,8 @@ rules.allow('assign', Expert, is_in_region('region'))
 rules.allow('change', Dossier,
             has_global_perm('global.gerer_dossiers') &
             is_in_region('appel__region'))
-rules.allow('change', Boursier,
-            has_global_perm('global.gerer_boursiers') &
+rules.allow('change', Allocation,
+            has_global_perm('global.gerer_allocations') &
             is_in_region('dossier__appel__region'))
 
 for perm in ['add', 'delete', 'change']:
@@ -46,8 +46,8 @@ for perm in ['add', 'delete', 'change']:
             has_global_perm('global.configurer_sigma'))
 
     rules.allow_global(
-        'boursiers.%s_boursier' % perm,
-        has_global_perm('global.gerer_boursiers'))
+        'boursiers.%s_allocation' % perm,
+        has_global_perm('global.gerer_allocations'))
     # Add perms for BoursierAdmin inlines
     for model in ['vueensemble',
                   'depenseprevisionnelle',
@@ -59,4 +59,4 @@ for perm in ['add', 'delete', 'change']:
                   ]:
         rules.allow_global(
             'boursiers.%s_%s' % (perm, model),
-            has_global_perm('global.gerer_boursiers'))
+            has_global_perm('global.gerer_allocations'))

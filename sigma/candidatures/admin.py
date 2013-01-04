@@ -545,11 +545,6 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
         actions.append(
             "<a href='%s'>Évaluer</a>" % reverse('evaluer', args=(obj.id, ))
         )
-        if obj.etat == DOSSIER_ETAT_RETENU:
-            actions.append(
-                "<nobr><a href='%s'>Fiche boursier</a></nobr>" %
-                reverse('admin:boursiers_boursier_change', args=(obj.id,))
-            )
         return '<br />\n'.join(actions)
     action_column.allow_tags = True
     action_column.short_description = ''
@@ -746,10 +741,10 @@ class AttributWCSAdmin(ModelAdmin):
 GLOBAL_PERMISSIONS = (
     ('gerer_appels', u"Peut gérer les appels d'offres"),
     ('gerer_dossiers', u"Peut gérer les dossiers de candidature"),
-    ('gerer_boursiers', u"Peut gérer les boursiers"),
+    ('gerer_allocations', u"Peut gérer les allocations"),
     ('gerer_experts', u"Peut gérer les experts"),
     ('configurer_sigma', u"Peut configurer SIGMA"),
-)
+    )
 
 
 class UserForm(DjangoUserForm):

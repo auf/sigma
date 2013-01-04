@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.db.models import Sum
 from django.conf import settings
+from django.core import exceptions
 
 import auf.django.references.models as ref
 
@@ -16,10 +17,18 @@ from sigma.lib.models import (
     AccueilAbstract,
     MobiliteAbstract,
     )
-from sigma.candidatures.models import Dossier, DossierMobilite
+from sigma.candidatures.models import Dossier, Appel, DossierMobilite
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 
 ENABLE_FILTERED_QUERYSETS = getattr(settings, 'ENABLE_FILTERED_QUERYSETS', True)
+
+
+def copy_model(source, dest):
+    fields = [x.attname for x in dest()._meta.fields
+              if hasattr(source, x.attname)]
+    data = dict([(x, getattr(source, x)) for x in fields])
+    return dest(**data)
+
 
 
 class Allocataire(Individu):
@@ -46,15 +55,8 @@ class Allocataire(Individu):
         null=True
         )
 
-    @staticmethod
-    def copy_model(source, dest):
-        fields = [x.attname for x in dest()._meta.fields
-                  if hasattr(source, x.attname)]
-        data = dict([(x, getattr(source, x)) for x in fields])
-        return dest(**data)
-
     @classmethod
-    def from_dossier(cls, dossier):
+    def from_dossier(cls, dossier, code_operation=None):
         if not dossier.est_allouable():
             raise ValueError(
                 'Le dossier est incomplet, ou invalide. '
@@ -63,36 +65,54 @@ class Allocataire(Individu):
 
         # Creer une copie du modele
         candidat = dossier.candidat
-        alloc = cls.copy_model(candidat, Allocataire)
+        allocataire = copy_model(candidat, Allocataire)
 
         # TODO: Changer lorsque qu'on change le champ de
         # candidat.region pour candidat.province.
-        alloc.province = candidat.province or candidat.region
+        allocataire.province = candidat.province or candidat.region
 
         # Save
-        alloc.save()
+        allocataire.save()
+        return allocataire
 
-        origine = dossier.origine
-        if origine:
-            origine = cls.copy_model(
-                dossier.origine, AllocationOrigine)
-            # origine.allocation = alloc
-            # origine.save()
+    @property
+    def allocations_by_appel(self):
+        allocations_dict = {}
+        for alloc in self.allocations.all().order_by(
+            'dossier__appel__id'):
+            appel = alloc.dossier.appel
+            nom = appel.nom
+            if nom not in allocations_dict.keys():
+                allocations_dict[nom] = {}
+                allocations_dict[nom]['allocations'] = []
+                allocations_dict[nom]['id'] = appel.id
+            allocations_dict[nom]['allocations'].append(alloc);
+            
+        res = [(k, allocations_dict[k])
+                for k in allocations_dict.keys()]
+        return res
 
-        accueil = dossier.accueil
-        if accueil:
-            accueil = cls.copy_model(
-                dossier.origine, AllocationAccueil)
-            # accueil.allocation = alloc
-            # accueil.save()
 
-        return alloc
+class AllocationManager(models.Manager):
+    """Manager pour les allocations.
+
+       Cache les fiches allocations dont le dossier de candidature n'indique
+       pas qu'ils sont allocataires."""
+
+    def get_query_set(self):
+        base_qs = super(AllocationManager, self).get_query_set()
+        if not ENABLE_FILTERED_QUERYSETS:
+            return base_qs
+        return base_qs.filter(dossier__etat=DOSSIER_ETAT_RETENU)
 
 
 class Allocation(models.Model):
     """
     Représente l'allocation d'une bourse (unique, ou durant une année universitaire).
     """
+
+    # Managers
+    # objects = AllocationManager()
 
     # Dossier 
     dossier = models.ForeignKey(
@@ -104,6 +124,7 @@ class Allocation(models.Model):
     # Allocataire.
     allocataire = models.ForeignKey(
         Allocataire,
+        related_name='allocations',
         )
 
     # Si c'est un renouvellement, référer l'allocation originale.
@@ -111,19 +132,23 @@ class Allocation(models.Model):
         'self',
         blank=True,
         null=True,
+        help_text=('Si c\'est un renouvellement, choisissez '
+                   ' l\'allocation originale'),
         )
 
     # Utilisé pour effectuer les recherches d'écritures CODA.
     code_operation = models.CharField(
-        max_length=11, verbose_name="Code d'opération CODA", blank=True,
-        db_index=True
-    )
+        max_length=11,
+        verbose_name="Code d'opération CODA",
+        blank=True,
+        db_index=True,
+        )
 
     # Numéro de police d'assurance pour la période.
     numero_police_assurance = models.CharField(
         max_length=100, verbose_name="Numéro de police d'assurance",
         blank=True, default=''
-    )
+        )
 
     # Plus ancienne des date de debut, incluant origine et accueil.
     date_debut = models.DateField(
@@ -139,102 +164,107 @@ class Allocation(models.Model):
         null=True,
         )
 
+    def create_vues_ensemble(self):
+        for t in VueEnsemble.TYPE_CHOICES:
+            VueEnsemble.objects.create(
+                vue_type=t[0],
+                code_document=VueEnsemble.CODE_DOCUMENT_DEFAULTS[t[0]],
+                allocation=self,
+                )
 
-class AllocationOrigine(OrigineAbstract):
-    """
-    Informations sur le contexte d'origine de l'allocataire.
-    """
-    allocation = models.OneToOneField(
-        Allocation,
-        verbose_name=u"Allocation",
-        related_name="origine",
-        )
+    def create_mobilite(self):
+        # Créé les details de mobilite pour une allocation.
+        
+        # Quelques verifications.
+        origine, accueil, mobilite = (
+            self.dossier.origine,
+            self.dossier.accueil,
+            self.dossier.mobilite,
+            )
 
+        if origine:
+            origine = copy_model(
+                self.dossier.origine, AllocationOrigine)
+            origine.allocation = self
+            origine.save()
 
-class AllocationAccueil(AccueilAbstract):
-    """
-    Informations sur le contexte d'accueil de l'allocataire.
-    """
-    allocation = models.OneToOneField(
-        Allocation,
-        verbose_name=u"Allocation",
-        related_name="accueil",
-        )
+        if accueil:
+            accueil = copy_model(
+                self.dossier.origine, AllocationAccueil)
+            accueil.allocation = self
+            accueil.save()
 
-
-class AllocationMobilite(MobiliteAbstract):
-    """
-    Informations sur la mobilité demandée par le candidat.
-    """
-    allocation = models.OneToOneField(
-        Allocation,
-        verbose_name=u"Allocation",
-        related_name="mobilite",
-        )
-
-
-class BoursierManager(models.Manager):
-    """Manager pour les boursiers.
-
-       Cache les fiches boursier dont le dossier de candidature n'indique
-       pas qu'ils sont boursiers."""
-
-    def get_query_set(self):
-        base_qs = super(BoursierManager, self).get_query_set()
-        if not ENABLE_FILTERED_QUERYSETS:
-            return base_qs
-        return base_qs.filter(dossier__etat=DOSSIER_ETAT_RETENU)
+        if mobilite:
+            mobilite = copy_model(
+                self.dossier.mobilite, AllocationMobilite)
+            mobilite.allocation = self
+            mobilite.save()
 
 
-class BoursierInactifManager(models.Manager):
-    """Manager pour les boursiers inactifs."""
+    def create_depenses_previsionelles(self, force_create=False):
+        # Creer les depenses previsionelles prevues.
+        # Le parametre force_create va creer des depenses
+        # previsionelles meme si aucunes existe dans la base de
+        # donnees.
+        if not force_create:
+            if self.depenses_previsionnelles.count() > 0:
+                return
 
-    def get_query_set(self):
-        base_qs = super(BoursierInactifManager, self).get_query_set()
-        if not ENABLE_FILTERED_QUERYSETS:
-            return base_qs
-        return base_qs.exclude(dossier__etat=DOSSIER_ETAT_RETENU)
 
+        duree_accueil = self.mobilite.duree_accueil
+        duree_origine = self.mobilite.duree_origine
+        montant_accueil = self.montant('accueil') or Decimal('0')
+        montant_origine = self.montant('origine') or Decimal('0')
+        bareme = self.dossier.appel.bareme
+        
+        if bareme == 'mensuel':
+            accueil_iterator = duree_accueil
+            origine_iterator = duree_origine
+            accueil_desc = 'Abonnement mensuel (Accueil)'
+            origine_desc = 'Abonnement mensuel (Origine)'
+        elif bareme == 'perdiem':
+            accueil_iterator = duree_accueil.days_iterator
+            origine_iterator = duree_origine.days_iterator
+            accueil_desc = 'Abonnement perdiem (Accueil)'
+            origine_desc = 'Abonnement perdiem (Origine)'
+        elif bareme == 'allocation':
+            DepensePrevisionnelle.objects.create(
+                allocation=self,
+                description='Allocation unique (Acueil)',
+                date=self.mobilite.date_debut_accueil,
+                montant_eur=montant_accueil,
+                implantation='A'
+                )
+            return
+        else:
+            # Si aucun match, ne fait rien. Ca ne devrait pas arriver.
+            return
+        
+        # Si c'est mensuel ou perdiem, creer les depenses
+        # previsionnelles:
+        for mois in accueil_iterator:
+            DepensePrevisionnelle.objects.create(
+                allocation=self,
+                description='Abonnement mensuel (Accueil)',
+                date=mois,
+                montant_eur=montant_accueil,
+                implantation='A'
+                )
+        for mois in origine_iterator:
+            DepensePrevisionnelle.objects.create(
+                allocation=self,
+                description='Abonnement mensuel (Origine)',
+                date=mois,
+                montant_eur=montant_origine,
+                implantation='O'
+                )
 
-class Boursier(models.Model):
-    """La fiche de suivi d'un boursier."""
-    dossier = models.OneToOneField(
-        Dossier, verbose_name='Candidature',
-        related_name='boursier', primary_key=True, editable=False
-    )
-    code_operation = models.CharField(
-        max_length=11, verbose_name="Code d'opération CODA", blank=True,
-        db_index=True
-    )
-    numero_police_assurance = models.CharField(
-        max_length=100, verbose_name="Numéro de police d'assurance",
-        blank=True, default=''
-    )
-
-    date_debut = models.DateField(
-        verbose_name="Date de début",
-        blank=True,
-        null=True,
-        )
-    date_fin = models.DateField(
-        verbose_name="Date de fin",
-        blank=True,
-        null=True,
-        )
-
-    # Managers
-    objects = BoursierManager()
-    inactifs = BoursierInactifManager()
-
-    class Meta:
-        verbose_name = 'Allocataire'
-        verbose_name_plural = 'Allocataires'
-
-    def __unicode__(self):
-        return self.nom_complet()
+    def nom_complet(self):
+        return self.prenom() + ' ' + self.nom()
+    nom_complet.short_description = 'Nom'
 
     def pays_origine(self):
-        origine = self.dossier.origine
+        origine = self.origine
         if origine:
             return origine.pays
     pays_origine.short_description = 'Pays d\'origine'
@@ -248,19 +278,19 @@ class Boursier(models.Model):
     code_bureau.admin_order_field = 'dossier__origine__pays__code_bureau__nom'
 
     def prenom(self):
-        return self.dossier.candidat.prenom
+        return self.allocataire.prenom
     prenom.short_description = 'Prénom'
-    prenom.admin_order_field = 'dossier__candidat__prenom'
+    prenom.admin_order_field = 'allocataire__prenom'
 
     def nom(self):
-        return self.dossier.candidat.nom
+        return self.allocataire.nom
     nom.short_description = 'Nom'
-    nom.admin_order_field = 'dossier__candidat__nom'
+    nom.admin_order_field = 'allocataire__nom'
 
     def naissance_date(self):
-        return self.dossier.candidat.naissance_date
+        return self.allocataire.naissance_date
     naissance_date.short_description = 'Date de naissance'
-    naissance_date.admin_order_field = 'dossier__candidat__naissance_date'
+    naissance_date.admin_order_field = 'allocataire__naissance_date'
 
     def responsable_budgetaire(self):
         return '%s %s' % (
@@ -277,17 +307,17 @@ class Boursier(models.Model):
 
     def debut_mobilite(self):
         try:
-            if (self.dossier.mobilite.date_debut_origine and
-                self.dossier.mobilite.date_debut_accueil):
+            if (self.mobilite.date_debut_origine and
+                self.mobilite.date_debut_accueil):
                 return min(
-                    self.dossier.mobilite.date_debut_origine,
-                    self.dossier.mobilite.date_debut_accueil,
+                    self.mobilite.date_debut_origine,
+                    self.mobilite.date_debut_accueil,
                     )
             else:
-                return (self.dossier.mobilite.date_debut_accueil or
-                        self.dossier.mobilite.date_debut_origine or
+                return (self.mobilite.date_debut_accueil or
+                        self.mobilite.date_debut_origine or
                         None)
-        except DossierMobilite.DoesNotExist:
+        except AllocationMobilite.DoesNotExist:
             return None
     debut_mobilite.short_description = 'Début de la mobilité'
     # XXX: Trouver comment ordonner par la plus petite des date de début
@@ -297,7 +327,7 @@ class Boursier(models.Model):
         return self.dossier.appel.bareme
 
     def implantation(self, lieu):
-        etablissement = getattr(self.dossier, lieu).etablissement
+        etablissement = getattr(self, lieu).etablissement
         if etablissement:
             try:
                 return etablissement.implantation
@@ -307,8 +337,8 @@ class Boursier(models.Model):
             return None
 
     def montant(self, lieu):
-        dossier_lieu = getattr(self.dossier, lieu)
-        pays = getattr(dossier_lieu, 'pays', None)
+        orig_acc = getattr(self, lieu)
+        pays = getattr(orig_acc, 'pays', None)
 
         if pays is None:
             return None
@@ -347,7 +377,7 @@ class Boursier(models.Model):
 
     @property
     def prime_installation(self):
-        pays = self.dossier.accueil.pays
+        pays = self.accueil.pays
         if pays is None:
             return Decimal('0')
         nord_sud = pays.nord_sud.lower()
@@ -373,74 +403,52 @@ class Boursier(models.Model):
             .filter(boursier_id=self.code_operation) \
             .order_by('numero_pcg', 'nom_pcg', '-date_document')
 
-    def nom_complet(self):
-        return self.prenom() + ' ' + self.nom()
-    nom_complet.short_description = 'Nom'
+    def __unicode__(self):
+        return 'Allocataire <%s> pour <%s>' % (
+            self.allocataire.nom_complet(), self.dossier.appel.nom)
 
-    def creer_depenses_previsionelles(self):
-        duree_accueil = self.dossier.mobilite.duree_accueil
-        duree_origine = self.dossier.mobilite.duree_origine
-        if self.bareme() == 'mensuel':
-            for m in duree_accueil:
-                DepensePrevisionnelle.objects.create(
-                    boursier=self,
-                    description='Abonnement mensuel (Accueil)',
-                    date=m,
-                    montant_eur=self.montant('accueil') or Decimal('0'),
-                    implantation='A'
-                    )
-            for m in duree_origine:
-                DepensePrevisionnelle.objects.create(
-                    boursier=self,
-                    description='Abonnement mensuel (Origine)',
-                    date=m,
-                    montant_eur=self.montant('origine') or Decimal('0'),
-                    implantation='O'
-                    )
-        elif self.bareme() == 'perdiem':
-            for m in duree_accueil.days_iterator:
-                DepensePrevisionnelle.objects.create(
-                    boursier=self,
-                    description='Abonnement perdiem (Accueil)',
-                    date=m,
-                    montant_eur=self.montant('accueil') or Decimal('0'),
-                    implantation='A'
-                    )
-            for m in duree_origine.days_iterator:
-                DepensePrevisionnelle.objects.create(
-                    boursier=self,
-                    description='Abonnement perdiem (Origine)',
-                    date=m,
-                    montant_eur=self.montant('origine') or Decimal('0'),
-                    implantation='O'
-                    )
-        elif self.bareme() == 'allocation':
-            DepensePrevisionnelle.objects.create(
-                boursier=self,
-                description='Allocation unique (Acueil)',
-                date=self.dossier.mobilite.date_debut_accueil,
-                montant_eur=self.montant('accueil') or Decimal('0'),
-                implantation='A'
-                )
-
-    def creer_vues_ensemble(self):
-        for t in VueEnsemble.TYPE_CHOICES:
-            VueEnsemble.objects.create(
-                vue_type=t[0],
-                code_document=VueEnsemble.CODE_DOCUMENT_DEFAULTS[t[0]],
-                boursier=self,
-                )
-
-    def save(self, *args, **kwargs):
-        # Assurons-nous que les codes opération sont uniques
-        Boursier.inactifs \
-                .filter(code_operation=self.code_operation) \
-                .update(code_operation='')
-        super(Boursier, self).save(*args, **kwargs)
+    # def validate_unique(self, *a, **kw):
+    #     super(Allocation, self).validate_unique(*a, **kw)
+    #     if (self.code_operation not in ('', None) and
+    #         Allocation.tous.filter(code_operation=self.code_operation).count()
+    #         > 0):
+    #         raise exceptions.ValidationError('code_operation is not unique!')
 
 
-class FicheFinanciere(Boursier):
+class AllocationOrigine(OrigineAbstract):
+    """
+    Informations sur le contexte d'origine de l'allocataire.
+    """
+    allocation = models.OneToOneField(
+        Allocation,
+        verbose_name=u"Allocation",
+        related_name="origine",
+        )
 
+
+class AllocationAccueil(AccueilAbstract):
+    """
+    Informations sur le contexte d'accueil de l'allocataire.
+    """
+    allocation = models.OneToOneField(
+        Allocation,
+        verbose_name=u"Allocation",
+        related_name="accueil",
+        )
+
+
+class AllocationMobilite(MobiliteAbstract):
+    """
+    Informations sur la mobilité demandée par le candidat.
+    """
+    allocation = models.OneToOneField(
+        Allocation,
+        verbose_name=u"Allocation",
+        related_name="mobilite",
+        )
+
+
+class FicheFinanciere(Allocation):
     class Meta:
         proxy = True
 
@@ -476,10 +484,6 @@ class VueEnsemble(models.Model):
         'Allocation',
         related_name='vue_ensemble',
         )
-    boursier = models.ForeignKey(
-        'Boursier',
-        related_name='vue_ensemble',
-        )
 
     class Meta:
         verbose_name ='Engagement d\'allocations'
@@ -488,13 +492,13 @@ class VueEnsemble(models.Model):
     @property
     def montant(self):
         if self.vue_type == 'EA':
-            return self.boursier.abonnement_total
+            return self.allocation.abonnement_total
         elif self.vue_type == 'AO':
-            return self.boursier.abonnement_total_origine
+            return self.allocation.abonnement_total_origine
         elif self.vue_type == 'AA':
-            return self.boursier.abonnement_total_accueil
+            return self.allocation.abonnement_total_accueil
         elif self.vue_type == 'II':
-            return self.boursier.prime_installation
+            return self.allocation.prime_installation
 
 
 class DepensePrevisionnelle(models.Model):
@@ -503,9 +507,11 @@ class DepensePrevisionnelle(models.Model):
         ('A', 'Accueil'),
     )
 
-    boursier = models.ForeignKey(
-        Boursier, related_name="depenses_previsionnelles"
-    )
+    allocation = models.ForeignKey(
+        Allocation,
+        related_name='depenses_previsionnelles',
+        null=True,
+        )
     numero = models.IntegerField(null=True, blank=True, verbose_name='Numéro')
     description = models.CharField(max_length=36)
     commentaires = models.CharField(
@@ -582,20 +588,3 @@ class EcritureCODA(models.Model):
     date_maj = models.DateField(
         u"dernière mise à jour", db_index=True
     )
-
-
-def dossier_post_save(sender, instance=None, **kwargs):
-    if instance and instance.etat == DOSSIER_ETAT_RETENU:
-        # Creer boursier
-        b, created = Boursier.objects.get_or_create(dossier=instance)
-        if created:
-            # Creer vues d'ensemble et depenses previsionnelles
-            mobilite = instance.get_mobilite()
-            if mobilite:
-                b.date_debut = instance.mobilite.duree_totale.debut
-                b.date_fin = instance.mobilite.duree_totale.fin
-                
-            b.creer_vues_ensemble()
-            b.creer_depenses_previsionelles()
-
-post_save.connect(dossier_post_save, sender=Dossier)
