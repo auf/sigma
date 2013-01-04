@@ -742,6 +742,7 @@ GLOBAL_PERMISSIONS = (
     ('gerer_appels', u"Peut gérer les appels d'offres"),
     ('gerer_dossiers', u"Peut gérer les dossiers de candidature"),
     ('gerer_allocations', u"Peut gérer les allocations"),
+    ('gerer_allocataires', u"Peut gérer les allocataires"),
     ('gerer_experts', u"Peut gérer les experts"),
     ('configurer_sigma', u"Peut configurer SIGMA"),
     )

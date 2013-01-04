@@ -4,7 +4,7 @@ from auf.django.references import models as ref
 from django.db.models import Q
 
 from sigma.candidatures.models import Appel, Dossier, Expert
-from sigma.boursiers.models import Allocation
+from sigma.boursiers.models import Allocation, Allocataire, FicheFinanciere
 
 
 def is_in_region(attr='pk'):
@@ -25,7 +25,12 @@ rules.allow('assign', Expert, is_in_region('region'))
 rules.allow('change', Dossier,
             has_global_perm('global.gerer_dossiers') &
             is_in_region('appel__region'))
+rules.allow('change', Allocataire,
+            has_global_perm('global.gerer_allocataires'))
 rules.allow('change', Allocation,
+            has_global_perm('global.gerer_allocations') &
+            is_in_region('dossier__appel__region'))
+rules.allow('change', FicheFinanciere,
             has_global_perm('global.gerer_allocations') &
             is_in_region('dossier__appel__region'))
 
@@ -56,6 +61,7 @@ for perm in ['add', 'delete', 'change']:
                   'allocationorigine',
                   'allocationaccueil',
                   'allocationmobilite',
+                  'fichefinanciere',
                   ]:
         rules.allow_global(
             'boursiers.%s_%s' % (perm, model),
