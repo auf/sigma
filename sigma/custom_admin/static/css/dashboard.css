@@ -67,3 +67,10 @@
     margin: 0;
     color: #8ecc0c;
     }
+
+
+/* Search results */
+
+.highlighted {
+    background-color: yellow;
+}

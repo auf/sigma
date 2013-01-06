@@ -1,0 +1,1 @@
+{{ object.nom_complet }}

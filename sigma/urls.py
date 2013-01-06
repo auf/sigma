@@ -16,6 +16,7 @@ urlpatterns = patterns(
     # url(r'^boursiers/', include('sigma.boursiers.urls')),
     url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^wcs/', include('sigma.wcs.urls')),
+    (r'^search/', include('haystack.urls')),
 )
 
 if settings.DEBUG:

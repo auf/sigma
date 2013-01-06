@@ -20,6 +20,7 @@ from sigma.lib.models import (
     CIVILITE,
     BOOLEAN_RADIO_OPTIONS,
     )
+from sigma.lib.search_indexes import Searcheable
 from sigma.dynamo import dynamo_registry
 from sigma.dynamo.models import \
         MetaModel, InstanceModel, TypeProperty, ValueProperty
@@ -451,7 +452,7 @@ class DossierManager(models.Manager):
         return DossierQuerySet(Dossier).select_related(*fkeys).all()
 
 
-class Dossier(DossierWorkflow, InstanceModel, models.Model):
+class Dossier(DossierWorkflow, InstanceModel, models.Model, Searcheable):
     """
     Informations générales du dossier de candidature.
     """
@@ -558,6 +559,11 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         ordering = ['appel__nom', 'candidat__nom', 'candidat__prenom']
         verbose_name = u"Candidature"
         verbose_name_plural = u"Candidatures"
+
+    
+    @property
+    def candidat_nom_complet(self):
+        return self.candidat.nom_complet
 
     def __unicode__(self, ):
         try:
