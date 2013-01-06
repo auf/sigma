@@ -142,9 +142,7 @@ Content
   display: inline-block;
   min-width: 760px;
   margin-left: -300px;
-  /* border-left: 1px solid e9e9ea;
-  border-right: 1px solid #e9e9ea;*/
-  padding: 27px 0 40px 12px;
+  padding: 27px 30px 40px 30px;
   vertical-align: top;
   background-color: white;
   }

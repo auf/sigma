@@ -365,7 +365,7 @@ class AppelAdmin(GuardedModelAdmin):
 
         'date_debut_appel',
         'date_fin_appel',
-        '_actions',
+        #'_actions',
     )
     actions = [faire_copie]
     list_filter = (RegionFilter, 'annee', 'type_bourse', )

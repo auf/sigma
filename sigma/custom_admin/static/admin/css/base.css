@@ -70,8 +70,8 @@ h2.subhead {
 h3 {
     font-size: 14px;
     margin: .8em 0 .3em 0;
-    color: #666;
-    font-weight: bold;
+    color: #000;
+    font-weight: normal;
 }
 
 h4 {
@@ -248,28 +248,21 @@ table {
 }
 
 td, th {
-    font-size: 11px;
-    line-height: 13px;
-    border-bottom: 1px solid #eee;
-    vertical-align: top;
-    padding: 5px;
-    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 14px;
+    border-bottom: 1px solid #dee0e2;
+    vertical-align: center;
+    padding: 25px 5px;
 }
 
 th {
     text-align: left;
-    font-size: 12px;
     font-weight: bold;
 }
 
 thead th,
 tfoot td {
-    color: #666;
-    padding: 2px 5px;
-    font-size: 11px;
-    background: #e1e1e1 url(../img/nav-bg.gif) top left repeat-x;
-    border-left: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
+
 }
 
 tfoot td {
@@ -303,13 +296,6 @@ tr.alt {
     background: #f6f6f6;
 }
 
-.row1 {
-    background: #EDF3FE;
-}
-
-.row2 {
-    background: white;
-}
 
 /* SORTABLE TABLES */
 
@@ -323,11 +309,10 @@ thead th a:link, thead th a:visited {
 }
 
 thead th.sorted {
-    background: #c5c5c5 url(../img/nav-bg-selected.gif) top left repeat-x;
+    /*background: #c5c5c5 url(../img/nav-bg-selected.gif) top left repeat-x;*/
 }
 
 table thead th .text span {
-    padding: 2px 5px;
     display:block;
 }
 
@@ -425,7 +410,8 @@ textarea {
 }
 
 input[type=text], input[type=password], textarea, select, .vTextField {
-    border: 1px solid #ccc;
+    border: 1px solid #dee0e2;
+    background-color: white;
 }
 
 /* FORM BUTTONS */
@@ -472,7 +458,6 @@ input[type=text], input[type=password], textarea, select, .vTextField {
 /* MODULES */
 
 .module {
-    border: 1px solid #ccc;
     margin-bottom: 5px;
     background: white;
 }
@@ -488,6 +473,8 @@ input[type=text], input[type=password], textarea, select, .vTextField {
 
 .module ul, .module ol {
     margin-left: 1.5em;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .module h3 {
@@ -613,11 +600,6 @@ div.breadcrumbs {
 
 /* ACTION ICONS */
 
-.addlink {
-    padding-left: 12px;
-    background: url(../img/icon_addlink.gif) 0 .2em no-repeat;
-}
-
 .changelink {
     padding-left: 12px;
     background: url(../img/icon_changelink.gif) 0 .2em no-repeat;
@@ -639,14 +621,14 @@ a.deletelink:hover {
 /* OBJECT TOOLS */
 
 .object-tools {
-    font-size: 10px;
+    font-size: 14px;
     font-weight: bold;
-    font-family: Arial,Helvetica,sans-serif;
+    font-family: "Open Sans", sans-serif;
     padding-left: 0;
     float: right;
-    position: relative;
+    /*position: relative;
     margin-top: -2.4em;
-    margin-bottom: -2em;
+    margin-bottom: -2em;*/
 }
 
 .form-row .object-tools {
@@ -658,48 +640,22 @@ a.deletelink:hover {
 }
 
 .object-tools li {
-    display: block;
-    float: left;
-    background: url(../img/tool-left.gif) 0 0 no-repeat;
-    padding: 0 0 0 8px;
-    margin-left: 2px;
-    height: 16px;
+    display: inline-block;
+    background-color: #1195e7;;
+    border: 1px solid #0088de;
+    border-radius: 7px;
+    height: 35px;
+    padding: 0 40px;
 }
 
-.object-tools li:hover {
-    background: url(../img/tool-left_over.gif) 0 0 no-repeat;
-}
-
-.object-tools a:link, .object-tools a:visited {
-    display: block;
-    float: left;
+.object-tools a {
+    line-height: 35px;
+    text-align: center;
+    display: inline-block;
     color: white;
-    padding: .1em 14px .1em 8px;
-    height: 14px;
-    background: #999 url(../img/tool-right.gif) 100% 0 no-repeat;
+    font-size: 14px;
 }
 
-.object-tools a:hover, .object-tools li:hover a {
-    background: #5b80b2 url(../img/tool-right_over.gif) 100% 0 no-repeat;
-}
-
-.object-tools a.viewsitelink, .object-tools a.golink {
-    background: #999 url(../img/tooltag-arrowright.gif) top right no-repeat;
-    padding-right: 28px;
-}
-
-.object-tools a.viewsitelink:hover, .object-tools a.golink:hover {
-    background: #5b80b2 url(../img/tooltag-arrowright_over.gif) top right no-repeat;
-}
-
-.object-tools a.addlink {
-    background: #999 url(../img/tooltag-add.gif) top right no-repeat;
-    padding-right: 28px;
-}
-
-.object-tools a.addlink:hover {
-    background: #5b80b2 url(../img/tooltag-add_over.gif) top right no-repeat;
-}
 
 /* OBJECT HISTORY */
 
@@ -736,6 +692,7 @@ table#change-history tbody th {
 #content-main { /* unidentified */
     float: left;
     width: 100%;
+    margin-top: 15px;
 }
 
 #content-related { /* unidentified */

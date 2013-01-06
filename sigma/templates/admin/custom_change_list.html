@@ -1,6 +1,7 @@
 {% extends "admin/change_list.html" %}
-{% load i18n %}
+{% load i18n admin_static admin_list %}
 {% load url from future %}
+{% load admin_urls %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -11,5 +12,69 @@
 
 {% block content %}
 <h3>volumétrie: {{ cl.result_count }}/{{ cl.full_result_count }}</h3>
-    {{ block.super }}
+    <div id="content-main">
+    
+    {% if cl.formset.errors %}
+        <p class="errornote">
+        {% blocktrans count cl.formset.errors|length as counter %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
+        </p>
+        {{ cl.formset.non_form_errors }}
+    {% endif %}
+    <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
+      
+      {% block date_hierarchy %}{% date_hierarchy cl %}{% endblock %}
+
+      {% block filters %}
+        {% if cl.has_filters %}
+          <div id="changelist-filter">
+            
+            {% for spec in cl.filter_specs %}<div class="filter-block">{% admin_list_filter cl spec %}</div>{% endfor %}
+          </div>
+        {% endif %}
+      {% endblock %}
+
+
+
+      <form id="changelist-form" action="" method="post"{% if cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %}>{% csrf_token %}
+      {% if cl.formset %}
+        <div>{{ cl.formset.management_form }}</div>
+      {% endif %}
+
+      {% block result_list %}
+          {% if action_form and actions_on_top and cl.full_result_count %}
+            <div class="actions">
+                {% for field in action_form %}{{ field }}{% endfor %}
+                
+                {% if actions_selection_counter %}
+                    <script type="text/javascript">var _actions_icnt="{{ cl.result_list|length|default:"0" }}";</script>
+                    <!-- <span class="action-counter">{{ selection_note }}</span> -->
+                    {% if cl.result_count != cl.result_list|length %}
+                    <span class="all">{{ selection_note_all }}</span>
+                    <span class="question">
+                        <a href="javascript:;" title="{% trans "Click here to select the objects across all pages" %}">{% blocktrans with cl.result_count as total_count %}Select all {{ total_count }} {{ module_name }}{% endblocktrans %}</a>
+                    </span>
+                    <span class="clear"><a href="javascript:;">{% trans "Clear selection" %}</a></span>
+                    {% endif %}
+                {% endif %}
+            </div>
+          {% endif %}
+            {% block object-tools %}
+              {% if has_add_permission %}
+                <ul class="object-tools">
+                  {% block object-tools-items %}
+                    <li>
+                      <a href="{% url cl.opts|admin_urlname:'add' %}{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+                        <strong>+</strong> {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+                      </a>
+                    </li>
+                  {% endblock %}
+                </ul>
+              {% endif %}
+            {% endblock %}
+          {% result_list cl %}
+      {% endblock %}
+      {% block pagination %}{% pagination cl %}{% endblock %}
+      </form>
+    </div>
+  </div>
 {% endblock %}
