@@ -1,0 +1,26 @@
+#inline-group .allocations label {
+    width: 300px;
+    display: block;
+    float: left;
+}
+
+
+#inline-group .allocations label .label_content {
+    display: block;
+    float: left;
+}
+
+#inline-group .allocations label span.dotted {
+    border-bottom: 1px dashed #666;
+    display: block;
+    overflow: hidden;
+    margin: 0 4px;
+    position: relative;
+    left: 2px;
+    bottom: 3px;
+}
+
+a.whitelink {
+    color: white;
+    text-decoration: underline;
+}

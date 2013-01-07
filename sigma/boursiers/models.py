@@ -407,7 +407,7 @@ class Allocation(models.Model):
             .order_by('numero_pcg', 'nom_pcg', '-date_document')
 
     def __unicode__(self):
-        return 'Allocataire <%s> pour <%s>' % (
+        return 'Allocation <%s> pour <%s>' % (
             self.allocataire.nom_complet(), self.dossier.appel.nom)
 
     # def validate_unique(self, *a, **kw):

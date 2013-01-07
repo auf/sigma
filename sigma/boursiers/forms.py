@@ -107,7 +107,7 @@ class AllocationForm(forms.ModelForm):
                     .filter(code_operation=code_operation) \
                     .exclude(pk=allocation.pk)
             if len(conflits) > 0:
-                raise ValidationError(
+                raise forms.ValidationError(
                     u"Code d'opération déjà attribué à l'allocation %s." %
                     conflits[0]
                 )
@@ -126,6 +126,7 @@ class NouvelleAllocation(AllocationForm):
 
     def __init__(self, *a, **kw):
         super(NouvelleAllocation, self).__init__(*a, **kw)
+        self.fields['creer_nouvel_allocataire'].required = False
         self.fields['allocataire'].required = False
         self.fields['allocataire'].widget = ForeignKeyRawIdWidget(
             rel=Allocation.allocataire.field.rel,

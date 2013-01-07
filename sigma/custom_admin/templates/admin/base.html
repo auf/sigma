@@ -19,12 +19,6 @@
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 
-<div class="top_ribbon"><div class="color_block blue"></div><div class="color_block red"></div>
-    <div class="ribbon_overlay"><div class="color_blocks">
-        <div class="color_block yellow"></div><div class="color_block green"></div><div class="color_block purple"></div>
-    </div></div>
-</div>
-
 {% if not is_popup %}
 <!-- Header -->
 {% block header %}
@@ -88,6 +82,12 @@
 <!-- END Content -->
 
 {% block footer %}<div id="footer"></div>{% endblock %}
+
+<div class="top_ribbon"><div class="color_block blue"></div><div class="color_block red"></div>
+    <div class="ribbon_overlay"><div class="color_blocks">
+        <div class="color_block yellow"></div><div class="color_block green"></div><div class="color_block purple"></div>
+    </div></div>
+</div>
 
 </body>
 </html>

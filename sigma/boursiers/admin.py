@@ -2,6 +2,7 @@
 
 from itertools import groupby
 
+from django.http import HttpResponseRedirect
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
 from django.core.urlresolvers import reverse
@@ -254,6 +255,13 @@ class AllocationAdmin(GuardedModelAdmin):
                                'pour créer une allocation.')
         res = super(AllocationAdmin, self).add_view(
             request, form_url='', extra_context={})
+
+        # Au lieu de ramener a la liste d'allocation, ramener a la
+        # list d'allocataires, apres l'ajout.
+        if (isinstance(res, HttpResponseRedirect)
+            and res['location'] == '/boursiers/allocation/'):
+            return HttpResponseRedirect(
+                reverse('admin:boursiers_allocataire_changelist'))
         return res
 
     def get_fieldsets(self, request, obj=None):
