@@ -10,3 +10,8 @@
     &rsaquo; {% if add %}{% trans 'Add' %} {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}
     </div>
 {% endblock %}
+
+{% block object-tools %}
+    {{ block.super }}
+    <div class="clear"></div>
+{% endblock %}
