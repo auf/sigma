@@ -1,0 +1,8 @@
+{{ object.nom }}
+{{ object.type_bourse }}
+{{ object.region.nom }}
+{{ object.annee }}
+{{ object.code_budgetaire }}
+{{ object.responsable_budgetaire.nom }}
+{{ object.responsable_budgetaire.prenom }}
+{{ object.bareme }}

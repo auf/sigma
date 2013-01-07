@@ -1,0 +1,10 @@
+{{ object }}
+{% for r in object.regions.all %}
+{{ r.nom }}
+{% endfor %}
+{{ object.email }}
+{{ object.first_name }}
+{{ object.last_name }}
+{% for d in object.disciplines.all %}
+{{ d.nom }}
+{% endfor %}

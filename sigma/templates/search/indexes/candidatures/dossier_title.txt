@@ -1,0 +1,1 @@
+Candidature de {{ object.candidat.nom_complet }}

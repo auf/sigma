@@ -1,0 +1,19 @@
+{{ object }}
+{{ object.nom_complet }}
+{{ object.pays.nom }}
+{{ object.nationalite.nom }}
+{{ object.region.nom }}
+{{ object.courriel }}
+{% for d in object.disciplines.all %}
+{{ d.nom }}
+{{ d.nom_long }}
+{{ d.nom_court }}
+{% endfor %}
+{{ object.dossier }}
+{{ object.dossier.discipline.nom }}
+{{ object.dossier.appel.nom }}
+{{ object.dossier.appel.region.nom }}
+{% for e in object.dossier.experts.all %}
+{{ e.nom_complet }}
+{% endfor %}
+

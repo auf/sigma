@@ -1,0 +1,25 @@
+{% extends 'admin/base_site.html' %}
+{% load highlight %}
+
+{% block content %}
+  {% if query %}
+  <h3>Résultats ({{paginator.count}})</h3>
+
+  {% for result in page.object_list %}
+  <h3><a href="{{ result.object.get_absolute_url }}">{{ result.title }}</a></h3> 
+  <p>{% highlight result.summary with query %}</p> 
+  {% empty %}
+  <p>Aucuns résultats trouvés.</p>
+  {% endfor %}
+
+  {% if page.has_previous or page.has_next %}
+  <div>
+    {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+    |
+    {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+  </div>
+  {% endif %}
+  {% else %}
+  {# Show some example queries to run, maybe query syntax, something else? #}
+  {% endif %}
+{% endblock %}

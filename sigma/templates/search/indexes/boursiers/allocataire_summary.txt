@@ -1,0 +1,13 @@
+{{ object }}
+{{ object.nom_complet }}
+{{ object.fonction }}
+{{ object.pays.nom }}
+{{ object.nationalite.nom }}
+{{ object.region.nom }}
+{% for d in object.disciplines.all %}
+{{ d.nom }}
+{% endfor %}
+{% for a in object.allocations.all %}
+  {{ a.code_operation }}
+  {{ a.numero_police_assurance }}
+{% endfor %}

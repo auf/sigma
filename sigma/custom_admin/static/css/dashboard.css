@@ -88,3 +88,9 @@ strong {
   .object-tools a:visited {
     background-image: none;
     }
+
+/* Search results */
+
+.highlighted {
+    background-color: yellow;
+}

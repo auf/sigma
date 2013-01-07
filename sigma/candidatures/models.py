@@ -6,6 +6,7 @@ import calendar
 
 from auf.django.references import models as ref
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
@@ -20,6 +21,7 @@ from sigma.lib.models import (
     CIVILITE,
     BOOLEAN_RADIO_OPTIONS,
     )
+from sigma.lib.search_indexes import Searcheable
 from sigma.dynamo import dynamo_registry
 from sigma.dynamo.models import \
         MetaModel, InstanceModel, TypeProperty, ValueProperty
@@ -186,6 +188,9 @@ class Expert(Individu):
         ordering = ['nom', 'prenom']
         verbose_name = u"Expert"
         verbose_name_plural = u"Experts"
+
+    def get_absolute_url(self):
+        return reverse('admin:candidatures_expert_change', args=[self.id])
 
     def __unicode__(self):
         return "%s %s" % (self.prenom, self.nom)
@@ -358,6 +363,10 @@ class Appel(MetaModel, models.Model):
                 self.date_debut_mobilite > self.date_fin_mobilite:
             raise ValidationError(u"La date de fin de mobilité précède la date de début de mobilité")
 
+    def get_absolute_url(self):
+        return reverse('admin:candidatures_appel_change', args=[self.id])
+
+
 class Candidat(Individu):
     """
     Personne qui répond à un appel d'offre.
@@ -451,7 +460,7 @@ class DossierManager(models.Manager):
         return DossierQuerySet(Dossier).select_related(*fkeys).all()
 
 
-class Dossier(DossierWorkflow, InstanceModel, models.Model):
+class Dossier(DossierWorkflow, InstanceModel, models.Model, Searcheable):
     """
     Informations générales du dossier de candidature.
     """
@@ -559,6 +568,11 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         verbose_name = u"Candidature"
         verbose_name_plural = u"Candidatures"
 
+    
+    @property
+    def candidat_nom_complet(self):
+        return self.candidat.nom_complet
+
     def __unicode__(self, ):
         try:
             candidat = u"%s pour l'" % self.candidat
@@ -627,6 +641,10 @@ class Dossier(DossierWorkflow, InstanceModel, models.Model):
         """
         # TODO: Produce validation here.
         return True
+
+    def get_absolute_url(self):
+        return reverse('admin:candidatures_dossier_change', args=[self.id])
+
 
 # on fait ca au change du m2m des experts dans le dossier
 def experts_changed(sender, **kwargs):

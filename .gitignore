@@ -34,6 +34,8 @@ django.wsgi
 /uploads
 /sitestatic
 /project/wcs/_cache
+whoosh_index
+sigma/whoosh_index/
 
 # Virtualenv
 env/

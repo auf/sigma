@@ -112,11 +112,13 @@ INSTALLED_APPS = (
     'auf.django.skin',
     'auf.django.references',
     'auf.django.workflow',
+    'haystack',
     'form_utils',
     'south',
     'raven.contrib.django',
     'sigma.management',
     'sigma.core',
+    'sigma.search',
     'sigma.boursiers',
     'sigma.candidatures',
     'sigma.wcs',
@@ -185,3 +187,15 @@ DATABASES['default']['OPTIONS'] = {
     "init_command": "SET storage_engine=InnoDB",
 }
 
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+#         'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+#     },
+# }
+
+HAYSTACK_SITECONF = 'sigma.search_site'
+HAYSTACK_SEARCH_ENGINE = 'whoosh'
+HAYSTACK_WHOOSH_PATH = os.path.join(os.path.dirname(__file__), 'whoosh_index')
+HAYSTACK_DEFAULT_OPERATOR = 'OR'
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 50

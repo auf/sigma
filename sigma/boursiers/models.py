@@ -2,7 +2,7 @@
 
 import datetime
 from decimal import Decimal
-
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.db.models import Sum
@@ -91,6 +91,9 @@ class Allocataire(Individu):
         res = [(k, allocations_dict[k])
                 for k in allocations_dict.keys()]
         return res
+
+    def get_absolute_url(self):
+        return reverse('admin:boursiers_allocataire_change', args=[self.id])
 
 
 class AllocationManager(models.Manager):

@@ -11,6 +11,7 @@
   {% block extrastyle %}{% endblock %}
 
   <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+  <script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.js"></script>
   {% block extrahead %}{% endblock %}
   {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 </head>
@@ -35,8 +36,10 @@
     </div>
     {% if user.is_authenticated %}
     <div id="search_box">
-        <input type="text" name="recherche" placeholder="Recherche" />
-        <img src="{% static "img/icon_search.png" %}" />
+      <form id="search_form" method="get" action="{% url 'sigma.search.views.basic_search' %}">
+        <input type="text" name="q" placeholder="Recherche" value="{{request.GET.q}}" />
+        <img src="{% static "img/icon_search.png" %}" onclick="jQuery('#search_form input').val() != '' ? jQuery('#search_form').submit(): 0"/>
+      </form>
     </div>
     {% else %}
     <div style="height: 50px;">&nbsp;</div>
