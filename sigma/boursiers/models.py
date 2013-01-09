@@ -92,6 +92,20 @@ class Allocataire(Individu):
                 for k in allocations_dict.keys()]
         return res
 
+    def actif(self):
+        try:
+            return self.__cached_actif
+        except AttributeError:
+            pass
+        today = datetime.date.today()
+        self.__cached_actif = self.allocations.filter(
+            desiste=False,
+            date_debut__lte=today,
+            date_fin__gte=today,
+            ).count() > 0
+        return self.__cached_actif
+    actif.short_description = 'Actif'
+
     def get_absolute_url(self):
         return reverse('admin:boursiers_allocataire_change', args=[self.id])
 
@@ -165,6 +179,12 @@ class Allocation(models.Model):
         verbose_name="Date de fin",
         blank=True,
         null=True,
+        )
+
+    # Plus récente des date de fin, incluant origine et accueil.
+    desiste = models.BooleanField(
+        'Désisté',
+        default=False,
         )
 
     def create_vues_ensemble(self):
@@ -261,6 +281,28 @@ class Allocation(models.Model):
                 montant_eur=montant_origine,
                 implantation='O'
                 )
+
+    def __is_renew(self):
+        return self.allocation_originale != None
+
+    def etat(self):
+        tpl = u'%s'
+        if self.__is_renew():
+            tpl = u'%s (allocation renouvellée)'
+            
+        today = datetime.date.today()
+
+        if self.desiste:
+            return tpl % u'Désisté'
+        elif self.date_fin >= today and self.date_debut <= today:
+            return tpl % u'En cours'
+        elif self.date_debut >= today:
+            return tpl % u'Pas encore débuté'
+        elif self.date_fin <= today:
+            return tpl % u'Clôturé'
+        else:
+            return ''
+    etat.short_description = 'État'
 
     def nom_complet(self):
         return self.prenom() + ' ' + self.nom()

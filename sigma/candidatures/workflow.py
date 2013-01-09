@@ -58,7 +58,7 @@ DOSSIER_ACTIONS = {
         },
     DOSSIER_ETAT_IRRECEVABLE: {
         'nom': DOSSIER_ETATS[DOSSIER_ETAT_IRRECEVABLE],
-        'etat_initial': (DOSSIER_ETAT_NOUVEAU, ),
+        'etat_initial': (DOSSIER_ETAT_NOUVEAU, DOSSIER_ETAT_RECEVABLE),
         'etat_final': DOSSIER_ETAT_IRRECEVABLE,
         },
     DOSSIER_ETAT_RECEVABLE: {

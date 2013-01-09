@@ -227,6 +227,7 @@ class AllocationAdmin(GuardedModelAdmin):
                 'fields': (
                     'dossier',
                     'allocation_originale',
+                    'desiste',
                     ('code_operation', 'numero_police_assurance'),
                     ('date_debut', 'date_fin'),
                     )
@@ -299,17 +300,41 @@ class AllocataireAdmin(GuardedModelAdmin, AllocationAdminMixin):
     readonly_fields = (
         '_age',
         )
-    list_display_links = ('nom', 'prenom')
+    list_display_links = ('_nom_si_actif', '_prenom_si_actif')
     list_filter = (
         'civilite',
         'pays',
         'nationalite',
         'allocations__dossier__appel',
         )
+
+    def _si_actif(self, attr, obj):
+        if obj.actif():
+            tpl = '%s'
+        else:
+            tpl = '<span class="inactif">%s</span>'
+        return tpl % getattr(obj, attr)
+
+    def _nom_si_actif(self, obj):
+        return self._si_actif('nom', obj)
+    _nom_si_actif.allow_tags = True
+    _nom_si_actif.short_description = u'Nom'
+
+    def _prenom_si_actif(self, obj):
+        return self._si_actif('prenom', obj)
+    _prenom_si_actif.allow_tags = True
+    _prenom_si_actif.short_description = u'Prénom'
+
+    def _naissance_si_actif(self, obj):
+        return self._si_actif('naissance_date', obj)
+    _naissance_si_actif.allow_tags = True
+    _naissance_si_actif.short_description = u'Date de naissance'
+
+
     list_display = (
-        'nom',
-        'prenom',
-        'naissance_date',
+        '_nom_si_actif',
+        '_prenom_si_actif',
+        '_naissance_si_actif',
     )
     fieldsets = (
         (None, {

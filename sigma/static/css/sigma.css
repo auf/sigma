@@ -1335,6 +1335,10 @@ ul.orderer li:hover {
 #changelist #result_list thead tr {
     border: 1px solid #dee0e2;
 }
+#changelist #result_list span.inactif,
+#changelist #result_list a span.inactif {
+    color: #aaa;
+}
 #changelist #toolbar {
     background: #e1e1e1 url(../img/nav-bg.gif) top left repeat-x;
     border-bottom: 1px solid #dee0e2;
