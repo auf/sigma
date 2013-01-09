@@ -43,8 +43,6 @@
 }
 
 .change-list .filtered table tbody th {
-    padding-right: 1em;
-    padding-left: 15px;
 }
 
 #changelist .toplinks {
@@ -106,7 +104,7 @@
 }
 
 #changelist table a {
-    color: #000;
+    color: #272828;
     font-weight: normal;
 }
 
@@ -139,6 +137,8 @@
     border: 1px solid #dee0e2;
     background: #f9f9f9;
     margin: 0;
+    padding-left: 15px;
+    margin-bottom: 30px;
 }
 
 #changelist-filter h2 {
@@ -148,9 +148,10 @@
 }
 
 #changelist-filter h3 {
-    font-size: 12px;
-    margin-bottom: 0;
+    font-size: 11pt;
+    margin-bottom: 5px;
     padding: 0 2px;
+    font-weight: 400;
 }
 
 #changelist-filter div.filter-block {
@@ -267,7 +268,6 @@
 }
 
 #changelist-form {
-    margin-top: 20px;
 }
 
 #changelist table input {
@@ -320,4 +320,8 @@
 #changelist .actions .button {
     font-size: 11px;
     padding: 1px 2px;
+}
+
+#changelist #result_list thead tr {
+    border: 1px solid #dee0e2;
 }

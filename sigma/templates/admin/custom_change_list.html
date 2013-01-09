@@ -10,8 +10,13 @@
 </div>
 {% endblock %}
 
+{% block content_title %}
+{% if title %}
+<div class="module_icon {{module_name|lower}}">&nbsp;</div><h1 class="page_title">{{ module_name }}</h1>
+{% endif %}
+{% endblock %}
+
 {% block content %}
-<h3>volumétrie: {{ cl.result_count }}/{{ cl.full_result_count }}</h3>
 <div id="content-main">
   
   {% if cl.formset.errors %}
@@ -32,6 +37,8 @@
     </div>
     {% endif %}
     {% endblock %}
+    <h3>Volumétrie: <span class="blue_text">{{ cl.result_count }} sur {{ cl.full_result_count }}</span></h3>
+
 
 
 
@@ -45,7 +52,11 @@
       <div class="actions">
 	<select name="action" onchange="django.jQuery('#changelist-form select').val() != '' ? django.jQuery('#changelist-form').submit() : 0;">
 	  {% for choice in action_form.fields.action.choices %}
+	  {% if choice.0 == '' %}
+	  <option value="{{choice.0}}">Action</option>
+	  {% else %}
 	  <option value="{{choice.0}}">{{choice.1}}</option>
+	  {% endif %}
 	  {{ choice }}
 	  {% endfor %}
 	</select>
