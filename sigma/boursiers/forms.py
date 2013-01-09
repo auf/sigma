@@ -41,7 +41,7 @@ def allocation_form_factory(request, instance):
              **kw)
 
     if instance:
-        form = AllocationForm
+        form = ChangerAllocation
     else:
         return inner_nouvelle_form_factory
 
@@ -88,7 +88,7 @@ class AllocationForm(forms.ModelForm):
 
     def clean_code_operation(self):
         code_operation = self.cleaned_data['code_operation']
-        dossier = self.cleaned_data['dossier']
+        dossier = self.cleaned_data.get('dossier', None) or self.instance.dossier
         allocation = self.instance
         if code_operation and dossier.appel.code_budgetaire:
             code_budgetaire = dossier.appel.code_budgetaire
@@ -117,6 +117,15 @@ class AllocationForm(forms.ModelForm):
     class Meta:
         exclude = []
         model = Allocation
+
+
+class ChangerAllocation(AllocationForm):
+    def __init__(self, *a, **kw):
+        super(ChangerAllocation, self).__init__(*a, **kw)
+        self.fields.pop('dossier')
+        self.fields.pop('allocataire')
+        self.fields.pop('allocation_originale')
+        
 
 
 class NouvelleAllocation(AllocationForm):

@@ -164,6 +164,7 @@ class FicheFinanciereAdmin(GuardedModelAdmin, AllocationAdminMixin):
                     extra_context={}
                     ):
 
+        
         allocation = self.model.objects.get(pk=object_id)
         nb_mois = None
         dossier_mobilite = allocation.dossier.get_mobilite()
@@ -253,9 +254,20 @@ class AllocationAdmin(GuardedModelAdmin):
               and dossier_qs.get().etat != DOSSIER_ETAT_RETENU):
             return bad_request(request, 'Le dossier doit être retenu '
                                'pour créer une allocation.')
-        res = super(AllocationAdmin, self).add_view(
-            request, form_url='', extra_context={})
+        
+        return self.return_to_allocataires(
+            super(AllocationAdmin, self).add_view(
+            request, form_url=form_url, extra_context=extra_context))
 
+    def change_view(self, *a, **kw):
+        return self.return_to_allocataires(
+            super(AllocationAdmin, self).change_view(*a, **kw))
+
+    def delete_view(self, *a, **kw):
+        return self.return_to_allocataires(
+            super(AllocationAdmin, self).delete_view(*a, **kw))
+
+    def return_to_allocataires(self, res):
         # Au lieu de ramener a la liste d'allocation, ramener a la
         # list d'allocataires, apres l'ajout.
         if (isinstance(res, HttpResponseRedirect)
@@ -263,6 +275,7 @@ class AllocationAdmin(GuardedModelAdmin):
             return HttpResponseRedirect(
                 reverse('admin:boursiers_allocataire_changelist'))
         return res
+        
 
     def get_fieldsets(self, request, obj=None):
         if not obj:

@@ -408,7 +408,8 @@ class Allocation(models.Model):
 
     def __unicode__(self):
         return 'Allocation <%s> pour <%s>' % (
-            self.allocataire.nom_complet(), self.dossier.appel.nom)
+            self.allocataire.nom_complet(),
+            self.dossier.appel.nom)
 
     # def validate_unique(self, *a, **kw):
     #     super(Allocation, self).validate_unique(*a, **kw)
