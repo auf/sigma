@@ -1,0 +1,36 @@
+{% extends "admin/custom_change_form.html" %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/allocations.css" />{% endblock %}
+
+{% block object-tools %}
+{{ block.super }}
+{% endblock %}
+
+{% block after_related_objects %}
+{{ block.super }}
+<div class="module">
+    <div id="inline-group">
+	<h2>Allocations</h2>
+	{% for appel in original.allocations_by_appel %}
+	<div>
+	  <h2>
+	    <a class="whitelink" href="{% url admin:candidatures_appel_change appel.1.id %}">{{appel.0}}</a>
+	  </h2>
+	  <div class="allocations">
+	    {% for alloc in appel.1.allocations %}
+	    <ul class="allocation">
+	      <li><label><strong class="label_content">Code d'opération</strong><span class="dotted">&nbsp;</span></label> {{ alloc.code_operation}}</li>
+	      <li><label><strong class="label_content">Numéro de police d'assurance</strong><span class="dotted">&nbsp;</span></label> {{ alloc.numero_police_assurance }}</li>
+	      <li><label><strong class="label_content">Duree totale de la mobilite</strong><span class="dotted">&nbsp;</span></label> {{ alloc.mobilite.duree_totale.mois }} mois</li>
+	      <li>
+	        <a href="{% url admin:boursiers_fichefinanciere_change alloc.id %}">Fiche financière</a> | 
+		<a href="{% url admin:boursiers_allocation_change alloc.id %}">Modifier l'allocation</a>
+	      </li>
+	    </ul>
+	    {% endfor %}
+	  </div>
+	</div>
+	{% endfor %}
+    </div>
+</div>
+{% endblock %}

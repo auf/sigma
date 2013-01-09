@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia form_utils_tags %}
+
+{% block extrahead %}{{ block.super }}
+{% url admin:jsi18n as jsi18nurl %}
+<script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+<script type="text/javascript" src="{{STATIC_URL}}admin/js/jquery.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}admin/js/jquery.init.js"></script>
+{{ media }}
+{{ form.media }}
+{{ expert_form.media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/forms.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}candidatures/evaluer.css" />{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../">{% trans "Home" %}</a> &rsaquo;
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% block object-tools %}{% endblock %}
+  <div class="module">
+    <h2>Affectation experts</h2>
+  </div>
+  <form action="" method="post">
+    <div class="module">
+      <div class="form-row field-experts">
+	{{ form }}
+      </div>
+    </div>
+    <div class="submit-row">
+      <input type="submit" name="_save" class="default" value="Enregistrer">
+    </div>
+  </form>
+</div>
+{% endblock %}

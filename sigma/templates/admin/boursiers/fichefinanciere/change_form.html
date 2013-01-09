@@ -1,0 +1,135 @@
+{% extends 'admin/custom_change_form.html' %}
+{% load admin_static %}
+
+{% block object-tools %}
+{% if change and not is_popup %}
+<ul class="object-tools">
+    <li><a href="{% url admin:boursiers_allocation_change object_id %}">Fiche allocation</a></li>
+</ul>
+{% endif %}
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}" />
+{% endblock %}
+
+{% block after_related_objects %}
+{{ block.super }}
+
+  {% if periodes_mobilite %}
+  <div class="module">
+    <div id="inline-group">
+      <div class="tabular inline-related">
+	<h2>Mobilité</h2>
+	<table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Date</th>
+              <th>Implantation</th>
+              <th>Nombre de mois</th>
+              {% if allocation.bareme == 'mensuel' %}
+              <th>Montant mensuel</th>
+              {% endif %}
+              {% if allocation.bareme == 'perdiem' %}
+              <th>Perdiem</th>
+              {% endif %}
+              {% if allocation.bareme == 'allocation' %}
+              <th>Allocation</th>
+              {% endif %}
+              {% if allocation.prime_installation %}
+              <th>Prime d'installation</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for periode in periodes_mobilite %}
+            <tr>
+              <th>
+                {{ periode.lieu }}
+              </th>
+              <td>{{ periode.debut|date:"j N Y" }}</td>
+              <td>
+                {% if periode.implantation %}
+                {{ periode.implantation.nom_court }}
+                {% endif %}
+              </td>
+              <td>{{ periode.nb_mois|default_if_none:"" }}</td>
+              {% if allocation.bareme %}
+              <td>
+                {% if periode.montant %}
+                {{ periode.montant|floatformat:2 }} €
+                {% endif %}
+              </td>
+              {% endif %}
+              {% if allocation.prime_installation %}
+              <td>{{ allocation.prime_installation|floatformat:2 }} €</td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="module">
+    <div id="inline-group">
+      <div class="tabular inline-related">
+	<h2>Dépenses réelles</h2>
+	<table class="listing cachedetails">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>No</th>
+              <th>Ex/Pér.</th>
+              <th>Date</th>
+              <th>Description</th>
+              <th style="text-align: right">Montant</th>
+              <th>D/C</th>
+              <th>Impl.</th>
+              <th>Employé</th>
+              <th>Paiement</th>
+            </tr>
+          </thead>
+          {% for groupe in groupes_ecritures %}
+          <tbody>
+            <tr>
+              <th colspan="5">
+                PCG {{ groupe.pcg.0 }}: {{ groupe.pcg.1 }}
+              </th>
+              <th align="right" char="." style="text-align: right">
+                {{ groupe.sous_total }}
+              </th>
+              <th colspan="4"></th>
+            </tr>
+            {% for ligne in groupe.lignes %}
+            <tr>
+              <td>{{ ligne.code_document }}</td>
+              <td>{{ ligne.numero_document }}</td>
+              <td>{{ ligne.periode }}</td>
+              <td><nobr>{{ ligne.date_document|date:"j N Y" }}</nobr></td>
+              <td>{{ ligne.description }}</td>
+              {% if ligne.montant < 0 %}
+				    <td align="right" char="." style="color: red">
+				      {% else %}
+				    <td align="right" char=".">
+				      {% endif %}
+				      {{ ligne.montant }} €
+				    </td>
+              <td>{{ ligne.get_debit_credit_display }}</td>
+              <td>{{ ligne.implantation_payeuse }}</td>
+              <td>{{ ligne.salarie }}</td>
+              <td>{{ ligne.get_etat_paiement_display }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          {% endfor %}
+	</table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

@@ -3,6 +3,9 @@
 {% load i18n admin_urls %}
 {% load url from future %}
 
+{% block extrastyle %}
+{% endblock %}
+
 {% block breadcrumbs %}
     <div class="breadcrumbs">
     <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>

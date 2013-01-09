@@ -1,0 +1,9 @@
+{% extends "admin/custom_change_form.html" %}
+
+{% block object-tools %}
+{% if change and not is_popup %}
+<ul class="object-tools">
+    <li><a href="{% url admin:boursiers_fichefinanciere_change object_id %}">Fiche financière</a></li>
+</ul>
+{% endif %}
+{% endblock %}

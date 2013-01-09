@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% load i18n staticfiles admin_tools_menu_tags %}
+
+{% block title %}{{ title }} | Sigma{% endblock %}
+
+{% block coltype %}sigmaCols{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+{% endblock %}
+
+{% block content_menu %}
+{% if user.is_active and user.is_staff and not is_popup %}
+    {% admin_tools_render_menu %}
+{% else %}
+    <ul id="navigation-menu">
+      <li>
+        <a href="{% url admin:index %}">Accueil</a>
+      </li>
+    </ul>
+{% endif %}
+{% endblock %}
+
+{% block footer %}{% endblock %}

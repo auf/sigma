@@ -1,0 +1,85 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia form_utils_tags %}
+
+{% block extrahead %}{{ block.super }}
+{% url admin:jsi18n as jsi18nurl %}
+<script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+<script type="text/javascript" src="{{STATIC_URL}}admin/js/jquery.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
+{{ media }}
+{{ form.media }}
+{{ expert_form.media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/forms.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}candidatures/evaluer.css" />{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="{% url admin:candidatures_dossier_changelist %}">Dossiers</a> &rsaquo;
+     <a href="{% url admin:candidatures_dossier_change dossier.id %}">{{ dossier }}</a> &rsaquo;
+     Évaluation
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    {% block object-tools %}{% endblock %}
+
+    <h1>Évaluation du {{ dossier }}</h1>
+
+    <form action="" method="post">
+
+    <div class="module">
+      <h2>Experts</h2>
+      <div class="form-row field-experts">
+	{{ expert_form.experts }}
+      </div>
+    </div>
+
+    <div class="module">
+    <h2>Évaluations</h2>
+    </div>
+        {{ evaluationForm|render:"admin/form_utils/better_form.html" }}
+    <div class="module">
+    <h2>Notations</h2>
+    </div>
+
+    <p>* Les notes doivent être entre {{ NOTE_MIN }} et {{ NOTE_MAX }}.</p>
+
+    {{ notes_formset.management_form }}
+    {% for form in notes_formset %}
+        <div>{{ form }}</div>
+    {% endfor %}
+
+    <div class="module">
+    <h2>Commentaires</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Commentaire</th>
+            <th>Auteur</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+        </thead>
+        {% for commentaire in dossier.annotations.all %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td>{{ commentaire.texte|linebreaks }}</td>
+            <td>{{ commentaire.user }}</td>
+            <td>{{ commentaire.date }}</td>
+            <td>{% if commentaire.user == commentaire.user %}<a href="{% url supprimer_mon_commentaire commentaire.id %}">supprimer</a>{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    </div>
+        {{ commentaireForm|render:"admin/form_utils/better_form.html" }}
+        <div class="submit-row">
+            <input type="submit" name="_save" class="default" value="Enregistrer">
+        </div>
+    </form>
+</div>
+{% endblock %}
