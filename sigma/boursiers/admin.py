@@ -286,7 +286,15 @@ class AllocationAdmin(GuardedModelAdmin):
                         'creer_nouvel_allocataire',
                         'allocataire',
                         )}
-                )] + list(self.fieldsets)
+                )] + [(
+                    'Détails', {
+                        'fields': (
+                            'dossier',
+                            'allocation_originale',
+                            ('code_operation', 'numero_police_assurance'),
+                            ('date_debut', 'date_fin'),
+                            )
+                        })]
         else:
             return super(AllocationAdmin, self).get_fieldsets(request, obj)
 
