@@ -25,6 +25,8 @@ from sigma.candidatures.models import (
     )
 from .models import (
     Allocation,
+    AllocationAccueil,
+    AllocationOrigine,
     Allocataire,
     FicheFinanciere,
     DepensePrevisionnelle,
@@ -216,9 +218,91 @@ class FicheFinanciereAdmin(GuardedModelAdmin, AllocationAdminMixin):
             )
 
 
+class AllocationOrigineInline(admin.StackedInline):
+    # TODO: make this more generic, since it's practically a copy of DossierOrigineInline
+    max_num = 1
+    template = "admin/candidatures/edit_inline/single-stack.html"
+    can_delete = False
+    model = AllocationOrigine
+    verbose_name = verbose_name_plural = "Origine " \
+            "(établissement d'inscription ou d'activité " \
+            "à la date de la candidature)"
+
+    fieldsets = (
+        (None, {'fields': ('etablissement',)}),
+        ('Autre établissement si non membre de l\'AUF', {
+            'fields': (
+                ('autre_etablissement_nom', 'autre_etablissement_adresse'),
+                ('autre_etablissement_ville',
+                 'autre_etablissement_code_postal'),
+                ('autre_etablissement_region', 'autre_etablissement_pays')
+            )
+        }),
+        ('Responsable institutionnel à l\'origine', {
+            'fields': (
+                ('resp_inst_civilite', 'resp_inst_nom', 'resp_inst_prenom'),
+                ('resp_inst_fonction', 'resp_inst_courriel'),
+                ('resp_inst_telephone', 'resp_inst_fax')
+            )
+        }),
+        ('Responsable scientifique à l\'origine', {
+            'fields': (('resp_sc_civilite', 'resp_sc_nom', 'resp_sc_prenom'),
+                       ('resp_sc_fonction', 'resp_sc_courriel'),
+                       ('resp_sc_telephone', 'resp_sc_fax'),
+                       ('faculte_nom', 'faculte_adresse'),
+                       ('faculte_ville', 'faculte_code_postal'))
+        }),
+        ("Directeur de thèse à l'origine", {
+            'fields': ('dir_civilite',
+                       ('dir_nom', 'dir_prenom'),
+                       ('dir_courriel', 'dir_telephone'))
+        }),
+    )
+
+
+class AllocationAccueilInline(admin.StackedInline):
+    # TODO: make this more generic, since it's practically a copy of DossierAccueilInline
+    max_num = 1
+    template = "admin/candidatures/edit_inline/single-stack.html"
+    can_delete = False
+    model = AllocationAccueil
+    verbose_name = verbose_name_plural = "Accueil " \
+            "(établissement de destination de la mobilité)"
+
+    fieldsets = (
+        (None, {'fields': ('etablissement',)}),
+        ('Autre établissement si non membre de l\'AUF', {
+            'fields': (
+                ('autre_etablissement_nom', 'autre_etablissement_adresse'),
+                ('autre_etablissement_ville',
+                 'autre_etablissement_code_postal'),
+                ('autre_etablissement_region', 'autre_etablissement_pays')
+            )
+        }),
+        ('Responsable scientifique à l\'accueil', {
+            'fields': (('resp_sc_civilite', 'resp_sc_nom', 'resp_sc_prenom'),
+                       ('resp_sc_fonction', 'resp_sc_courriel'),
+                       ('resp_sc_telephone', 'resp_sc_fax'),
+                       ('faculte_nom', 'faculte_adresse'),
+                       ('faculte_ville', 'faculte_code_postal'))
+        }),
+        ("Directeur de thèse à l'accueil", {
+            'fields': ('dir_civilite',
+                       ('dir_nom', 'dir_prenom'),
+                       ('dir_courriel', 'dir_telephone'))
+        }),
+    )
+
+
 class AllocationAdmin(GuardedModelAdmin):
 
     change_form_template = 'admin/boursiers/allocation/change_form.html'
+
+    # TODO: Make this work.
+    # inlines = (
+    #     AllocationOrigineInline,
+    #     AllocationAccueilInline,
+    #     )
 
     readonly_fields = ()
 
