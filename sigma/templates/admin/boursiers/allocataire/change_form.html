@@ -21,6 +21,7 @@
 	    <ul class="allocation">
 	      <li><label><strong class="label_content">Code d'opération</strong><span class="dotted">&nbsp;</span></label> {{ alloc.code_operation}}</li>
 	      <li><label><strong class="label_content">Numéro de police d'assurance</strong><span class="dotted">&nbsp;</span></label> {{ alloc.numero_police_assurance }}</li>
+	      {% if alloc.date_debut_assurance or alloc.date_fin_assurance %}<li><label><strong class="label_content">Couverture de la police d'assurance:</strong><span class="dotted">&nbsp;</span></label> {% if alloc.date_debut_assurance %}Du {{ alloc.date_debut_assurance }}{% endif %} au {% if alloc.date_debut_assurance %}{{ alloc.date_fin_assurance }}{% endif %}</li>{% endif %}
 	      <li><label><strong class="label_content">Durée totale de la mobilite</strong><span class="dotted">&nbsp;</span></label> {{ alloc.mobilite.duree_totale.mois }} mois</li>
 	      <li><label><strong class="label_content">État</strong><span class="dotted">&nbsp;</span></label> {{ alloc.etat }}</li>
 	      <li>

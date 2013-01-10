@@ -21,7 +21,10 @@ from sigma.candidatures.models import Dossier, Appel, DossierMobilite
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 
 ENABLE_FILTERED_QUERYSETS = getattr(settings, 'ENABLE_FILTERED_QUERYSETS', True)
-
+ASSURANCE_CHOICES = (
+    ('IN', u'Intégrale'),
+    ('CO', u'Complémentaire'),
+    )
 
 def copy_model(source, dest):
     fields = [x.attname for x in dest()._meta.fields
@@ -165,6 +168,36 @@ class Allocation(models.Model):
     numero_police_assurance = models.CharField(
         max_length=100, verbose_name="Numéro de police d'assurance",
         blank=True, default=''
+        )
+
+    # Date de la demande de police d'assurance
+    date_demande_police_assurance = models.DateField(
+        verbose_name="Date de demande de police d'assurance",
+        blank=True,
+        null=True,
+        )
+
+    # Date de la demande de police d'assurance
+    date_debut_assurance = models.DateField(
+        verbose_name="Date de debut de la couverture d'assurance",
+        blank=True,
+        null=True,
+        )
+
+    # Date de la demande de police d'assurance
+    date_fin_assurance = models.DateField(
+        verbose_name="Date de fin de la couverture d'assurance",
+        blank=True,
+        null=True,
+        )
+
+    # Type de police d'assurance.
+    type_assurance = models.CharField(
+        max_length=2,
+        choices=ASSURANCE_CHOICES,
+        default='IN',
+        blank=True,
+        null=True,
         )
 
     # Plus ancienne des date de debut, incluant origine et accueil.

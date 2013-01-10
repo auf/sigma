@@ -370,7 +370,13 @@ class AllocationAdmin(GuardedModelAdmin):
                         'fields': (
                             'dossier',
                             'allocation_originale',
-                            ('code_operation', 'numero_police_assurance'),
+                            'code_operation',
+                            ('numero_police_assurance',
+                             'type_assurance',
+                             'date_demande_police_assurance',
+                             'date_debut_assurance',
+                             'date_fin_assurance',
+                             ),
                             ('date_debut', 'date_fin'),
                             )
                         })]
@@ -383,7 +389,13 @@ class AllocationAdmin(GuardedModelAdmin):
                             'allocataire',
                             'allocation_originale',
                             # 'desiste',
-                            ('code_operation', 'numero_police_assurance'),
+                            'code_operation',
+                            ('numero_police_assurance',
+                             'type_assurance',
+                             'date_demande_police_assurance',
+                             'date_debut_assurance',
+                             'date_fin_assurance',
+                             ),
                             ('date_debut', 'date_fin'),
                             )
                         })]

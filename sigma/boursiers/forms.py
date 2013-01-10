@@ -55,6 +55,9 @@ class AllocationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         dossier_id = kwargs.pop('dossier_id', None)
         super(AllocationForm, self).__init__(*args, **kwargs)
+        self.fields['date_demande_police_assurance'].widget = AdminDateWidget()
+        self.fields['date_debut_assurance'].widget = AdminDateWidget()
+        self.fields['date_fin_assurance'].widget = AdminDateWidget()
         self.fields['date_debut'].widget = AdminDateWidget()
         self.fields['date_fin'].widget = AdminDateWidget()
 
