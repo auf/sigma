@@ -31,11 +31,14 @@ from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 from sigma.candidatures.filters import RegionFilter, AppelFilter, \
         RegionOrigineFilter, RegionAccueilFilter, \
         PaysOrigineFilter, PaysAccueilFilter
-from sigma.custom_admin.util import ModelAdmin, GuardedModelAdmin
+from sigma.custom_admin.util import (
+    GuardedStackedInline,
+    GuardedTabularInline,
+    GuardedModelAdmin,
+    )
+
 
 # Forms
-
-
 class DossierMobiliteForm(forms.ModelForm):
 
     class Meta:
@@ -86,7 +89,7 @@ class DossierMobiliteForm(forms.ModelForm):
 
 # Inlines
 
-class BaseDossierFaculteInline(admin.StackedInline):
+class BaseDossierFaculteInline(GuardedStackedInline):
     max_num = 1
     template = "admin/candidatures/edit_inline/single-stack.html"
     can_delete = False
@@ -160,7 +163,7 @@ class DossierAccueilInline(BaseDossierFaculteInline):
     )
 
 
-class DossierConformiteAdmin(admin.TabularInline):
+class DossierConformiteAdmin(GuardedTabularInline):
     """
     Admin pour spécifier spécifier si la conformité est passée ou non
     """
@@ -171,7 +174,7 @@ class DossierConformiteAdmin(admin.TabularInline):
     can_delete = False
 
 
-class DossierMobiliteInline(admin.StackedInline):
+class DossierMobiliteInline(GuardedStackedInline):
     form = DossierMobiliteForm
     model = DossierMobilite
     max_num = 1
@@ -259,7 +262,7 @@ class DossierMobiliteInline(admin.StackedInline):
                 .formfield_for_dbfield(db_field, **kwargs)
 
 
-class DossierCandidatInline(admin.StackedInline):
+class DossierCandidatInline(GuardedStackedInline):
     formset = RequiredInlineFormSet
     model = Candidat
 
@@ -307,7 +310,7 @@ class DossierCandidatInline(admin.StackedInline):
                 .formfield_for_dbfield(db_field, **kwargs)
 
 
-class DiplomeInline(admin.StackedInline):
+class DiplomeInline(GuardedStackedInline):
     model = Diplome
     max_num = 1
     template = "admin/candidatures/edit_inline/single-stack.html"
@@ -327,7 +330,7 @@ class DiplomeInline(admin.StackedInline):
 
 # Model admins
 
-class TypeConformiteAdmin(ModelAdmin):
+class TypeConformiteAdmin(GuardedModelAdmin):
     form = TypeConformiteForm
 
 
@@ -762,7 +765,7 @@ class ExpertAdmin(GuardedModelAdmin):
         )
 
 
-class AttributWCSAdmin(ModelAdmin):
+class AttributWCSAdmin(GuardedModelAdmin):
     search_fields = ('dossier__id', )
     list_display = ('_dossier', 'attribut', 'valeur', )
 
@@ -850,7 +853,7 @@ class GroupAdmin(DjangoGroupAdmin):
         }),
     )
 
-class TypeBourseAdmin(admin.ModelAdmin):
+class TypeBourseAdmin(GuardedModelAdmin):
     pass
 
 

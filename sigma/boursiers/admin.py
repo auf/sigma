@@ -33,7 +33,11 @@ from .models import (
     VueEnsemble,
     EcritureCODA
     )
-from sigma.custom_admin.util import GuardedModelAdmin
+from sigma.custom_admin.util import (
+    GuardedStackedInline,
+    GuardedTabularInline,
+    GuardedModelAdmin,
+    )
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
 from sigma.lib.views import bad_request
 
@@ -59,7 +63,7 @@ class DeviseMixin(object):
     _devise.short_description = 'Devise'
 
 
-class DepensePrevisionnelleInline(admin.TabularInline, DeviseMixin):
+class DepensePrevisionnelleInline(GuardedTabularInline, DeviseMixin):
     model = DepensePrevisionnelle
     template = 'admin/edit_inline/tabular_compact.html'
     ordering = ('date',)
@@ -78,7 +82,7 @@ class DepensePrevisionnelleInline(admin.TabularInline, DeviseMixin):
         )
 
 
-class VueEnsembleInline(admin.TabularInline, DeviseMixin):
+class VueEnsembleInline(GuardedTabularInline, DeviseMixin):
     model = VueEnsemble
     template = 'admin/edit_inline/tabular_compact.html'
     formfield_overrides = {
@@ -218,7 +222,7 @@ class FicheFinanciereAdmin(GuardedModelAdmin, AllocationAdminMixin):
             )
 
 
-class AllocationOrigineInline(admin.StackedInline):
+class AllocationOrigineInline(GuardedStackedInline):
     # TODO: make this more generic, since it's practically a copy of DossierOrigineInline
     max_num = 1
     template = "admin/candidatures/edit_inline/single-stack.html"
@@ -260,7 +264,7 @@ class AllocationOrigineInline(admin.StackedInline):
     )
 
 
-class AllocationAccueilInline(admin.StackedInline):
+class AllocationAccueilInline(GuardedStackedInline):
     # TODO: make this more generic, since it's practically a copy of DossierAccueilInline
     max_num = 1
     template = "admin/candidatures/edit_inline/single-stack.html"

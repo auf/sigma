@@ -37,6 +37,7 @@ DOSSIER_ETAT_REJETE = 'REJETE'
 DOSSIER_ETAT_ATTENTE = 'ATTENTE'
 DOSSIER_ETAT_RETENU = 'RETENU'
 DOSSIER_ETAT_DESISTE = 'DESISTE'
+DOSSIER_ETAT_SPAM = 'SPAM'
 
 
 #libellés états
@@ -48,6 +49,7 @@ DOSSIER_ETATS = {
     DOSSIER_ETAT_REJETE: 'Non retenu',
     DOSSIER_ETAT_RETENU: 'Retenu',
     DOSSIER_ETAT_DESISTE: 'Désisté',
+    DOSSIER_ETAT_SPAM: 'Spam',
 }
 
 DOSSIER_ACTIONS = {
@@ -56,6 +58,11 @@ DOSSIER_ACTIONS = {
         'etat_initial': None,
         'etat_final': DOSSIER_ETAT_NOUVEAU,
         },
+    DOSSIER_ETAT_SPAM: {
+        'nom': DOSSIER_ETATS[DOSSIER_ETAT_SPAM],
+        'etat_initial': DOSSIER_ETAT_NOUVEAU,
+        'etat_final': DOSSIER_ETAT_SPAM,
+        },
     DOSSIER_ETAT_IRRECEVABLE: {
         'nom': DOSSIER_ETATS[DOSSIER_ETAT_IRRECEVABLE],
         'etat_initial': (DOSSIER_ETAT_NOUVEAU, DOSSIER_ETAT_RECEVABLE),
@@ -63,7 +70,10 @@ DOSSIER_ACTIONS = {
         },
     DOSSIER_ETAT_RECEVABLE: {
         'nom': DOSSIER_ETATS[DOSSIER_ETAT_RECEVABLE],
-        'etat_initial': (DOSSIER_ETAT_NOUVEAU, DOSSIER_ETAT_IRRECEVABLE,),
+        'etat_initial': (
+            DOSSIER_ETAT_NOUVEAU,
+            DOSSIER_ETAT_IRRECEVABLE,
+            DOSSIER_ETAT_SPAM),
         'etat_final': DOSSIER_ETAT_RECEVABLE,
         },
     DOSSIER_ETAT_ATTENTE: {
@@ -118,4 +128,7 @@ class DossierWorkflow(WorkflowMixin):
         return True
 
     def acces_desiste(self, action, request):
+        return True
+
+    def acces_spam(self, action, request):
         return True
