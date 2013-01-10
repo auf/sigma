@@ -360,6 +360,7 @@ class AppelAdmin(GuardedModelAdmin):
         'id',
         'region_code',
         'annee',
+        'etat',
         'type_bourse',
         'code_budgetaire',
 
@@ -368,7 +369,7 @@ class AppelAdmin(GuardedModelAdmin):
         #'_actions',
     )
     actions = [faire_copie]
-    list_filter = (RegionFilter, 'annee', 'type_bourse', )
+    list_filter = (RegionFilter, 'annee', 'type_bourse', 'etat')
     search_fields = (
         'nom', 
         'code_budgetaire', 
@@ -382,6 +383,7 @@ class AppelAdmin(GuardedModelAdmin):
             'annee',
             'type_bourse',
             'nom',
+            'etat',
             'code_budgetaire',
             'responsable_budgetaire',
             ('date_debut_appel', 'date_fin_appel'),
@@ -441,6 +443,7 @@ affecter_dossiers_expert.short_description = \
         'Assigner expert(s) au(x) dossier(s)'
 
 class DossierAdminForm(forms.ModelForm):
+
     class Meta:
         model = Dossier
         widgets = {
@@ -448,12 +451,24 @@ class DossierAdminForm(forms.ModelForm):
             'derniere_bourse_toggle': forms.RadioSelect
         }
 
+
 class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     """
     Attention : L'ordre des champs et leur nombre est important, car il est
     utilisé pour organisé les champs dans le formulaire.
     """
     form = DossierAdminForm
+
+    def get_form(self, request, obj=None):
+        form = super(DossierAdmin, self).get_form(request, obj)
+        form.base_fields['appel'].queryset = Appel.objects.filter(
+            etat='EN',
+            region__in=get_rules().filter_queryset(
+                request.user, 'manage', ref.Region.objects.all()
+                )
+            )
+        return form
+
     add_form_template = "admin/candidatures/dossier/change_form.html"
     change_form_template = "admin/candidatures/dossier/change_form.html"
 

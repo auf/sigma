@@ -25,7 +25,10 @@ from sigma.lib.search_indexes import Searcheable
 from sigma.dynamo import dynamo_registry
 from sigma.dynamo.models import \
         MetaModel, InstanceModel, TypeProperty, ValueProperty
-from sigma.candidatures.workflow import DossierWorkflow, DOSSIER_ETAT_RETENU
+from sigma.candidatures.workflow import (
+    DossierWorkflow,
+    DOSSIER_ETAT_RETENU,
+    )
 
 REPONSE = (
     ('sr', "sr"),
@@ -238,6 +241,11 @@ def validateur_code_budgetaire(value):
     return value
 
 
+APPEL_ETAT_CHOICES = (
+    ('EN', u'En cours'),
+    ('CL', u'Clôturé'),
+    )
+
 class Appel(MetaModel, models.Model):
     """
     Un Appel est une proposition de l'AUF pour offrir une bourse de mobilité
@@ -247,7 +255,14 @@ class Appel(MetaModel, models.Model):
     objects = AppelManager()
 
     nom = models.CharField(u"nom", max_length=255, blank=True,
-            help_text=u"À défaut d'un type de bourse qui convienne, expliquez la nature de votre appel.")
+            help_text=(
+            u'À défaut d\'un type de ebourse qui convienne, expliquez '
+            'la nature de votre appel.'))
+    etat = models.CharField(
+            max_length=2,
+            choices=APPEL_ETAT_CHOICES,
+            default='EN',
+            )
     type_bourse = models.ForeignKey(TypeBourse,
             verbose_name=u"Type de bourse",
             blank=True, null=True)
