@@ -306,17 +306,6 @@ class AllocationAdmin(GuardedModelAdmin):
 
     readonly_fields = ()
 
-    fieldsets = [(
-            'Détails', {
-                'fields': (
-                    'dossier',
-                    'allocation_originale',
-                    'desiste',
-                    ('code_operation', 'numero_police_assurance'),
-                    ('date_debut', 'date_fin'),
-                    )
-                })]
-
     def get_form(self, request, obj=None, **kw):
         return allocation_form_factory(request, obj)
 
@@ -325,6 +314,7 @@ class AllocationAdmin(GuardedModelAdmin):
             return (
                 'dossier',
                 'allocation_originale',
+                'allocataire',
                 )
 
     def add_view(self, request, form_url='', extra_context={}):
@@ -345,8 +335,8 @@ class AllocationAdmin(GuardedModelAdmin):
             request, form_url=form_url, extra_context=extra_context))
 
     def change_view(self, *a, **kw):
-        return self.return_to_allocataires(
-            super(AllocationAdmin, self).change_view(*a, **kw))
+        res = super(AllocationAdmin, self).change_view(*a, **kw)
+        return self.return_to_allocataires(res)
 
     def delete_view(self, *a, **kw):
         return self.return_to_allocataires(
@@ -364,6 +354,7 @@ class AllocationAdmin(GuardedModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         if not obj:
+            # If instance.
             return [(
                 'Sélection de l\'allocataire', {
                     'fields': (
@@ -380,7 +371,18 @@ class AllocationAdmin(GuardedModelAdmin):
                             )
                         })]
         else:
-            return super(AllocationAdmin, self).get_fieldsets(request, obj)
+            # If no instance.
+            return [(
+                    'Détails', {
+                        'fields': (
+                            'dossier',
+                            'allocataire',
+                            'allocation_originale',
+                            # 'desiste',
+                            ('code_operation', 'numero_police_assurance'),
+                            ('date_debut', 'date_fin'),
+                            )
+                        })]
 
 
 class AllocataireAdmin(GuardedModelAdmin, AllocationAdminMixin):

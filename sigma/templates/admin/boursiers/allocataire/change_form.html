@@ -25,7 +25,19 @@
 	      <li><label><strong class="label_content">État</strong><span class="dotted">&nbsp;</span></label> {{ alloc.etat }}</li>
 	      <li>
 	        <a href="{% url admin:boursiers_fichefinanciere_change alloc.id %}">Fiche financière</a> | 
-		<a href="{% url admin:boursiers_allocation_change alloc.id %}">Modifier l'allocation</a>
+		<a href="{% url admin:boursiers_allocation_change alloc.id %}">Modifier l'allocation</a> |
+		{% if alloc.desiste %}
+		<a id="undesiste_link_{{alloc.id}}" href="{% url undesiste %}?redirect={% url admin:boursiers_allocataire_change original.pk %}&allocation={{alloc.id}}">Annuler la désistation</a>
+		{% else %}
+		<a id="desiste_link_{{alloc.id}}" href="#">Allocataire désisté</a>
+		<script>
+		  jQuery('#desiste_link_{{alloc.id}}').click(function(){
+		    if (confirm("Veuillez confirmer que vous voulez bien que cette allocataire soit considéré comme \"Désisté\":")) {
+		      location.href = "{% url desiste %}?redirect={% url admin:boursiers_allocataire_change original.pk %}&allocation={{alloc.id}}";
+		    }
+		  });
+		</script>
+		{% endif %}
 	      </li>
 	    </ul>
 	    {% endfor %}

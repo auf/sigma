@@ -66,6 +66,11 @@ class AllocationForm(forms.ModelForm):
         except (Dossier.DoesNotExist, AttributeError):
             dossier = Dossier.objects.get(id=dossier_id)
 
+        if 'allocation_originale' in self.fields:
+            self.fields['allocation_originale'].queryset = (
+                Allocation.objects.filter(dossier=dossier)
+                )
+
         if dossier.appel.code_budgetaire:
             code_budgetaire = dossier.appel.code_budgetaire
             max_code_allocation = Allocation.objects \
@@ -122,10 +127,10 @@ class AllocationForm(forms.ModelForm):
 class ChangerAllocation(AllocationForm):
     def __init__(self, *a, **kw):
         super(ChangerAllocation, self).__init__(*a, **kw)
-        self.fields.pop('dossier')
-        self.fields.pop('allocataire')
-        self.fields.pop('allocation_originale')
         
+    class Meta:
+        exclude = ['dossier', 'allocataire', 'allocation_originale',]
+        model = Allocation
 
 
 class NouvelleAllocation(AllocationForm):
