@@ -166,7 +166,10 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 
 # auf.django.permissions
 
-AUF_PERMISSIONS_RULES = 'sigma.permissions.rules'
+# AUF_PERMISSIONS_RULES = 'sigma.permissions.rules'
+ROLE_PROVIDERS = (
+    'sigma.roles.group_role_provider',
+    )
 
 # auf.django.auth
 

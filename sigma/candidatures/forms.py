@@ -8,7 +8,7 @@ from django.db.models.query import QuerySet
 from django.db.models import Q
 from form_utils.forms import BetterModelForm
 from django.forms import ModelForm
-from auf.django.permissions import get_rules
+# from auf.django.permissions import get_rules
 from auf.django.references.models import Discipline, Etablissement
 
 from sigma.candidatures.models import \
@@ -224,10 +224,11 @@ class ExpertForm(forms.Form):
             self.fields['experts'].queryset = (
                 Expert.objects.get_discipline_match(
                     self.dossiers,
-                    get_rules().filter_queryset(
-                        req.user, 'assign', Expert.objects.all()
-                        )))
-            # import pdb; pdb.set_trace()
+                    # TODO: PERMSS
+                    Expert.objects.all()))
+                    # get_rules().filter_queryset(
+                    #     req.user, 'assign', Expert.objects.all()
+                    #     )))
             self.fields['experts'].widget = (
                 admin.widgets.RelatedFieldWidgetWrapper(
                     admin.widgets.FilteredSelectMultiple(

@@ -2,8 +2,9 @@
 import os
 
 from auf.django.export.admin import ExportAdmin
-from auf.django.permissions import get_rules
-from auf.django.permissions.forms import make_global_permissions_form
+# TODO: PERMSS
+# from auf.django.permissions import get_rules
+# from auf.django.permissions.forms import make_global_permissions_form
 from auf.django.references import models as ref
 from auf.django.workflow.admin import WorkflowAdmin
 from django import forms
@@ -28,14 +29,22 @@ from sigma.candidatures.models import \
 from sigma.candidatures.forms import \
         ConformiteForm, TypeConformiteForm, RequiredInlineFormSet, PieceForm
 from sigma.candidatures.workflow import DOSSIER_ETAT_RETENU
-from sigma.candidatures.filters import RegionFilter, AppelFilter, \
-        RegionOrigineFilter, RegionAccueilFilter, \
-        PaysOrigineFilter, PaysAccueilFilter
+from sigma.candidatures.filters import (
+    RegionFilter,
+    AppelFilter,
+    RegionOrigineFilter,
+    RegionAccueilFilter,
+    PaysOrigineFilter,
+    PaysAccueilFilter,
+    AgeFilter,
+    EtablissementOrigineFilter,
+    )
 from sigma.custom_admin.util import (
     GuardedStackedInline,
     GuardedTabularInline,
     GuardedModelAdmin,
     )
+from sigma.roles import view_requires_perm
 
 
 # Forms
@@ -408,6 +417,14 @@ class AppelAdmin(GuardedModelAdmin):
     class Media:
         js = ("candidatures/appel.js",)
 
+    
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perms('gestion_appels')
+
+    def changelist_view(self, request, extra_context={}):
+        return super(AppelAdmin, self).changelist_view(
+            request, extra_context)
+
     def _actions(self, obj):
         return "<a href='%s?%s=%s'>Voir les dossiers</a>" % \
                 (reverse('admin:candidatures_dossier_changelist'),
@@ -427,10 +444,11 @@ class AppelAdmin(GuardedModelAdmin):
     region_code.admin_order_field = 'region'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'region':
-            kwargs['queryset'] = get_rules().filter_queryset(
-                request.user, 'manage', ref.Region.objects.all()
-            )
+        # TODO: PERMSS
+        # if db_field.name == 'region':
+        #     kwargs['queryset'] = get_rules().filter_queryset(
+        #         request.user, 'manage', ref.Region.objects.all()
+        #     )
         return super(AppelAdmin, self).formfield_for_foreignkey(
             db_field, request, **kwargs
         )
@@ -466,11 +484,15 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
         form = super(DossierAdmin, self).get_form(request, obj)
         form.base_fields['appel'].queryset = Appel.objects.filter(
             etat='EN',
-            region__in=get_rules().filter_queryset(
-                request.user, 'manage', ref.Region.objects.all()
-                )
+            # TODO: PERMSS
+            # region__in=get_rules().filter_queryset(
+            #     request.user, 'manage', ref.Region.objects.all()
+            #     )
             )
         return form
+
+    # def change_view(self, *a, **kw):
+    #     res = super(DossierAdmin, self).change_view(*a, **kw)
 
     add_form_template = "admin/candidatures/dossier/change_form.html"
     change_form_template = "admin/candidatures/dossier/change_form.html"
@@ -494,9 +516,16 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     list_display_links = ('nom', 'prenom')
     list_editable = ('a_verifier', )
     list_filter = (
-        AppelFilter, 'etat', 'a_verifier', 'discipline', 
-        RegionOrigineFilter, RegionAccueilFilter,
-        PaysOrigineFilter, PaysAccueilFilter,
+        AppelFilter,
+        AgeFilter,
+        'etat',
+        'a_verifier',
+        'discipline', 
+        EtablissementOrigineFilter,
+        RegionOrigineFilter,
+        RegionAccueilFilter,
+        PaysOrigineFilter,
+        PaysAccueilFilter,
     )
     search_fields = ('appel__nom', 'candidat__nom', 'candidat__prenom',
                      'candidat__nom_jeune_fille', 'discipline__code',
@@ -572,10 +601,11 @@ class DossierAdmin(GuardedModelAdmin, WorkflowAdmin, ExportAdmin):
     _region.short_description = "Région"
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == 'experts':
-            kwargs['queryset'] = get_rules().filter_queryset(
-                request.user, 'assign', Expert.objects.all()
-            )
+        # TODO: PERMSS
+        # if db_field.name == 'experts':
+        #     kwargs['queryset'] = get_rules().filter_queryset(
+        #         request.user, 'assign', Expert.objects.all()
+        #     )
         return super(DossierAdmin, self).formfield_for_manytomany(
             db_field, request, **kwargs
         )
@@ -710,11 +740,13 @@ class ExpertAdmin(GuardedModelAdmin):
 
     def get_actions(self, request):
         actions = super(ExpertAdmin, self).get_actions(request)
-        for region in get_rules().filter_queryset(
-            request.user,
-            'manage',
-            ref.Region.objects.all()
-            ):
+        for region in reg.Region.objects.all():
+        # TODO: PERMSS
+        # for region in get_rules().filter_queryset(
+        #     request.user,
+        #     'manage',
+        #     ref.Region.objects.all()
+        #     ):
             def assign_experts(modeladmin, request, qs):
                 qs.update(region=region)
             action_name = 'assigner_experts_a_region_%s' % region.code
@@ -756,10 +788,11 @@ class ExpertAdmin(GuardedModelAdmin):
     _disciplines.short_description = "Disciplines"
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'region':
-            kwargs['queryset'] = get_rules().filter_queryset(
-                request.user, 'manage', ref.Region.objects.all()
-            )
+        # TODO: PERMSS
+        # if db_field.name == 'region':
+        #     kwargs['queryset'] = get_rules().filter_queryset(
+        #         request.user, 'manage', ref.Region.objects.all()
+        #     )
         return super(ExpertAdmin, self).formfield_for_foreignkey(
             db_field, request, **kwargs
         )
@@ -776,12 +809,13 @@ class AttributWCSAdmin(GuardedModelAdmin):
 # Admin pour le système d'authentification
 
 GLOBAL_PERMISSIONS = (
-    ('gerer_appels', u"Peut gérer les appels d'offres"),
-    ('gerer_dossiers', u"Peut gérer les dossiers de candidature"),
-    ('gerer_allocations', u"Peut gérer les allocations"),
-    ('gerer_allocataires', u"Peut gérer les allocataires"),
-    ('gerer_experts', u"Peut gérer les experts"),
-    ('configurer_sigma', u"Peut configurer SIGMA"),
+    # TODO: PERMSS
+    # ('gerer_appels', u"Peut gérer les appels d'offres"),
+    # ('gerer_dossiers', u"Peut gérer les dossiers de candidature"),
+    # ('gerer_allocations', u"Peut gérer les allocations"),
+    # ('gerer_allocataires', u"Peut gérer les allocataires"),
+    # ('gerer_experts', u"Peut gérer les experts"),
+    # ('configurer_sigma', u"Peut configurer SIGMA"),
     )
 
 
@@ -821,7 +855,9 @@ class UserForm(DjangoUserForm):
 
 
 class UserAdmin(DjangoUserAdmin):
-    form = make_global_permissions_form(UserForm, GLOBAL_PERMISSIONS)
+    # TODO: PERMSS
+    form = UserForm
+    # form = make_global_permissions_form(UserForm, GLOBAL_PERMISSIONS)
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Informations personnelles', {
@@ -844,7 +880,9 @@ class GroupForm(forms.ModelForm):
 
 
 class GroupAdmin(DjangoGroupAdmin):
-    form = make_global_permissions_form(GroupForm, GLOBAL_PERMISSIONS)
+    # TODO: PERMSS
+    form = GroupForm
+    # form = make_global_permissions_form(GroupForm, GLOBAL_PERMISSIONS)
     fieldsets = (
         (None, {
             'fields': (

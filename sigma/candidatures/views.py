@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
 
-from auf.django.permissions import get_rules
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages

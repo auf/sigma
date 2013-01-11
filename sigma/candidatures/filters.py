@@ -3,8 +3,12 @@
 from django.contrib import admin
 from django.db.models import Q
 
+from dateutil.relativedelta import relativedelta
+import datetime
+
 from auf.django.references import models as ref
-from auf.django.permissions import get_rules
+# TODO: PERMSS
+# from auf.django.permissions import get_rules
 
 from sigma.candidatures.models import Appel, DossierOrigine, DossierAccueil
 
@@ -13,6 +17,57 @@ NOT_NULL = u'not_null'
 
 # Filtres
 
+class EtablissementOrigineFilter(admin.SimpleListFilter):
+    title = 'Établissement d\'origine'
+    parameter_name = 'etablissement_origine'
+
+    def lookups(self, request, model_admin):
+        # TODO: PERMSS
+        region_ids = ref.Region.objects.all().values_list('id', flat=True)
+        # region_ids = get_rules().filter_queryset(
+        #     request.user, 'manage', ref.Region.objects.all()
+        # ).values_list('id', flat=True)
+        return [
+            ('etab_%s' % x[0], x[1]) for x in
+            (ref.Etablissement.objects.filter(region__in=region_ids)
+             .values_list('id', 'nom'))]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(
+                origine__etablissement=self.value().split('etab_')[1],
+                )
+        return queryset
+
+
+class AgeFilter(admin.SimpleListFilter):
+    title = 'âge'
+    parameter_name = 'age'
+
+    def lookups(self, request, model_admin):
+        return [(str('age_%s' % x), str(x)) for x in range(10,110)]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            today = datetime.date.today()
+
+            # If using integer, field won't auto select after
+            # filtering.
+            value = int(self.value().split('age_')[1])
+            return queryset.filter(
+                candidat__naissance_date__gt=(
+                    today -
+                    relativedelta(years=value + 1)),
+                candidat__naissance_date__lte=(
+                    today -
+                    relativedelta(years=value)
+                    ),
+                )
+            return queryset.filter(appel=self.value())
+        else:
+            return queryset
+
+
 class RegionFilter(admin.SimpleListFilter):
     title = 'région'
     parameter_name = 'region'
@@ -20,11 +75,13 @@ class RegionFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return [
             (unicode(a), b)
-            for (a, b) in get_rules().filter_queryset(
-                request.user,
-                'manage',
-                ref.Region.objects.all().order_by('nom')
-            ).values_list('id', 'nom')
+            # TODO: PERMSS
+            for (a, b) in ref.Region.objects.all().order_by('nom').values_list('id', 'nom')
+            # for (a, b) in get_rules().filter_queryset(
+            #     request.user,
+            #     'manage',
+            #     ref.Region.objects.all().order_by('nom')
+            # ).values_list('id', 'nom')
         ]
 
     def queryset(self, request, queryset):
@@ -39,9 +96,11 @@ class AppelFilter(admin.SimpleListFilter):
     parameter_name = 'appel'
 
     def lookups(self, request, model_admin):
-        region_ids = get_rules().filter_queryset(
-            request.user, 'manage', ref.Region.objects.all()
-        ).values_list('id', flat=True)
+        # TODO: PERMSS
+        region_ids = ref.Region.objects.all().values_list('id', flat=True)
+        # region_ids = get_rules().filter_queryset(
+        #     request.user, 'manage', ref.Region.objects.all()
+        # ).values_list('id', flat=True)
         return [(unicode(a.id), unicode(a)) for a in \
                 Appel.objects.filter(region__in=region_ids) ]
 
@@ -174,3 +233,5 @@ class PaysAccueilFilter(_PaysFilter):
     def queryset(self, request, queryset):
         return super(PaysAccueilFilter, self).queryset(
             request, queryset, 'accueil')
+
+

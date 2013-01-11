@@ -3,7 +3,8 @@
 
 from django.contrib import admin
 from django.contrib.admin.options import BaseModelAdmin
-from auf.django.permissions import get_rules
+from django.http import HttpResponseForbidden
+# from auf.django.permissions import get_rules
 
 
 class ModelAdmin(admin.ModelAdmin):
@@ -21,6 +22,7 @@ class ModelAdmin(admin.ModelAdmin):
 
 class GuardedAdmin(object):
 
+    pass
     # Seuls les superusers peuvent delete. (Ticket 4862)
     def has_delete_permission(self, request, obj=None):
         if request.user.is_superuser:
@@ -28,11 +30,14 @@ class GuardedAdmin(object):
         return False
 
     def has_change_permission(self, request, obj=None):
-        if obj is not None:
-            return request.user.has_perm('change', obj)
-        else:
-            return super(GuardedAdmin, self) \
-                    .has_change_permission(request, obj)
+        # TODO: PERMSS
+        return super(GuardedAdmin, self) \
+            .has_change_permission(request, obj)
+        # if obj is not None:
+        #     return request.user.has_perm('change', obj)
+        # else:
+        #     return super(GuardedAdmin, self) \
+        #             .has_change_permission(request, obj)
 
     def get_actions(self, request):
         #Remove delete action from list if not superuser (Ticket 4862)
@@ -42,12 +47,13 @@ class GuardedAdmin(object):
         return actions
 
     def queryset(self, request):
-        return get_rules().filter_queryset(
-            request.user,
-            'change',
-            super(GuardedAdmin, self).queryset(request),
-            )
-
+        # TODO: PERMSS
+        return super(GuardedAdmin, self).queryset(request)
+        # return get_rules().filter_queryset(
+        #     request.user,
+        #     'change',
+        #     super(GuardedAdmin, self).queryset(request),
+        #     )
 
 # Je crois qu'il est preferable de garder l'ordre des deux mixin comme
 # tel, pour s'assurer que super(GuardedAdmin, self)... fasse un call a
